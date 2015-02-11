@@ -1,6 +1,8 @@
 # from distutils.core import setup, find_packages
 from setuptools import setup, find_packages
 
+files = ["libs/translations/excel/*.json"]
+
 setup(
     name='openvas_to_report',
     version='1.0.0',
@@ -9,6 +11,7 @@ setup(
     install_requires=["xlsxwriter"],
     license='BSD',
     author='cr0hn',
+    package_data={'openvas_to_report': files},
     author_email='cr0hn<-at->cr0hn.com',
     description='OpenVAS2Report: A set of tools to manager OpenVAS XML report files.',
     entry_points={'console_scripts': [

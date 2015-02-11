@@ -1,0 +1,2 @@
+recursive-include openvas_to_report *.json
+recursive-exclude openvas_to_report test*
