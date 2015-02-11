@@ -35,7 +35,7 @@ This package are composed by 2 tools:
 + **openvas_to_document**: This is the main program. You can use it to generate the Excel file.
 + **openvas_cutter**: This is a facility for filter and crop some information from OpenVAS XML report.
 
-A picture is worth a 1000 words From XML. Using :samp:`openvas_to_document.py` you can obtain this Excel file:
+A picture is worth a 1000 words From XML. Using :samp:`openvas_to_document` you can obtain this Excel file:
 
 .. image:: ../../images/excel1.png
 

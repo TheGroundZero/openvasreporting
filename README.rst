@@ -2,15 +2,16 @@
 OpenVAS2Report
 ==============
 
-.. figure:: doc/images/logo.png
+.. figure:: openvas_to_report/doc/images/logo.png
     :align: left
+    :scale: 80%
 
 *OpenVAS XML report to human-friendly converter*
 
 :Code:          https://github.com/cr0hn/openvas2report
 :Issues:        https://github.com/cr0hn/openvas2report/issues
 :Documentation HTML [EN]: http://openvas2report.readthedocs.org
-:Version:   Python 3
+:Python version:   Python 3
 
 What's OpenVAS2Report?
 ======================
@@ -36,9 +37,9 @@ This package are composed by 2 tools:
 + **openvas_cutter**: This is a facility for filter and crop some information from OpenVAS XML report.
 + **as a library**: Also, you can use the tool as a library and import them it in your own code. It has BSD license, Feel free to use!
 
-A picture is worth a 1000 words From XML. Using :samp:`openvas_to_document.py` you can obtain this Excel file:
+A picture is worth a 1000 words From XML. Using openvas_to_document you can obtain this Excel file:
 
-.. image:: ../../images/excel1.png
+.. image:: openvas_to_report/doc/images/excel1.png
 
 
 Future
