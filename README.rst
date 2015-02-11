@@ -3,8 +3,7 @@ OpenVAS2Report
 ==============
 
 .. figure:: openvas_to_report/doc/images/logo.png
-    :align: left
-    :scale: 80%
+    :align: center
 
 *OpenVAS XML report to human-friendly converter*
 
