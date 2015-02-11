@@ -15,7 +15,7 @@ What's OpenVAS 2 Report
 
 The idea is very simple:
 
-#. Take an OpenVAS report, in it horrible XML formart.
+#. Take an OpenVAS report, in it horrible XML format.
 #. Convert it into an beautiful Excel, ready to give to your boss.
 
 

@@ -17,7 +17,7 @@ What's OpenVAS2Report?
 
 The idea is very simple:
 
-# Take an OpenVAS report, in it horrible XML formart.
+# Take an OpenVAS report, in it horrible XML format.
 # Convert it into an beautiful Excel, ready to give to your boss.
 
 Why?
@@ -30,14 +30,15 @@ So I started to develop this project and I thought share it for help other audit
 OpenVAS to in two words
 =======================
 
+This package are composed by 2 tools:
 
-.. figure:: doc/images/airplay_xml.png
++ **openvas_to_document**: This is the main program. You can use it to generate the Excel file.
++ **openvas_cutter**: This is a facility for filter and crop some information from OpenVAS XML report.
++ **as a library**: Also, you can use the tool as a library and import them it in your own code. It has BSD license, Feel free to use!
 
+A picture is worth a 1000 words From XML. Using :samp:`openvas_to_document.py` you can obtain this Excel file:
 
-.. figure:: doc/images/excel1.png
-
-
-.. figure:: doc/images/excel2.png
+.. image:: ../../images/excel1.png
 
 
 Future
