@@ -1,0 +1,345 @@
+<report id="f22d1776-ddc8-46ad-937b-371b10709a2d" format_id="a994b278-1f62-11e1-96ac-406186ea4fc5" extension="xml" type="scan" content_type="text/xml"><report id="f22d1776-ddc8-46ad-937b-371b10709a2d"><report_format></report_format><sort><field>type<order>descending</order></field></sort><filters id="0">hmlgf<term>sort-reverse=type result_hosts_only=1 min_cvss_base= levels=hmlgf autofp=0 show_closed_cves=0 notes=1 overrides=1 first=1 rows=37 delta_states=gn</term><phrase></phrase><autofp>0</autofp><show_closed_cves>0</show_closed_cves><notes>1</notes><overrides>1</overrides><apply_overrides>1</apply_overrides><result_hosts_only>1</result_hosts_only><min_cvss_base></min_cvss_base><filter>High</filter><filter>Medium</filter><filter>Low</filter><filter>Log</filter><filter>False Positive</filter></filters><scan_run_status>Done</scan_run_status><task id="381cacb5-2178-48ef-8d52-8960dadca92b"><name>airplay</name><comment></comment><target id="94391b2a-7fbe-41f0-8743-93b71385c414"><trash>0</trash></target></task><scan_start>2014-05-08T10:28:57Z</scan_start><ports max="37" start="1"><port>microsoft-ds (445/tcp)<host>10.0.1.1</host><threat>High</threat></port><port>ndmp (10000/tcp)<host>10.0.1.1</host><threat>High</threat></port><port>domain (53/udp)<host>10.0.1.1</host><threat>Medium</threat></port><port>general/tcp<host>10.0.1.1</host><threat>Medium</threat></port><port>afpovertcp (548/tcp)<host>10.0.1.1</host><threat>Low</threat></port><port>general/SMBClient<host>10.0.1.1</host><threat>Low</threat></port><port>domain (53/tcp)<host>10.0.1.1</host><threat>Log</threat></port><port>general/CPE-T<host>10.0.1.1</host><threat>Log</threat></port><port>general/HOST-T<host>10.0.1.1</host><threat>Log</threat></port><port>netbios-ns (137/udp)<host>10.0.1.1</host><threat>Log</threat></port><port>netbios-ssn (139/tcp)<host>10.0.1.1</host><threat>Log</threat></port><port>ultima-online-game (5009/tcp)<host>10.0.1.1</host><threat>Log</threat></port></ports><results max="37" start="1"><result id="4a1b5c3c-e6a7-42fc-a1d3-b10248ba6c1d"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>microsoft-ds (445/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.902269"><name>Microsoft Windows SMB Server NTLM Multiple Vulnerabilities (971468)</name><family>Windows : Microsoft Bulletins</family><cvss_base>10.0</cvss_base><risk_factor>Critical</risk_factor><cve>CVE-2010-0020, CVE-2010-0021, CVE-2010-0022, CVE-2010-0231</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:C/I:C/A:C|impact=Successful exploitation will allow remote attackers to execute arbitrary
+  code or cause a denial of service or bypass the authentication mechanism
+  via brute force technique.
+  Impact Level: System/Application|affected=Microsoft Windows 7
+  Microsoft Windows 2000 Service Pack and prior
+  Microsoft Windows XP Service Pack 3 and prior
+  Microsoft Windows Vista Service Pack 2 and prior
+  Microsoft Windows Server 2003 Service Pack 2 and prior
+  Microsoft Windows Server 2008 Service Pack 2 and prior|insight=- An input validation error exists while processing SMB requests and can
+    be exploited to cause a buffer overflow via a specially crafted SMB packet.
+  - An error exists in the SMB implementation while parsing SMB packets during
+    the Negotiate phase causing memory corruption via a specially crafted SMB
+    packet.
+  - NULL pointer dereference error exists in SMB while verifying the &apos;share&apos;
+    and &apos;servername&apos; fields in SMB packets causing denial of service.
+  - A lack of cryptographic entropy when the SMB server generates challenges
+    during SMB NTLM authentication and can be exploited to bypass the
+    authentication mechanism.|solution=Run Windows Update and update the listed hotfixes or download and
+  update mentioned hotfixes in the advisory from the below link,
+  http://www.microsoft.com/technet/security/bulletin/ms10-012.mspx|summary=This host is missing a critical security update according to
+  Microsoft Bulletin MS10-012.</tags><cert><cert_ref id="DFN-CERT-2010-0192" type="DFN-CERT"></cert_ref></cert><xref>URL:http://secunia.com/advisories/38510/, URL:http://support.microsoft.com/kb/971468, URL:http://www.vupen.com/english/advisories/2010/0345, URL:http://www.microsoft.com/technet/security/bulletin/ms10-012.mspx</xref></nvt><threat>High</threat><description>
+  Summary:
+  This host is missing a critical security update according to
+  Microsoft Bulletin MS10-012.
+
+  Vulnerability Insight:
+  - An input validation error exists while processing SMB requests and can
+    be exploited to cause a buffer overflow via a specially crafted SMB packet.
+  - An error exists in the SMB implementation while parsing SMB packets during
+    the Negotiate phase causing memory corruption via a specially crafted SMB
+    packet.
+  - NULL pointer dereference error exists in SMB while verifying the &apos;share&apos;
+    and &apos;servername&apos; fields in SMB packets causing denial of service.
+  - A lack of cryptographic entropy when the SMB server generates challenges
+    during SMB NTLM authentication and can be exploited to bypass the
+    authentication mechanism.
+
+  Impact:
+  Successful exploitation will allow remote attackers to execute arbitrary
+  code or cause a denial of service or bypass the authentication mechanism
+  via brute force technique.
+  Impact Level: System/Application
+
+  Affected Software/OS:
+  Microsoft Windows 7
+  Microsoft Windows 2000 Service Pack and prior
+  Microsoft Windows XP Service Pack 3 and prior
+  Microsoft Windows Vista Service Pack 2 and prior
+  Microsoft Windows Server 2003 Service Pack 2 and prior
+  Microsoft Windows Server 2008 Service Pack 2 and prior
+
+  Solution:
+  Run Windows Update and update the listed hotfixes or download and
+  update mentioned hotfixes in the advisory from the below link,
+  http://www.microsoft.com/technet/security/bulletin/ms10-012.mspx
+</description><original_threat>High</original_threat><notes></notes><overrides></overrides></result><result id="0eb1b427-0c5a-4b79-b14f-689f37769742"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ndmp (10000/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.11157"><name>Trojan horses</name><family>Malware</family><cvss_base>10.0</cvss_base><risk_factor>Critical</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:C/I:C/A:C|solution=if a trojan horse is running, run a good antivirus scanner|summary=An unknown service runs on this port. 
+It is sometimes opened by Trojan horses. 
+Unless you know for sure what is behind it, you&apos;d better
+check your system.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>High</threat><description>An unknown service runs on this port.
+It is sometimes opened by this/these Trojan horse(s):
+ Dumaru.Y
+ OpwinTRojan
+
+Unless you know for sure what is behind it, you&apos;d better
+check your system
+
+*** Anyway, don&apos;t panic, OpenVAS only found an open port. It may
+*** have been dynamically allocated to some service (RPC...)
+
+Solution: if a trojan horse is running, run a good antivirus scanner
+</description><original_threat>High</original_threat><notes></notes><overrides></overrides></result><result id="4cf17861-2e5f-4397-a77a-d5cff7ca3488"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>domain (53/udp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.100251"><name>ISC BIND 9 Remote Dynamic Update Message Denial of Service Vulnerability</name><family>Denial of Service</family><cvss_base>4.3</cvss_base><risk_factor>Medium</risk_factor><cve>CVE-2009-0696</cve><bid>35848</bid><tags>cvss_base_vector=AV:N/AC:M/Au:N/C:N/I:N/A:P|solution=The vendor released an advisory and fixes to address this issue.
+Please see the references for more information.|summary=ISC BIND is prone to a remote denial-of-service vulnerability because
+the application fails to properly handle specially crafted dynamic
+update requests.
+
+Successfully exploiting this issue allows remote attackers to crash
+affected DNS servers, denying further service to legitimate users.
+
+Versions prior to BIND 9.4.3-P3, 9.5.1-P3, and 9.6.1-P1 are
+vulnerable.</tags><cert><cert_ref id="DFN-CERT-2010-1727" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2010-0890" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1667" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1644" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1330" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1085" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1083" type="DFN-CERT"></cert_ref><cert_ref id="DFN-CERT-2009-1082" type="DFN-CERT"></cert_ref></cert><xref>URL:http://www.securityfocus.com/bid/35848, URL:https://bugzilla.redhat.com/show_bug.cgi?id=514292, URL:http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=538975, URL:http://www.isc.org/products/BIND/, URL:https://www.isc.org/node/474, URL:http://www.kb.cert.org/vuls/id/725188</xref></nvt><threat>Medium</threat><description>
+
+ Summary:
+ ISC BIND is prone to a remote denial-of-service vulnerability because
+the application fails to properly handle specially crafted dynamic
+update requests.
+
+Successfully exploiting this issue allows remote attackers to crash
+affected DNS servers, denying further service to legitimate users.
+
+Versions prior to BIND 9.4.3-P3, 9.5.1-P3, and 9.6.1-P1 are
+vulnerable.
+ Solution:
+ The vendor released an advisory and fixes to address this issue.
+Please see the references for more information.
+
+** It seems that OpenVAS was able to crash the remote Bind.
+Please check its status right now.
+
+</description><original_threat>Medium</original_threat><notes></notes><overrides></overrides></result><result id="b83c97fb-fc2a-480c-a362-edc4267aa53a"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.902815"><name>TCP Sequence Number Approximation Reset Denial of Service Vulnerability</name><family>Denial of Service</family><cvss_base>5.0</cvss_base><risk_factor>Medium</risk_factor><cve>CVE-2004-0230</cve><bid>10183</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:P|summary=The host is running TCP services and is prone to denial of service
+vulnerability.|vuldetect=A TCP Reset packet with a different sequence number is sent to
+the target. A previously open connection is then checked to see if the target
+closed it or not.|solution=Please see the referenced advisories for more information on obtaining
+and applying fixes.|insight=The flaw is triggered when spoofed TCP Reset packets are received by the
+targeted TCP stack and will result in loss of availability for the attacked
+TCP services.|affected=TCP/IP v4|impact=Successful exploitation will allow remote attackers to guess sequence numbers
+and cause a denial of service to persistent TCP connections by repeatedly
+injecting a TCP RST packet.</tags><cert></cert><xref>URL:http://www.osvdb.org/4030, URL:http://xforce.iss.net/xforce/xfdb/15886, URL:http://www.us-cert.gov/cas/techalerts/TA04-111A.html, URL:http://www-01.ibm.com/support/docview.wss?uid=isg1IY55949, URL:http://www-01.ibm.com/support/docview.wss?uid=isg1IY55950, URL:http://www-01.ibm.com/support/docview.wss?uid=isg1IY62006, URL:http://www.microsoft.com/technet/security/Bulletin/MS05-019.mspx, URL:http://www.microsoft.com/technet/security/bulletin/ms06-064.mspx, URL:http://www.cisco.com/en/US/products/csa/cisco-sa-20040420-tcp-nonios.html, URL:http://www.cisco.com/en/US/products/csa/cisco-sa-20040420-tcp-nonios.html</xref></nvt><threat>Medium</threat><description></description><original_threat>Medium</original_threat><notes></notes><overrides></overrides></result><result id="eb93b5a7-f358-409c-9db6-8573d9cd8b60"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.11834"><name>Source routed packets</name><family>Firewalls</family><cvss_base>3.3</cvss_base><risk_factor>Medium</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:L/AC:M/Au:N/C:N/I:P/A:P|solution=drop source routed packets on this host or on other ingress
+routers or firewalls.|summary=The remote host accepts loose source routed IP packets.
+The feature was designed for testing purpose.
+An attacker may use it to circumvent poorly designed IP filtering 
+and exploit another flaw. However, it is not dangerous by itself.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Medium</threat><description>
+ Summary:
+ The remote host accepts loose source routed IP packets.
+The feature was designed for testing purpose.
+An attacker may use it to circumvent poorly designed IP filtering 
+and exploit another flaw. However, it is not dangerous by itself.
+ Solution:
+ drop source routed packets on this host or on other ingress
+routers or firewalls.
+</description><original_threat>Medium</original_threat><notes></notes><overrides></overrides></result><result id="8307e958-72ce-421d-a946-1af2e9096183"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>afpovertcp (548/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.10666"><name>AppleShare IP Server status query</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=File sharing service is available.
+
+Description :
+
+The remote host is running an AppleShare IP file service.
+By sending DSIGetStatus request on tcp port 548, it was
+possible to disclose information about the remote host.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Low</threat><description>
+   Summary:
+   File sharing service is available.
+
+Description :
+
+The remote host is running an AppleShare IP file service.
+By sending DSIGetStatus request on tcp port 548, it was
+possible to disclose information about the remote host.
+
+Plugin output :
+
+This host is running an AppleShare File Services over IP.
+  Machine type: TimeCapsule8,119
+  Server name: true-false
+  UAMs: DHCAST128/DHX2/SRP/Recon1
+  AFP Versions: AFP3.3/AFP3.2/AFP3.1
+
+</description><original_threat>Low</original_threat><notes></notes><overrides></overrides></result><result id="b82636af-fb1e-422e-b0c2-a0a43d8d3b6c"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/SMBClient</port><nvt oid="1.3.6.1.4.1.25623.1.0.90011"><name>SMB Test</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=Test remote host SMB Functions</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Low</threat><description>OS Version = APPLE BASE STATION
+Domain = WORKGROUP
+SMB Serverversion = CIFS 4.32
+
+</description><original_threat>Low</original_threat><notes></notes><overrides></overrides></result><result id="9e43f9ed-a838-4dce-abcb-6110db654b31"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/SMBClient</port><nvt oid="1.3.6.1.4.1.25623.1.0.90011"><name>SMB Test</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=Test remote host SMB Functions</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Low</threat><description>OS Version = Apple Base Station
+Domain = WORKGROUP
+SMB Serverversion = CIFS 4.32
+
+</description><original_threat>Low</original_threat><notes></notes><overrides></overrides></result><result id="08980c67-ec57-4caf-9d1c-3d276ba1e43b"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>afpovertcp (548/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="e4f81aea-1fde-46f8-a341-1b182936cf52"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>afpovertcp (548/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.103441"><name>Check for supported SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This Plugin report about supported SSL Ciphers.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="16aa1d5c-2774-40a9-825c-cadc7a1709bb"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>afpovertcp (548/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.802067"><name>Check for SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This routine search for SSL ciphers offered by a service.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="4081e10a-f4d8-4a22-b8c5-2dc2c05bcc50"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>domain (53/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="f85c84f1-1c68-4e4a-aced-db02d9ee0463"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>domain (53/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.100069"><name>DNS Server Detection</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=A DNS Server is running at this Host.
+A Name Server translates domain names into IP addresses. This makes it
+possible for a user to access a website by typing in the domain name instead of
+the website&apos;s actual IP address.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+ Summary:
+ A DNS Server is running at this Host.
+A Name Server translates domain names into IP addresses. This makes it
+possible for a user to access a website by typing in the domain name instead of
+the website&apos;s actual IP address.
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="936eac3c-c8f7-4c7a-9880-b5149e31fecd"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>domain (53/udp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.100069"><name>DNS Server Detection</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=A DNS Server is running at this Host.
+A Name Server translates domain names into IP addresses. This makes it
+possible for a user to access a website by typing in the domain name instead of
+the website&apos;s actual IP address.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+ Summary:
+ A DNS Server is running at this Host.
+A Name Server translates domain names into IP addresses. This makes it
+possible for a user to access a website by typing in the domain name instead of
+the website&apos;s actual IP address.
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="9d667e82-73b3-463e-807e-c0e20130f34d"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/CPE-T</port><nvt oid="1.3.6.1.4.1.25623.1.0.810002"><name>CPE Inventory</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This routine uses information collected by other routines about
+CPE identities (http://cpe.mitre.org/) of operating systems, services and
+applications detected during the scan.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>10.0.1.1|cpe:/o:microsoft:windows
+
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="412ccdbb-8e0d-4590-bbd6-be5923dbef8a"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/HOST-T</port><nvt oid="1.3.6.1.4.1.25623.1.0.810003"><name>Host Summary</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This NVT summarizes technical information about the scanned host
+collected during the scan.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>traceroute:10.211.55.47,10.0.1.1
+TCP ports:548,445,139,10000,5009,53
+UDP ports:
+
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="ea1cc979-2743-49e4-937d-891b113fa4f9"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.80103"><name>3com switch2hub</name><family>Denial of Service</family><cvss_base>7.8</cvss_base><risk_factor>High</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:C|solution=Lock Mac addresses on each port of the remote switch or
+buy newer switch.|summary=The remote host is subject to the 
+switch to hub flood attack. 
+
+Description :
+The remote host on the local network seems to be connected
+through a switch which can be turned into a hub when flooded
+by different mac addresses.
+The theory is to send a lot of packets (&gt; 1000000) to the
+port of the switch we are connected to, with random mac
+addresses. This turns the switch into learning mode, where
+traffic goes everywhere.
+An attacker may use this flaw in the remote switch
+to sniff data going to this host
+
+Reference : 
+http://www.securitybugware.org/Other/2041.html</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Fake IP address not specified. Skipping this check. 
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="b9975302-68e7-4f80-9342-3e24af1a5f68"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.102002"><name>OS fingerprinting</name><family>Product detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This script performs ICMP based OS fingerprinting (as described by
+Ofir Arkin and Fyodor Yarochkin in Phrack #57). It can be used to determine
+remote operating system version.</tags><cert></cert><xref>URL:http://www.phrack.org/issues.html?issue=57&amp;amp;id=7#article</xref></nvt><threat>Log</threat><description>ICMP based OS fingerprint results: (65% confidence)
+
+HP JetDirect
+Microsoft Windows
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="a007cedf-d85b-428a-b097-84cf331e79ee"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.103978"><name>Checks for open udp ports</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=Collects all open UDP ports of the UDP ports identified so far.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Open UDP ports: [None found]
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="4140e3ea-b9b6-4629-b065-6be3c89a4df1"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.110001"><name>arachni (NASL wrapper)</name><family>Web application abuses</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This plugin uses arachni ruby command line to find  
+web security issues.
+
+See the preferences section for arachni options.
+
+Note that OpenVAS is using limited set of arachni options.
+Therefore, for more complete web assessment, you should
+use standalone arachni tool for deeper/customized checks.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Arachni could not be found in your system path.
+OpenVAS was unable to execute Arachni and to perform the scan you
+requested.
+Please make sure that Arachni is installed and that arachni is
+available in the PATH variable defined for your environment.
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="57addbd8-407e-4180-ba4a-36dee7225c67"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.51662"><name>Traceroute</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|solution=Block unwanted packets from escaping your network.|summary=A traceroute from the scanning server to the target system was
+conducted. This traceroute is provided primarily for informational
+value only. In the vast majority of cases, it does not represent a
+vulnerability. However, if the displayed traceroute contains any
+private addresses that should not have been publicly visible, then you
+have an issue you need to correct.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Here is the route from 10.211.55.47 to 10.0.1.1:
+
+10.211.55.47
+10.0.1.1
+
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="13639065-ec10-412a-912e-4043f1ccf014"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.802726"><name>Microsoft SMB Signing Disabled</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=Checking for SMB signing is disabled.
+
+The script logs in via smb, checks the SMB Negotiate Protocol response to
+confirm SMB signing is disabled.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>SMB signing is disabled on this host
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="c75ac076-22bd-43cd-85a6-e4fc5da31af6"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>general/tcp</port><nvt oid="1.3.6.1.4.1.25623.1.0.900239"><name>Checks for open tcp ports</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=Collects all open tcp ports of the
+tcp ports identified so far.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Open TCP ports: 548, 445, 139, 10000, 5009, 53
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="bab4a7d8-78f0-4604-bfd8-a2fd81031fcd"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>microsoft-ds (445/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="15ad446a-8ffb-4808-ae03-dcfda3ef588d"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>microsoft-ds (445/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.102011"><name>SMB NativeLanMan</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=It is possible to extract OS, domain and SMB server information
+from the Session Setup AndX Response packet which is generated
+during NTLM authentication.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+ Summary:
+ It is possible to extract OS, domain and SMB server information
+from the Session Setup AndX Response packet which is generated
+during NTLM authentication.Detected SMB workgroup: WORKGROUP
+Detected SMB server: CIFS 4.32
+Detected OS: Apple Base Station
+
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="50d0b7f6-8d5e-4bf4-92bf-eccb692b28fb"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>microsoft-ds (445/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.11011"><name>SMB on port 445</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This script detects wether port 445 and 139 are open and
+if thet are running SMB servers.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>A CIFS server is running on this port
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="06b9f783-881e-4ba0-af48-dcd3869a0797"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ndmp (10000/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="a8eddd64-3961-4658-8bcd-27d5cb0478ce"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ndmp (10000/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.103441"><name>Check for supported SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This Plugin report about supported SSL Ciphers.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="237ba71a-1ff8-461c-9b57-6a53a7589e66"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ndmp (10000/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.66286"><name>Identify unknown services with nmap</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This plugin performs service detection by launching nmap&apos;s
+service probe against ports running unidentified services.
+
+Description :
+
+This plugin is a complement of find_service.nasl. It launches
+nmap -sV (probe requests) against ports that are running
+unidentified services.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Nmap service detection result for this port: snet-sensor-mgmt
+This is a guess. A confident identification of the service was not possible.
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="19f94d55-0df4-4f5f-b0f7-e379c562740d"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ndmp (10000/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.802067"><name>Check for SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This routine search for SSL ciphers offered by a service.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="45766c50-718e-4a41-9dda-4d4fd8e07cff"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>netbios-ns (137/udp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.10150"><name>Using NetBIOS to retrieve information from a Windows host</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|solution=Block those ports from outside communication|summary=The NetBIOS port is open (UDP:137). A remote attacker may use this to gain
+access to sensitive information such as computer name, workgroup/domain
+name, currently logged on user name, etc.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>The following 3 NetBIOS names have been gathered :
+ TRUE-FALSE     
+ WORKGROUP      
+ TRUE-FALSE     
+The remote host has the following MAC address on its adapter :
+   90:72:40:0c:1e:58
+
+If you do not want to allow everyone to find the NetBios name
+of your computer, you should filter incoming traffic to this port.
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="17b1338b-2e68-45e9-9717-edad5fb69448"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>netbios-ssn (139/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="5425bb85-9ef1-46f6-b3b1-25deb7532df4"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>netbios-ssn (139/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.103441"><name>Check for supported SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This Plugin report about supported SSL Ciphers.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="5a0ee239-1f84-402c-ae45-d79726352342"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>netbios-ssn (139/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.11011"><name>SMB on port 445</name><family>Windows</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This script detects wether port 445 and 139 are open and
+if thet are running SMB servers.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>An SMB server is running on this port
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="85e142b8-401b-4fa9-87aa-26446420c955"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>netbios-ssn (139/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.802067"><name>Check for SSL Ciphers</name><family>General</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This routine search for SSL ciphers offered by a service.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>
+Service does not support SSLv2 Ciphers.
+
+Service does not support SSLv3 Ciphers.
+
+Service does not support TLSv1 Ciphers.
+
+No medium ciphers are supported by this service
+
+No weak ciphers are supported by this service
+
+No non-ciphers are supported by this service
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="55e7bbe6-c86a-47ac-bb40-cce0cc7bb4c6"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ultima-online-game (5009/tcp)</port><nvt oid="0"><name></name><family></family><cvss_base></cvss_base><risk_factor></risk_factor><cve></cve><bid></bid><tags></tags><cert></cert><xref></xref></nvt><threat>Log</threat><description>Open port.</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result><result id="5d3dc1f8-3630-457c-a021-7714b08dbe5e"><subnet>10.0.1.1</subnet><host>10.0.1.1</host><port>ultima-online-game (5009/tcp)</port><nvt oid="1.3.6.1.4.1.25623.1.0.66286"><name>Identify unknown services with nmap</name><family>Service detection</family><cvss_base>0.0</cvss_base><risk_factor>None</risk_factor><cve>NOCVE</cve><bid>NOBID</bid><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N/A:N|summary=This plugin performs service detection by launching nmap&apos;s
+service probe against ports running unidentified services.
+
+Description :
+
+This plugin is a complement of find_service.nasl. It launches
+nmap -sV (probe requests) against ports that are running
+unidentified services.</tags><cert></cert><xref>NOXREF</xref></nvt><threat>Log</threat><description>Nmap service detection result for this port: airport-admin
+</description><original_threat>Log</original_threat><notes></notes><overrides></overrides></result></results><result_count>39<full>39</full><filtered>37</filtered><debug><full>0</full><filtered>0</filtered></debug><hole><full>2</full><filtered>2</filtered></hole><info><full>3</full><filtered>3</filtered></info><log><full>29</full><filtered>29</filtered></log><warning><full>3</full><filtered>3</filtered></warning><false_positive><full>0</full><filtered>0</filtered></false_positive></result_count><host><ip>10.0.1.1</ip><start>2014-05-08T10:29:01Z</start><end>2014-05-08T10:42:16Z</end><detail><name>OS</name><value>Apple Base Station</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102011</name><description>Extracts info about the OS through NTLM authentication packets</description></source></detail><detail><name>ports</name><value>548,445,139,10000,5009,53</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.900239</name><description>Check Open TCP Ports</description></source></detail><detail><name>tcp_ports</name><value>548,445,139,10000,5009,53</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.900239</name><description>Check Open TCP Ports</description></source></detail><detail><name>OS</name><value>HP JetDirect</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102002</name><description>Detects remote operating system version</description></source></detail><detail><name>OS</name><value>cpe:/h:hp:jetdirect</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102002</name><description>Detects remote operating system version</description></source></detail><detail><name>OS</name><value>Microsoft Windows</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102002</name><description>Detects remote operating system version</description></source></detail><detail><name>OS</name><value>cpe:/o:microsoft:windows</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102002</name><description>Detects remote operating system version</description></source></detail><detail><name>traceroute</name><value>10.211.55.47,10.0.1.1</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.51662</name><description>Traceroute</description></source></detail><detail><name>MAC</name><value>90:72:40:0c:1e:58</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.10150</name><description>Using NetBIOS to retrieve information from a Windows host</description></source></detail><detail><name>best_os_cpe</name><value>cpe:/o:microsoft:windows</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102002</name><description>Detects remote operating system version</description></source></detail><detail><name>best_os_txt</name><value>Apple Base Station</value><source><type>nvt</type><name>1.3.6.1.4.1.25623.1.0.102011</name><description>Extracts info about the OS through NTLM authentication packets</description></source></detail></host><host_start>2014-05-08T10:29:01Z<host>10.0.1.1</host></host_start><host_end>2014-05-08T10:42:16Z<host>10.0.1.1</host></host_end><scan_end>2014-05-08T10:42:16Z</scan_end></report></report>
