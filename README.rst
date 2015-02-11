@@ -7,8 +7,8 @@ OpenVAS2Report
 
 *OpenVAS XML report to human-friendly converter*
 
-:Code:          https://github.com/cr0hn/openvas2report
-:Issues:        https://github.com/cr0hn/openvas2report/issues
+:Code:          https://github.com/cr0hn/openvas_to_report
+:Issues:        https://github.com/cr0hn/openvas_to_report/issues
 :Documentation HTML [EN]: http://openvas-to-report.readthedocs.org/en/latest/
 :Python version:   Python 3
 
