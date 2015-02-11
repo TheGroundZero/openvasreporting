@@ -9,7 +9,7 @@ OpenVAS2Report
 
 :Code:          https://github.com/cr0hn/openvas2report
 :Issues:        https://github.com/cr0hn/openvas2report/issues
-:Documentation HTML [EN]: http://openvas2report.readthedocs.org
+:Documentation HTML [EN]: http://openvas-to-report.readthedocs.org/en/latest/
 :Python version:   Python 3
 
 What's OpenVAS2Report?
