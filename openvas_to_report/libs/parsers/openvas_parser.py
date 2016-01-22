@@ -126,7 +126,7 @@ def openvas_parser(files_path, excluded_hosts=None, scope_hosts=None):
             vuln_id = vuln_id.split(".")[-1]
 
             # Vuln Level
-            vuln_level = nvt_tmp.find(".//risk_factor").text
+            vuln_level = vuln.find(".//threat").text
             if vuln_level:
                 if vuln_level.lower() == "none":
                     continue
