@@ -7,7 +7,7 @@ Installation
 ------------
 
 Install the package is so easy. Simple type this:
-
+x
 .. code-block:: bash
 
     > sudo pip install openvas2document
@@ -26,7 +26,7 @@ Then, you need to use :samp:`openvas_to_document` tool:
 
 .. code-block:: bash
 
-    > openvas_to_document -i my_openvas_report.xml -o generated_excel.xslx
+    > openvas_to_document -i my_openvas_report.xml -o generated_excel.xlsx
 
 For further information go to the :ref:`Openvas to report manual <openvas_to_document_man>`.
 
@@ -59,7 +59,7 @@ You also can use the library in your won code, importing as a usual lib. After i
 
     from openvas_to_report.api import Config, convert
 
-    c = Config(input_files=["input_file.xml"], output_file="results.xslx")
+    c = Config(input_files=["input_file.xml"], output_file="results.xlsx")
     convert(c)
 
 For further information go to the :ref:`Openvas as library manual <openvas_library_man>`.
