@@ -10,7 +10,7 @@ Install the package is so easy. Simple type this:
 x
 .. code-block:: bash
 
-    > sudo pip install openvas2document
+    > sudo pip install openvas-to-report
 
 .. note::
 
