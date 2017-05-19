@@ -231,8 +231,8 @@ def _export_generic_format(output_file_name, vuln_info, lang):
         else:
             name = "%s %s" % (trans["vulnerability"], vuln.id)
 
-		name = re.sub(r"[\[\]\:\*\?\/\\]", "", name)
-		w1 = workbook.add_worksheet(name)
+        name = re.sub(r"[\[\]\:\*\?\/\\]", "", name)
+        w1 = workbook.add_worksheet(name)
 
         # --------------------------------------------------------------------------
         # Columns formats
