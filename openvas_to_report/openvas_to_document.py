@@ -45,7 +45,7 @@ def main():
     parser.add_argument('-o', '--output-file', dest="output_file", help="output .xlsx file, with extension",
                         required=True)
     parser.add_argument('--template', dest="template", help="template to use", default=None)
-    parser.add_argument('--lang', dest="lang", help="language to use", default="es")
+    parser.add_argument('--lang', dest="lang", help="language to use", default="en")
     parser.add_argument('--excluded-hosts', dest="excluded_hosts", help="path to file with hosts to exclude", default=None)
     parser.add_argument('--scope-hosts', dest="scope_hosts", help="path to file with scope hosts", default=None)
 
