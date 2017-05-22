@@ -32,6 +32,7 @@ __all__ = ["export_to_excel"]
 
 from collections import Counter
 
+import re
 import xlsxwriter
 
 from ..data.parsed_data import Vulnerability
@@ -229,6 +230,8 @@ def _export_generic_format(output_file_name, vuln_info, lang):
             name = vuln.name
         else:
             name = "%s %s" % (trans["vulnerability"], vuln.id)
+
+        name = re.sub(r"[\[\]\:\*\?\/\\]", "", name)
         w1 = workbook.add_worksheet(name)
 
         # --------------------------------------------------------------------------
