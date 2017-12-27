@@ -1,3 +1,8 @@
+Looking for help
+================
+
+Currently I haven't time to maintain this project. Help to improve / fix error are welcome :)
+
 ==============
 OpenVAS2Report
 ==============
