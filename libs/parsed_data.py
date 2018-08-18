@@ -2,7 +2,7 @@
 #
 #
 # Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
-# Project URL: TODO
+# Project URL: https://github.com/TheGroundZero/openvas_to_report
 
 """This file contains data structures"""
 

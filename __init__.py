@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 #
-# Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
-# Project URL: TODO
+# Project name: OpenVAS to Report: A tool to convert OpenVAS XML reports into Excel files.
+# Project URL: https://github.com/TheGroundZero/openvas_to_report
 #
 # Copyright
 # This project is based on OpenVAS2Report (https://github.com/cr0hn/openvas_to_report) (c) 2015, cr0hn<-AT->cr0hn.com
