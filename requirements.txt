@@ -1,3 +1,0 @@
-xlsxwriter
-sphinx_rtd_theme
-Pygments

@@ -1,4 +1,0 @@
-pytest
-python-docx
-sphinx_rtd_theme
-Pygments
