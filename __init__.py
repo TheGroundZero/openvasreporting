@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 #
-# Project name: OpenVAS2Report: A set of tools to manager OpenVAS XML report files.
-# Project URL: https://github.com/cr0hn/openvas_to_report
+# Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
+# Project URL: TODO
 #
-# Copyright (c) 2015, cr0hn<-AT->cr0hn.com
+# Copyright
+# This project is based on OpenVAS2Report (https://github.com/cr0hn/openvas_to_report) (c) 2015, cr0hn<-AT->cr0hn.com
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -27,3 +28,8 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+from openvasreporting import main
+
+__author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
+
+main()
