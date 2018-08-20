@@ -173,7 +173,7 @@ def export_to_excel(vuln_info, output_file):
         name = re.sub(r"[\[\]\\\'\"&@#():*?/]", "", vuln.name)
         if len(name) > 27:
             name = "{}..{}".format(name[0:15], name[-10:])
-        name = "{}_{}".format(str(num).zfill(3), name)
+        name = "{:03X}_{}".format(num, name)
         num += 1
         w1 = workbook.add_worksheet(name)
         w1.set_tab_color(Config.colors()[vuln.level.lower()])
