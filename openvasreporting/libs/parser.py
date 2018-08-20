@@ -7,17 +7,20 @@
 import sys
 import logging
 
-from libs.config import Config
-from libs.parsed_data import Host, Port, Vulnerability
+from .config import Config
+from .parsed_data import Host, Port, Vulnerability
 
-logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
+# logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
+#                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
+                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 __all__ = ["openvas_parser"]
 
 try:
-    from xml.etree import cElementTree as ET
+    from xml.etree import cElementTree as Et
 except ImportError:
-    from xml.etree import ElementTree as ET
+    from xml.etree import ElementTree as Et
 
 
 def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
@@ -52,23 +55,43 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
     vulnerabilities = {}
 
     for f_file in input_files:
-        root = ET.parse(f_file).getroot()
+        root = Et.parse(f_file).getroot()
 
-        logging.debug(root)  # DEBUG
+        logging.debug("================================================================================")
+        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
+        logging.debug("================================================================================")
 
         for vuln in root.findall(".//results/result"):
 
-            logging.debug(vuln)  # DEBUG
-
             nvt_tmp = vuln.find(".//nvt")
 
+            # VULN_NAME
+            vuln_name = nvt_tmp.find(".//name").text
+
+            logging.debug("--------------------------------------------------------------------------------")
+            logging.debug("- {}".format(vuln_name))  # DEBUG
+            logging.debug("--------------------------------------------------------------------------------")
+
+            # --------------------
+            #
+            # VULN_ID
+            vuln_id = nvt_tmp.get("oid")
+            if not vuln_id or vuln_id == "0":
+                continue
+            logging.debug("* vuln_id:\t{}".format(vuln_id))  # DEBUG
+
+            # --------------------
+            #
+            # VULN_CVSS
             vuln_cvss = vuln.find(".//severity").text
             if vuln_cvss is None:
                 vuln_cvss = 0.0
             vuln_cvss = float(vuln_cvss)
+            logging.debug("* vuln_cvss:\t{}".format(vuln_cvss))  # DEBUG
 
-            logging.debug("* vuln_cvss: {}".format(vuln_cvss))  # DEBUG
-
+            # --------------------
+            #
+            # VULN_LEVEL
             if vuln_cvss < 0.1:
                 vuln_level = Config.levels()["n"]
                 if min_lvl not in Config.levels()["n"]:
@@ -89,28 +112,58 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
             else:
                 vuln_level = Config.levels()["c"]
 
-            vuln_id = nvt_tmp.get("oid")
-            if not vuln_id or vuln_id == "0":
+            logging.debug("* vuln_level:\t{}".format(vuln_level))  # DEBUG
+
+            # --------------------
+            #
+            # VULN_LEVEL >= MIN_LEVEL (param)?
+            if (min_lvl == Config.levels()["c"] and vuln_level not in (Config.levels()["c"])) or \
+                    (min_lvl == Config.levels()["h"] and vuln_level not in (Config.levels()["c"],
+                                                                            Config.levels()["h"])) or \
+                    (min_lvl == Config.levels()["m"] and vuln_level not in (Config.levels()["c"],
+                                                                            Config.levels()["h"],
+                                                                            Config.levels()["m"])) or \
+                    (min_lvl == Config.levels()["l"] and vuln_level not in (Config.levels()["c"],
+                                                                            Config.levels()["h"],
+                                                                            Config.levels()["m"],
+                                                                            Config.levels()["l"])):
+                logging.debug("  ==> SKIP")  # DEBUG
                 continue
 
-            logging.debug("* vuln_id: {}".format(vuln_id))  # DEBUG
+            # --------------------
+            #
+            # VULN_HOST
+            vuln_host = vuln.find(".//host").text
+            vuln_port = vuln.find(".//port").text
+            logging.debug("* vuln_host:\t{} port:\t{}".format(vuln_host, vuln_port))  # DEBUG
 
+            # --------------------
+            #
+            # VULN_DESCRIPTION
+            vuln_description = vuln.find(".//description").text
+            logging.debug("* vuln_desc:\t{}".format(vuln_description))  # DEBUG
+
+            # --------------------
+            #
+            # VULN_THREAT
             vuln_threat = vuln.find(".//threat").text
             if vuln_threat is None:
                 vuln_threat = Config.levels()["n"]
             else:
                 vuln_threat = vuln_threat.lower()
 
-            logging.debug("* vuln_threat: {}".format(vuln_threat))  # DEBUG
+            logging.debug("* vuln_threat:\t{}".format(vuln_threat))  # DEBUG
 
-            vuln_name = nvt_tmp.find(".//name").text
-
-            logging.debug("* vuln_name: {}".format(vuln_name))  # DEBUG
-
+            # --------------------
+            #
+            # VULN_FAMILY
             vuln_family = nvt_tmp.find(".//family").text
 
-            logging.debug("* vuln_family: {}".format(vuln_family))  # DEBUG
+            logging.debug("* vuln_family:\t{}".format(vuln_family))  # DEBUG
 
+            # --------------------
+            #
+            # VULN_CVES
             vuln_cves = nvt_tmp.find(".//cve").text
             if vuln_cves:
                 if vuln_cves.lower() == "nocve":
@@ -118,8 +171,11 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
                 else:
                     vuln_cves = [vuln_cves.lower()]
 
-            logging.debug("* vuln_cves: {}".format(vuln_cves))  # DEBUG
+            logging.debug("* vuln_cves:\t{}".format(vuln_cves))  # DEBUG
 
+            # --------------------
+            #
+            # VULN_REFERENCES
             vuln_references = nvt_tmp.find(".//xref").text
             if vuln_references:
                 if vuln_references.lower() == "noxref":
@@ -130,15 +186,11 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
                     tmp2 = tmp1[tmp1_init + 4:].split(",")
                     vuln_references = [x.strip() for x in tmp2]
 
-            logging.debug("* vuln_references: {}".format(vuln_references))  # DEBUG
+            logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
 
-            vuln_host = vuln.find(".//host").text
-            vuln_port = vuln.find(".//port").text
-            logging.debug("* vuln_host: {} port: {}".format(vuln_host, vuln_port))  # DEBUG
-
-            vuln_description = vuln.find(".//description").text
-            logging.debug("* vuln_description: {}".format(vuln_description))  # DEBUG
-
+            # --------------------
+            #
+            # STORE VULN_HOSTS PER VULN
             host = Host(vuln_host)
             try:
                 port = Port.string2port(vuln_port)

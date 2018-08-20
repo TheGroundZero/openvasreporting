@@ -28,7 +28,7 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 ## Usage
 
-    python3 openvasreporting.py -i [OpenVAS xml file(s)] -o [Report output file.xlsx] [-l [minimal threat level (n, l, m, h, c)]]
+    python3 -m openvasreporting -i [OpenVAS xml file(s)] -o [Report output file.xlsx] [-l [minimal threat level (n, l, m, h, c)]]
 
 ### Create Excel report from 1 OpenVAS XML report using default settings
 

@@ -9,8 +9,8 @@ import xlsxwriter
 
 from collections import Counter
 
-from libs.config import Config
-from libs.parsed_data import Vulnerability
+from .config import Config
+from .parsed_data import Vulnerability
 
 __all__ = ["export_to_excel"]
 
@@ -71,6 +71,9 @@ def export_to_excel(vuln_info, output_file):
         vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
         vuln_by_family[vuln.family] += 1
 
+    # ====================
+    # SUMMARY SHEET
+    # ====================
     sheet_name = "Summary"
     ws = workbook.add_worksheet(sheet_name)
     ws.set_tab_color(Config.colors()['blue'])
@@ -79,7 +82,10 @@ def export_to_excel(vuln_info, output_file):
     ws.set_column("C:C", 24, format_align_center)
     ws.set_column("D:D", 20, format_align_center)
 
-    ws.merge_range("B2:D2", "vuln summary", format_sheet_title_content)
+    # --------------------
+    # VULN SUMMARY
+    # --------------------
+    ws.merge_range("B2:D2", "VULNERABILITY SUMMARY", format_sheet_title_content)
     ws.write("B3", "Threat", format_table_titles)
     ws.write("C3", "Vulns number", format_table_titles)
     ws.write("D3", "Affected hosts", format_table_titles)
@@ -102,18 +108,22 @@ def export_to_excel(vuln_info, output_file):
     ws.write("C7", vuln_levels["low"], format_align_border)
     ws.write("D7", vuln_host_by_level["low"], format_align_border)
 
-    ws.write("C8", vuln_levels["log"], format_align_border)
-    ws.write("D8", vuln_host_by_level["log"], format_align_border)
+    ws.write("C8", vuln_levels["none"], format_align_border)
+    ws.write("D8", vuln_host_by_level["none"], format_align_border)
 
     ws.write("B9", "Total", format_table_titles)
     ws.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
     ws.write_formula("D9", "=SUM($D$4:$D$8)", format_table_titles)
 
+    # --------------------
+    # CHART
+    # --------------------
     chart_vulns_summary = workbook.add_chart({'type': 'pie'})
     chart_vulns_summary.add_series({
         'name': 'vulnerability summary by affected hosts',
         'categories': '={}!B4:B8'.format(sheet_name),
         'values': '={}!D4:D8'.format(sheet_name),
+        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True},
         'points': [
             {'fill': {'color': Config.colors()['critical']}},
             {'fill': {'color': Config.colors()['high']}},
@@ -122,10 +132,13 @@ def export_to_excel(vuln_info, output_file):
             {'fill': {'color': Config.colors()['none']}},
         ],
     })
-    chart_vulns_summary.set_title({'name': "chart_vulns_summary"})
+    chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False})
     ws.insert_chart("F2", chart_vulns_summary)
 
-    ws.merge_range("B19:C19", "vuln by family", format_sheet_title_content)
+    # --------------------
+    # VULN BY FAMILY
+    # --------------------
+    ws.merge_range("B19:C19", "VULNERABILITIES BY FAMILY", format_sheet_title_content)
     ws.write("B20", "family", format_table_titles)
     ws.write("C20", "vulns number", format_table_titles)
 
@@ -138,15 +151,22 @@ def export_to_excel(vuln_info, output_file):
     ws.write("B{}".format(str(last + 1)), "Total", format_table_titles)
     ws.write_formula("C{}".format(str(last + 1)), "=SUM($C$21:$C${})".format(last), format_table_titles)
 
+    # --------------------
+    # CHART
+    # --------------------
     chart_vulns_by_family = workbook.add_chart({'type': 'pie'})
     chart_vulns_by_family.add_series({
         'name': 'vulnerability summary by family',
         'categories': '={}!B21:B{}'.format(sheet_name, last),
         'values': '={}!C21:C{}'.format(sheet_name, last),
+        'data_labels': {'value': True, 'position': 'best_fit', 'leader_lines': True},
     })
-    chart_vulns_by_family.set_title({'name': "chart_vulns_by_family"})
+    chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False})
     ws.insert_chart("F19", chart_vulns_by_family)
 
+    # --------------------
+    # VULN SHEETS
+    # --------------------
     num = 1
     for i, vuln in enumerate(vuln_info, 1):
         name = re.sub(r"[\[\]\\\'\"&@#():*?/]", "", vuln.name)
@@ -180,7 +200,8 @@ def export_to_excel(vuln_info, output_file):
         w1.merge_range("C5:G5", cvss, workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
 
         w1.write('B6', "level", format_table_titles)
-        w1.merge_range("C6:G6", vuln.level.lower(), workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
+        w1.merge_range("C6:G6", vuln.level.lower(),
+                       workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
 
         w1.write('B7', "family", format_table_titles)
         w1.merge_range("C7:G7", vuln.family, workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
