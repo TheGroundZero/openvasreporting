@@ -45,6 +45,15 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
     python3 openvasreporting.py -i *.xml -o excelreport.xlsx -l h
 
+## Result
+
+The final report will then look something like this:
+
+![Report example screenshot](openvasreporting/doc/img/screenshot-report.png?raw=true)
+![Report example screenshot](openvasreporting/doc/img/screenshot-report2.png?raw=true)
+
+Worksheets are sorted according to CVSS score and are colored according to the vulnerability level.
+
 ## Ideas
 
 Some of the ideas I still have for future functionality:
