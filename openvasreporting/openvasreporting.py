@@ -6,9 +6,9 @@
 
 import argparse
 
-from libs.config import Config
-from libs.export import export_to_excel
-from libs.parser import openvas_parser
+from .libs.config import Config
+from .libs.export import export_to_excel
+from .libs.parser import openvas_parser
 
 
 def main():
@@ -59,7 +59,6 @@ if __name__ == "__main__" and __package__ is None:
 
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(1, parent_dir)
-    import openvasreporting
 
     __package__ = str("openvasreporting")
     del sys, os

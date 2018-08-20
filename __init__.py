@@ -28,7 +28,7 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-from openvasreporting import main
+from openvasreporting.openvasreporting import main
 
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
 
