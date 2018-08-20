@@ -61,6 +61,18 @@ def export_to_excel(vuln_info, output_file):
     format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
     format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'text_wrap': 1, 'border': 1})
     format_description = workbook.add_format({'valign': 'top', 'text_wrap': 1, 'border': 1})
+    format_toc = {
+        'critical': workbook.add_format({'font_color': Config.colors()['critical'],
+                                         'align': 'left', 'valign': 'top', 'border': 1}),
+        'high': workbook.add_format({'font_color': Config.colors()['high'],
+                                     'align': 'left', 'valign': 'top', 'border': 1}),
+        'medium': workbook.add_format({'font_color': Config.colors()['medium'],
+                                       'align': 'left', 'valign': 'top', 'border': 1}),
+        'low': workbook.add_format({'font_color': Config.colors()['low'],
+                                    'align': 'left', 'valign': 'top', 'border': 1}),
+        'none': workbook.add_format({'font_color': Config.colors()['none'],
+                                     'align': 'left', 'valign': 'top', 'border': 1})
+    }
 
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
     vuln_levels = Counter()
@@ -165,18 +177,41 @@ def export_to_excel(vuln_info, output_file):
     chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False})
     ws.insert_chart("F19", chart_vulns_by_family)
 
-    # --------------------
+    # ====================
+    # TABLE OF CONTENTS
+    # ====================
+
+    sheet_name = "TOC"
+    wt = workbook.add_worksheet(sheet_name)
+    wt.set_tab_color(Config.colors()['blue'])
+
+    wt.set_column("A:A", 5)
+    wt.set_column("B:B", 8)
+    wt.set_column("C:C", 4)
+    wt.set_column("D:D", 150)
+    wt.set_column("E:E", 5)
+
+    wt.merge_range("B2:D2", "TABLE OF CONTENTS", format_sheet_title_content)
+    wt.write("B3", "Level", format_table_titles)
+    wt.write("C3", "No.", format_table_titles)
+    wt.write("D3", "Vuln Title", format_table_titles)
+
+    # ====================
     # VULN SHEETS
-    # --------------------
-    num = 1
+    # ====================
     for i, vuln in enumerate(vuln_info, 1):
         name = re.sub(r"[\[\]\\\'\"&@#():*?/]", "", vuln.name)
         if len(name) > 27:
             name = "{}..{}".format(name[0:15], name[-10:])
-        name = "{:03X}_{}".format(num, name)
-        num += 1
+        name = "{:03X}_{}".format(i, name)
         w1 = workbook.add_worksheet(name)
         w1.set_tab_color(Config.colors()[vuln.level.lower()])
+
+        # Add to Table of Contents
+        wt.write("B{}".format(i + 3), vuln.level.capitalize(), format_toc[vuln.level.lower()])
+        wt.write("C{}".format(i + 3), "{:03X}".format(i), format_table_cells)
+        wt.write_url("D{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
+        # / Add to Table of Contents
 
         w1.set_column("B:B", 14, format_align_center)
         w1.set_column("C:C", 14, format_align_center)
@@ -201,7 +236,7 @@ def export_to_excel(vuln_info, output_file):
         w1.merge_range("C5:G5", cvss, format_table_cells)
 
         w1.write('B6', "level", format_table_titles)
-        w1.merge_range("C6:G6", vuln.level.lower(), format_table_cells)
+        w1.merge_range("C6:G6", vuln.level.capitalize(), format_table_cells)
 
         w1.write('B7', "family", format_table_titles)
         w1.merge_range("C7:G7", vuln.family, format_table_cells)
