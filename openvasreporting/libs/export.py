@@ -52,14 +52,14 @@ def export_to_excel(vuln_info, output_file):
         'keywords': 'OpenVAS, report',
         'comments': 'TheGroundZero (https://github.com/TheGroundZero)'})
 
-    format_sheet_title_content = workbook.add_format({'align': 'center', 'valign': 'middle',
+    format_sheet_title_content = workbook.add_format({'align': 'center', 'valign': 'vcenter',
                                                       'font_color': Config.colors()['blue'], 'bold': True, 'border': 1})
-    format_table_titles = workbook.add_format({'align': 'center', 'valign': 'middle',
+    format_table_titles = workbook.add_format({'align': 'center', 'valign': 'vcenter',
                                                'bold': True, 'font_color': 'white', 'border': 1,
                                                'bg_color': Config.colors()['blue']})
     format_table_cells = workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1})
     format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
-    format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'border': 1})
+    format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'text_wrap': 1, 'border': 1})
     format_description = workbook.add_format({'valign': 'top', 'text_wrap': 1, 'border': 1})
 
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
@@ -145,7 +145,7 @@ def export_to_excel(vuln_info, output_file):
 
     last = 21
     for i, (family, number) in enumerate(iter(vuln_by_family.items()), last):
-        ws.write("B{}".format(i), family, workbook.add_format({'border': 1, 'align': 'center', 'text_wrap': 1}))
+        ws.write("B{}".format(i), family, format_align_border)
         ws.write("C{}".format(i), number, format_align_border)
         last = i
 
