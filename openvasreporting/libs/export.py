@@ -52,14 +52,15 @@ def export_to_excel(vuln_info, output_file):
         'keywords': 'OpenVAS, report',
         'comments': 'TheGroundZero (https://github.com/TheGroundZero)'})
 
-    format_align_center = workbook.add_format({'align': 'center'})
-    format_align_border = workbook.add_format({'align': 'center', 'border': 1})
-    format_sheet_title_content = workbook.add_format({'align': 'center', 'font_color': Config.colors()['blue'],
-                                                      'border': 1, 'bold': True})
-    format_table_titles = workbook.add_format({'align': 'center', 'bg_color': Config.colors()['blue'], 'border': 1,
-                                               'bold': True, 'font_color': 'white'})
-    format_description = workbook.add_format({'align': 'center', 'valign': 'top', 'bg_color': Config.colors()['blue'],
-                                              'border': 1, 'bold': True, 'font_color': 'white'})
+    format_sheet_title_content = workbook.add_format({'align': 'center', 'valign': 'middle',
+                                                      'font_color': Config.colors()['blue'], 'bold': True, 'border': 1})
+    format_table_titles = workbook.add_format({'align': 'center', 'valign': 'middle',
+                                               'bold': True, 'font_color': 'white', 'border': 1,
+                                               'bg_color': Config.colors()['blue']})
+    format_table_cells = workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1})
+    format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
+    format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'border': 1})
+    format_description = workbook.add_format({'valign': 'top', 'text_wrap': 1, 'border': 1})
 
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
     vuln_levels = Counter()
@@ -184,27 +185,26 @@ def export_to_excel(vuln_info, output_file):
         w1.set_column("F:F", 13, format_align_center)
         w1.set_column("G:G", 20, format_align_center)
 
-        w1.write('B2', "title", format_table_titles)
+        w1.write('B2', "Title", format_table_titles)
         w1.merge_range("C2:G2", vuln.name, format_sheet_title_content)
 
-        w1.write('B3', "description", format_description)
-        w1.merge_range("C3:G3", vuln.description, workbook.add_format({'valign': 'top', 'text_wrap': 1, 'border': 1}))
+        w1.write('B3', "Description", format_table_titles)
+        w1.merge_range("C3:G3", vuln.description, format_description)
 
         w1.write('B4', "CVEs", format_table_titles)
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
-        w1.merge_range("C4:G4", cves, workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
+        w1.merge_range("C4:G4", cves, format_table_cells)
 
         w1.write('B5', "CVSS", format_table_titles)
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
-        w1.merge_range("C5:G5", cvss, workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
+        w1.merge_range("C5:G5", cvss, format_table_cells)
 
         w1.write('B6', "level", format_table_titles)
-        w1.merge_range("C6:G6", vuln.level.lower(),
-                       workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
+        w1.merge_range("C6:G6", vuln.level.lower(), format_table_cells)
 
         w1.write('B7', "family", format_table_titles)
-        w1.merge_range("C7:G7", vuln.family, workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1}))
+        w1.merge_range("C7:G7", vuln.family, format_table_cells)
 
         if len(vuln.description) < 200:
             description_height = 20
