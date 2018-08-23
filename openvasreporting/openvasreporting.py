@@ -14,7 +14,7 @@ from .libs.parser import openvas_parser
 def main():
     parser = argparse.ArgumentParser(description="OpenVAS to Excel converter")
     parser.add_argument('-i', '--input', nargs="*", dest="input_files", help="OpenVAS XML reports", required=True)
-    parser.add_argument('-o', '--output', dest="output_file", help="Output .xslx file, no extension", required=True)
+    parser.add_argument('-o', '--output', dest="output_file", help="Output .xlsx file, no extension", required=True)
     parser.add_argument('-l', '--level', dest="min_level", help="Minimal level (c, h, m, l, n)",
                         required=False, default='n')
 
