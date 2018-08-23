@@ -12,12 +12,16 @@ from .libs.parser import openvas_parser
 
 
 def main():
-    parser = argparse.ArgumentParser(description="OpenVAS to Excel converter")
+    parser = argparse.ArgumentParser(
+        prog="openvasreporting",  # TODO figure out why I need this in my code for -h to show correct name
+        description="OpenVAS report converter",
+        allow_abbrev=True
+    )
     parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports", required=True)
     parser.add_argument("-o", "--output", dest="output_file", help="Output file, no extension", required=False,
                         default="openvas_report")
-    parser.add_argument("-l", "--level", dest="min_level", help="Minimal level (c, h, m, l, n)",
-                        required=False, default="n")
+    parser.add_argument("-l", "--level", dest="min_level", help="Minimal level (c, h, m, l, n)", required=False,
+                        default="n")
     parser.add_argument("-f", "--format", dest="filetype", help="Output format (xlsx)", required=False, default="xlsx")
 
     args = parser.parse_args()
@@ -58,16 +62,3 @@ def convert(config):
     else:
         raise NotImplementedError("Filetype not supported, got {}, expecting one of {}".format(config.filetype,
                                                                                                config.filetypes()))
-
-
-if __name__ == "__main__" and __package__ is None:
-    import sys
-    import os
-
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(1, parent_dir)
-
-    __package__ = str("openvasreporting")
-    del sys, os
-
-    main()
