@@ -13,15 +13,14 @@ from .libs.parser import openvas_parser
 
 def main():
     parser = argparse.ArgumentParser(description="OpenVAS to Excel converter")
-    parser.add_argument('-i', '--input', nargs="*", dest="input_files", help="OpenVAS XML reports", required=True)
-    parser.add_argument('-o', '--output', dest="output_file", help="Output .xlsx file, no extension", required=True)
-    parser.add_argument('-l', '--level', dest="min_level", help="Minimal level (c, h, m, l, n)",
-                        required=False, default='n')
+    parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports", required=True)
+    parser.add_argument("-o", "--output", dest="output_file", help="Output file, no extension", required=False,
+                        default="openvas_report")
+    parser.add_argument("-l", "--level", dest="min_level", help="Minimal level (c, h, m, l, n)",
+                        required=False, default="n")
+    parser.add_argument("-f", "--format", dest="filetype", help="Output format (xlsx)", required=False, default="xlsx")
 
     args = parser.parse_args()
-
-    if args.output_file.split(".")[-1] != "xlsx":
-        args.output_file = args.output_file + ".xlsx"
 
     min_lvl = args.min_level.lower()[0]
 
@@ -31,26 +30,34 @@ def main():
         raise ValueError("Invalid value for level parameter, \
         must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
 
-    config = Config(args.input_files, args.output_file, min_lvl)
+    if args.filetype not in Config.filetypes():
+        raise ValueError("Filetype not supported, got {}, expecting one of {}".format(args.filetype,
+                                                                                      Config.filetypes()))
+
+    config = Config(args.input_files, args.output_file, min_lvl, args.filetype)
 
     convert(config)
 
 
 def convert(config):
     """
-    Convert the OpenVAS XML to an Excel file
+    Convert the OpenVAS XML to requested filetype
 
     :param config: configuration
     :type config: Config
 
-    :raises: TypeError, ValueError, IOError
+    :raises: TypeError, ValueError, IOError, NotImplementedError
     """
     if not isinstance(config, Config):
         raise TypeError("Expected Config, got '{}' instead".format(type(config)))
 
     openvas_info = openvas_parser(config.input_files, config.min_level)
 
-    export_to_excel(openvas_info, config.output_file)
+    if config.filetype == "xlsx":
+        export_to_excel(openvas_info, config.output_file)
+    else:
+        raise NotImplementedError("Filetype not supported, got {}, expecting one of {}".format(config.filetype,
+                                                                                               config.filetypes()))
 
 
 if __name__ == "__main__" and __package__ is None:

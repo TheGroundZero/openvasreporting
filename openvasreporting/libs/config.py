@@ -8,7 +8,7 @@
 
 
 class Config(object):
-    def __init__(self, input_files, output_file, min_level="none"):
+    def __init__(self, input_files, output_file="openvas_report", min_level="none", filetype="xlsx"):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -18,6 +18,9 @@ class Config(object):
 
         :param min_level: minimal level to add to output
         :type min_level: str
+
+        :param filetype: output file filetype
+        :type filetype: str
 
         :raises: TypeError, ValueError
         """
@@ -32,10 +35,17 @@ class Config(object):
             raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
         if not isinstance(min_level, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(min_level)))
+        if not isinstance(filetype, str):
+            raise TypeError("Expected basestring, got '{}' instead".format(type(filetype)))
+        else:
+            if filetype not in self.filetypes():
+                raise ValueError("Filetype not supported, got {}, expecting one of {}".format(filetype,
+                                                                                              self.filetypes()))
 
         self.input_files = input_files
         self.output_file = output_file
         self.min_level = min_level
+        self.filetype = filetype
 
     @staticmethod
     def colors():
@@ -57,3 +67,7 @@ class Config(object):
             'l': 'low',
             'n': 'none'
         }
+
+    @staticmethod
+    def filetypes():
+        return list('xlsx')
