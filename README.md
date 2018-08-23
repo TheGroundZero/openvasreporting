@@ -1,9 +1,9 @@
 # OpenVAS to Report:  
-A tool to convert OpenVAS XML reports into Excel files.
+A tool to convert [OpenVAS](http://www.openvas.org/)/Greenbone XML reports into Excel files.
 
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
 and because I wanted to learn how to use Python for working with XML and creating Excel files.  
-Also, OpenVAS mixes their own threat levels with the CVSS scoring, the latter of which I prefer to use in my reports.
+Also, OpenVAS mixes their own threat levels with the [CVSS](https://www.first.org/cvss/) scoring, the latter of which I prefer to use in my reports.
 
 Looking for a fix and providing an actual fix through a pull request would have been too much work,
 so I chose to fork the repo and try my own thing.  
@@ -13,7 +13,7 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 ## Requirements
 
- - Python version 3
+ - [Python](https://www.python.org/) version 3
  - [XlsxWriter](https://xlsxwriter.readthedocs.io/)
 
 ## Installation
@@ -32,18 +32,18 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 ### Create Excel report from 1 OpenVAS XML report using default settings
 
-    python3 openvasreporting.py -i openvasreport.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i openvasreport.xml -o excelreport.xlsx
 
 ### Create Excel report from multiple OpenVAS reports using default settings
 
     # wildcard select
-    python3 openvasreporting.py -i *.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i *.xml -o excelreport.xlsx
     # selective
-    python3.7 openvasreporting.py -i openvasreport1.xml -i openvasreport2.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i openvasreport1.xml -i openvasreport2.xml -o excelreport.xlsx
 
 ### Create Excel report from multiple OpenVAS reports, reporting only threat level high and up
 
-    python3 openvasreporting.py -i *.xml -o excelreport.xlsx -l h
+    python3 -m openvasreporting -i *.xml -o excelreport.xlsx -l h
 
 ## Result
 
