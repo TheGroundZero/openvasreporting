@@ -88,45 +88,45 @@ def export_to_excel(vuln_info, output_file):
     # SUMMARY SHEET
     # ====================
     sheet_name = "Summary"
-    ws = workbook.add_worksheet(sheet_name)
-    ws.set_tab_color(Config.colors()['blue'])
+    ws_sum = workbook.add_worksheet(sheet_name)
+    ws_sum.set_tab_color(Config.colors()['blue'])
 
-    ws.set_column("B:B", 25, format_align_center)
-    ws.set_column("C:C", 24, format_align_center)
-    ws.set_column("D:D", 20, format_align_center)
+    ws_sum.set_column("B:B", 25, format_align_center)
+    ws_sum.set_column("C:C", 24, format_align_center)
+    ws_sum.set_column("D:D", 20, format_align_center)
 
     # --------------------
     # VULN SUMMARY
     # --------------------
-    ws.merge_range("B2:D2", "VULNERABILITY SUMMARY", format_sheet_title_content)
-    ws.write("B3", "Threat", format_table_titles)
-    ws.write("C3", "Vulns number", format_table_titles)
-    ws.write("D3", "Affected hosts", format_table_titles)
+    ws_sum.merge_range("B2:D2", "VULNERABILITY SUMMARY", format_sheet_title_content)
+    ws_sum.write("B3", "Threat", format_table_titles)
+    ws_sum.write("C3", "Vulns number", format_table_titles)
+    ws_sum.write("D3", "Affected hosts", format_table_titles)
 
-    ws.write("B4", "Critical", format_sheet_title_content)
-    ws.write("B5", "High", format_sheet_title_content)
-    ws.write("B6", "Medium", format_sheet_title_content)
-    ws.write("B7", "Low", format_sheet_title_content)
-    ws.write("B8", "None", format_sheet_title_content)
+    ws_sum.write("B4", "Critical", format_sheet_title_content)
+    ws_sum.write("B5", "High", format_sheet_title_content)
+    ws_sum.write("B6", "Medium", format_sheet_title_content)
+    ws_sum.write("B7", "Low", format_sheet_title_content)
+    ws_sum.write("B8", "None", format_sheet_title_content)
 
-    ws.write("C4", vuln_levels["critical"], format_align_border)
-    ws.write("D4", vuln_host_by_level["critical"], format_align_border)
+    ws_sum.write("C4", vuln_levels["critical"], format_align_border)
+    ws_sum.write("D4", vuln_host_by_level["critical"], format_align_border)
 
-    ws.write("C5", vuln_levels["high"], format_align_border)
-    ws.write("D5", vuln_host_by_level["high"], format_align_border)
+    ws_sum.write("C5", vuln_levels["high"], format_align_border)
+    ws_sum.write("D5", vuln_host_by_level["high"], format_align_border)
 
-    ws.write("C6", vuln_levels["medium"], format_align_border)
-    ws.write("D6", vuln_host_by_level["medium"], format_align_border)
+    ws_sum.write("C6", vuln_levels["medium"], format_align_border)
+    ws_sum.write("D6", vuln_host_by_level["medium"], format_align_border)
 
-    ws.write("C7", vuln_levels["low"], format_align_border)
-    ws.write("D7", vuln_host_by_level["low"], format_align_border)
+    ws_sum.write("C7", vuln_levels["low"], format_align_border)
+    ws_sum.write("D7", vuln_host_by_level["low"], format_align_border)
 
-    ws.write("C8", vuln_levels["none"], format_align_border)
-    ws.write("D8", vuln_host_by_level["none"], format_align_border)
+    ws_sum.write("C8", vuln_levels["none"], format_align_border)
+    ws_sum.write("D8", vuln_host_by_level["none"], format_align_border)
 
-    ws.write("B9", "Total", format_table_titles)
-    ws.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
-    ws.write_formula("D9", "=SUM($D$4:$D$8)", format_table_titles)
+    ws_sum.write("B9", "Total", format_table_titles)
+    ws_sum.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
+    ws_sum.write_formula("D9", "=SUM($D$4:$D$8)", format_table_titles)
 
     # --------------------
     # CHART
@@ -146,23 +146,23 @@ def export_to_excel(vuln_info, output_file):
         ],
     })
     chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False})
-    ws.insert_chart("F2", chart_vulns_summary)
+    ws_sum.insert_chart("F2", chart_vulns_summary)
 
     # --------------------
     # VULN BY FAMILY
     # --------------------
-    ws.merge_range("B19:C19", "VULNERABILITIES BY FAMILY", format_sheet_title_content)
-    ws.write("B20", "family", format_table_titles)
-    ws.write("C20", "vulns number", format_table_titles)
+    ws_sum.merge_range("B19:C19", "VULNERABILITIES BY FAMILY", format_sheet_title_content)
+    ws_sum.write("B20", "family", format_table_titles)
+    ws_sum.write("C20", "vulns number", format_table_titles)
 
     last = 21
     for i, (family, number) in enumerate(iter(vuln_by_family.items()), last):
-        ws.write("B{}".format(i), family, format_align_border)
-        ws.write("C{}".format(i), number, format_align_border)
+        ws_sum.write("B{}".format(i), family, format_align_border)
+        ws_sum.write("C{}".format(i), number, format_align_border)
         last = i
 
-    ws.write("B{}".format(str(last + 1)), "Total", format_table_titles)
-    ws.write_formula("C{}".format(str(last + 1)), "=SUM($C$21:$C${})".format(last), format_table_titles)
+    ws_sum.write("B{}".format(str(last + 1)), "Total", format_table_titles)
+    ws_sum.write_formula("C{}".format(str(last + 1)), "=SUM($C$21:$C${})".format(last), format_table_titles)
 
     # --------------------
     # CHART
@@ -175,26 +175,26 @@ def export_to_excel(vuln_info, output_file):
         'data_labels': {'value': True, 'position': 'best_fit', 'leader_lines': True},
     })
     chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False})
-    ws.insert_chart("F19", chart_vulns_by_family)
+    ws_sum.insert_chart("F19", chart_vulns_by_family)
 
     # ====================
     # TABLE OF CONTENTS
     # ====================
 
     sheet_name = "TOC"
-    wt = workbook.add_worksheet(sheet_name)
-    wt.set_tab_color(Config.colors()['blue'])
+    ws_toc = workbook.add_worksheet(sheet_name)
+    ws_toc.set_tab_color(Config.colors()['blue'])
 
-    wt.set_column("A:A", 5)
-    wt.set_column("B:B", 8)
-    wt.set_column("C:C", 4)
-    wt.set_column("D:D", 150)
-    wt.set_column("E:E", 5)
+    ws_toc.set_column("A:A", 5)
+    ws_toc.set_column("B:B", 8)
+    ws_toc.set_column("C:C", 4)
+    ws_toc.set_column("D:D", 150)
+    ws_toc.set_column("E:E", 5)
 
-    wt.merge_range("B2:D2", "TABLE OF CONTENTS", format_sheet_title_content)
-    wt.write("B3", "Level", format_table_titles)
-    wt.write("C3", "No.", format_table_titles)
-    wt.write("D3", "Vuln Title", format_table_titles)
+    ws_toc.merge_range("B2:D2", "TABLE OF CONTENTS", format_sheet_title_content)
+    ws_toc.write("B3", "Level", format_table_titles)
+    ws_toc.write("C3", "No.", format_table_titles)
+    ws_toc.write("D3", "Vuln Title", format_table_titles)
 
     # ====================
     # VULN SHEETS
@@ -204,65 +204,67 @@ def export_to_excel(vuln_info, output_file):
         if len(name) > 27:
             name = "{}..{}".format(name[0:15], name[-10:])
         name = "{:03X}_{}".format(i, name)
-        w1 = workbook.add_worksheet(name)
-        w1.set_tab_color(Config.colors()[vuln.level.lower()])
+        ws_vuln = workbook.add_worksheet(name)
+        ws_vuln.set_tab_color(Config.colors()[vuln.level.lower()])
 
         # Add to Table of Contents
-        wt.write("B{}".format(i + 3), vuln.level.capitalize(), format_toc[vuln.level.lower()])
-        wt.write("C{}".format(i + 3), "{:03X}".format(i), format_table_cells)
-        wt.write_url("D{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
+        ws_toc.write("B{}".format(i + 3), vuln.level.capitalize(), format_toc[vuln.level.lower()])
+        ws_toc.write("C{}".format(i + 3), "{:03X}".format(i), format_table_cells)
+        ws_toc.write_url("D{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
+        ws_vuln.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
+                          string="<< TOC")
         # / Add to Table of Contents
 
-        w1.set_column("B:B", 14, format_align_center)
-        w1.set_column("C:C", 14, format_align_center)
-        w1.set_column("D:D", 30, format_align_center)
-        w1.set_column("E:E", 12, format_align_center)
-        w1.set_column("F:F", 13, format_align_center)
-        w1.set_column("G:G", 20, format_align_center)
+        ws_vuln.set_column("B:B", 14, format_align_center)
+        ws_vuln.set_column("C:C", 14, format_align_center)
+        ws_vuln.set_column("D:D", 30, format_align_center)
+        ws_vuln.set_column("E:E", 12, format_align_center)
+        ws_vuln.set_column("F:F", 13, format_align_center)
+        ws_vuln.set_column("G:G", 20, format_align_center)
 
-        w1.write('B2', "Title", format_table_titles)
-        w1.merge_range("C2:G2", vuln.name, format_sheet_title_content)
+        ws_vuln.write('B2', "Title", format_table_titles)
+        ws_vuln.merge_range("C2:G2", vuln.name, format_sheet_title_content)
 
-        w1.write('B3', "Description", format_table_titles)
-        w1.merge_range("C3:G3", vuln.description, format_description)
+        ws_vuln.write('B3', "Description", format_table_titles)
+        ws_vuln.merge_range("C3:G3", vuln.description, format_description)
 
-        w1.write('B4', "CVEs", format_table_titles)
+        ws_vuln.write('B4', "CVEs", format_table_titles)
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
-        w1.merge_range("C4:G4", cves, format_table_cells)
+        ws_vuln.merge_range("C4:G4", cves, format_table_cells)
 
-        w1.write('B5', "CVSS", format_table_titles)
+        ws_vuln.write('B5', "CVSS", format_table_titles)
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
-        w1.merge_range("C5:G5", cvss, format_table_cells)
+        ws_vuln.merge_range("C5:G5", cvss, format_table_cells)
 
-        w1.write('B6', "level", format_table_titles)
-        w1.merge_range("C6:G6", vuln.level.capitalize(), format_table_cells)
+        ws_vuln.write('B6', "level", format_table_titles)
+        ws_vuln.merge_range("C6:G6", vuln.level.capitalize(), format_table_cells)
 
-        w1.write('B7', "family", format_table_titles)
-        w1.merge_range("C7:G7", vuln.family, format_table_cells)
+        ws_vuln.write('B7', "family", format_table_titles)
+        ws_vuln.merge_range("C7:G7", vuln.family, format_table_cells)
 
         if len(vuln.description) < 200:
             description_height = 20
         else:
             description_height = 80
-        w1.set_row(2, description_height, None)
+        ws_vuln.set_row(2, description_height, None)
 
-        w1.write('C9', "IP", format_table_titles)
-        w1.write('D9', "Host name", format_table_titles)
-        w1.write('E9', "Port number", format_table_titles)
-        w1.write('F9', "Port protocol", format_table_titles)
-        w1.write('G9', "Port description", format_table_titles)
+        ws_vuln.write('C9', "IP", format_table_titles)
+        ws_vuln.write('D9', "Host name", format_table_titles)
+        ws_vuln.write('E9', "Port number", format_table_titles)
+        ws_vuln.write('F9', "Port protocol", format_table_titles)
+        ws_vuln.write('G9', "Port description", format_table_titles)
 
         for j, (host, port) in enumerate(vuln.hosts, 10):
 
-            w1.write("C{}".format(j), host.ip)
-            w1.write("D{}".format(j), host.host_name if host.host_name else "-")
+            ws_vuln.write("C{}".format(j), host.ip)
+            ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
 
             if port:
-                w1.write("E{}".format(j), port.number)
-                w1.write("F{}".format(j), port.protocol)
-                w1.write("G{}".format(j), port.description)
+                ws_vuln.write("E{}".format(j), port.number)
+                ws_vuln.write("F{}".format(j), port.protocol)
+                ws_vuln.write("G{}".format(j), port.description)
             else:
-                w1.write("E{}".format(j), "No port info")
+                ws_vuln.write("E{}".format(j), "No port info")
 
     workbook.close()
