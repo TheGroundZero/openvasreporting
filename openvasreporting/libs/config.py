@@ -37,10 +37,6 @@ class Config(object):
             raise TypeError("Expected basestring, got '{}' instead".format(type(min_level)))
         if not isinstance(filetype, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(filetype)))
-        else:
-            if filetype not in self.filetypes():
-                raise ValueError("Filetype not supported, got {}, expecting one of {}".format(filetype,
-                                                                                              self.filetypes()))
 
         self.input_files = input_files
         self.output_file = output_file
@@ -67,7 +63,3 @@ class Config(object):
             'l': 'low',
             'n': 'none'
         }
-
-    @staticmethod
-    def filetypes():
-        return list('xlsx')

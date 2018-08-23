@@ -5,14 +5,20 @@
 # Project URL: https://github.com/TheGroundZero/openvas_to_report
 
 import re
-import xlsxwriter
 
 from collections import Counter
 
 from .config import Config
 from .parsed_data import Vulnerability
 
-__all__ = ["export_to_excel"]
+__all__ = ["exporters", "export_to_excel"]
+
+
+def exporters():
+    return {
+        'xlsx': export_to_excel,
+        'docx': export_to_word
+    }
 
 
 def export_to_excel(vuln_info, output_file="openvas_report"):
@@ -41,6 +47,8 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
 
     if output_file.split(".")[-1] != "xlsx":
         output_file = "{}.xlsx".format(output_file)
+
+    import xlsxwriter
 
     workbook = xlsxwriter.Workbook(output_file)
 
@@ -268,3 +276,33 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
                 ws_vuln.write("E{}".format(j), "No port info")
 
     workbook.close()
+
+
+def export_to_word(vuln_info, output_file="openvas_report"):
+    """
+    Export vulnerabilities info in a Word file.
+
+    :param vuln_info: Vulnerability list info
+    :type vuln_info: list(Vulnerability)
+
+    :param output_file: Filename of the Excel file
+    :type output_file: str
+
+    :raises: NotImplementedError
+    """
+    if not isinstance(vuln_info, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
+    else:
+        for x in vuln_info:
+            if not isinstance(x, Vulnerability):
+                raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    if not isinstance(output_file, str):
+        raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
+    else:
+        if not output_file:
+            raise ValueError("output_file must have a valid name.")
+
+    if output_file.split(".")[-1] != "docx":
+        output_file = "{}.docx".format(output_file)
+
+    raise NotImplementedError("Export to word not yet implemented")
