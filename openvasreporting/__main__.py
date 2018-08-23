@@ -8,13 +8,13 @@ from openvasreporting.openvasreporting import main
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
 
 if __name__ == "__main__":
-    import sys
-    import os
+    if __package__ is None:
+        import sys
+        import os
 
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(1, parent_dir)
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.insert(1, parent_dir)
 
-    __package__ = str("openvasreporting")
-    del sys, os
+        del sys, os
 
     main()
