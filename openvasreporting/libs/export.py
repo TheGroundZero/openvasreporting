@@ -15,7 +15,7 @@ from .parsed_data import Vulnerability
 __all__ = ["export_to_excel"]
 
 
-def export_to_excel(vuln_info, output_file):
+def export_to_excel(vuln_info, output_file="openvas_report"):
     """
     Export vulnerabilities info in an Excel file.
 
@@ -37,10 +37,10 @@ def export_to_excel(vuln_info, output_file):
         raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
     else:
         if not output_file:
-            raise ValueError("output_file_name must has a valid name.")
+            raise ValueError("output_file must have a valid name.")
 
-    if not output_file.endswith("xlsx"):
-        raise ValueError("Invalid filename. Filename must ends in .xlsx.")
+    if output_file.split(".")[-1] != "xlsx":
+        output_file = "{}.xlsx".format(output_file)
 
     workbook = xlsxwriter.Workbook(output_file)
 
