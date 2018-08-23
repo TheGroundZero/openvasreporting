@@ -238,7 +238,8 @@ class Vulnerability(object):
             if not isinstance(port, Port):
                 raise TypeError("Expected Port, got '{}' instead".format(type(port)))
 
-        self.hosts.append((host, port))
+        if (host, port) not in self.hosts:
+            self.hosts.append((host, port))
 
     def __eq__(self, other):
         if not isinstance(other, Vulnerability):

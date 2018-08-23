@@ -7,8 +7,8 @@
 import argparse
 
 from .libs.config import Config
-from .libs.export import export_to_excel
 from .libs.parser import openvas_parser
+from .libs.export import exporters
 
 
 def main():
@@ -34,9 +34,9 @@ def main():
         raise ValueError("Invalid value for level parameter, \
         must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
 
-    if args.filetype not in Config.filetypes():
+    if args.filetype not in exporters().keys():
         raise ValueError("Filetype not supported, got {}, expecting one of {}".format(args.filetype,
-                                                                                      Config.filetypes()))
+                                                                                      exporters().keys()))
 
     config = Config(args.input_files, args.output_file, min_lvl, args.filetype)
 
@@ -55,10 +55,11 @@ def convert(config):
     if not isinstance(config, Config):
         raise TypeError("Expected Config, got '{}' instead".format(type(config)))
 
+    if config.filetype not in exporters().keys():
+        raise NotImplementedError("Filetype not supported, got {}, expecting one of {}".format(config.filetype,
+                                                                                               exporters().keys()))
+
     openvas_info = openvas_parser(config.input_files, config.min_level)
 
-    if config.filetype == "xlsx":
-        export_to_excel(openvas_info, config.output_file)
-    else:
-        raise NotImplementedError("Filetype not supported, got {}, expecting one of {}".format(config.filetype,
-                                                                                               config.filetypes()))
+    # export_to_excel(openvas_info, config.output_file)
+    exporters()[config.filetype](openvas_info, config.output_file)
