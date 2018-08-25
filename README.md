@@ -1,5 +1,7 @@
-# OpenVAS to Report:  
-A tool to convert OpenVAS XML reports into Excel files.
+![Logo OpenVAS Reporting](openvasreporting/doc/img/logo.png?raw=true)
+
+# OpenVAS Reporting:  
+## A tool to convert OpenVAS XML reports into Excel files.
 
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
 and because I wanted to learn how to use Python for working with XML and creating Excel files.  
