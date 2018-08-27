@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='OpenVAS Reporting',
-    version='1.0.0',
+    version='1.0.1a',
     description='Convert OpenVAS XML report files to Excel reports.',
     long_description='file: README.md',
     author='TheGroundZero',
