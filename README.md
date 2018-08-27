@@ -1,4 +1,4 @@
-# OpenVAS to Report:  
+# OpenVAS Reporting:  
 A tool to convert [OpenVAS](http://www.openvas.org/)/Greenbone XML reports into Excel files.
 
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
