@@ -51,8 +51,9 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 The final report will then look something like this:
 
-![Report example screenshot](docs/img/screenshot-report.png?raw=true)
-![Report example screenshot](docs/img/screenshot-report2.png?raw=true)
+![Report example screenshot - Summary](docs/_static/img/screenshot-report.png?raw=true)
+![Report example screenshot - ToC](docs/_static/img/screenshot-report1.png?raw=true)
+![Report example screenshot - Vuln desc](docs/_static/img/screenshot-report2.png?raw=true)
 
 Worksheets are sorted according to CVSS score and are colored according to the vulnerability level.
 
