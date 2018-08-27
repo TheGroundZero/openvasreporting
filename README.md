@@ -1,6 +1,8 @@
 # OpenVAS Reporting:  
 A tool to convert [OpenVAS](http://www.openvas.org/)/Greenbone XML reports into Excel files.
 
+![Report example screenshot](docs/img/OpenVASreporting.png?raw=true)
+
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
 and because I wanted to learn how to use Python for working with XML and creating Excel files.  
 Also, OpenVAS mixes their own threat levels with the [CVSS](https://www.first.org/cvss/) scoring, the latter of which I prefer to use in my reports.
@@ -49,8 +51,8 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 The final report will then look something like this:
 
-![Report example screenshot](openvasreporting/doc/img/screenshot-report.png?raw=true)
-![Report example screenshot](openvasreporting/doc/img/screenshot-report2.png?raw=true)
+![Report example screenshot](docs/img/screenshot-report.png?raw=true)
+![Report example screenshot](docs/img/screenshot-report2.png?raw=true)
 
 Worksheets are sorted according to CVSS score and are colored according to the vulnerability level.
 
