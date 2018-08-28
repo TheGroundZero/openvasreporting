@@ -14,3 +14,6 @@ Installation
 
    # Clone repo
    git clone git@github.com:TheGroundZero/openvas_to_report.git
+
+.. todo::
+   Create and test pip install functionality

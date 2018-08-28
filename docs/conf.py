@@ -164,7 +164,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'OpenVASReporting', 'OpenVAS Reporting Documentation',
-     author, 'OpenVASReporting', 'One line description of project.',
+     author, 'OpenVASReporting', 'A tool to convert OpenVAS/Greenbone XML reports into Excel files..',
      'Miscellaneous'),
 ]
 
@@ -175,6 +175,7 @@ texinfo_documents = [
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+todo_link_only = True
 
 # -- Custom configuration ----------------------------------------------------
 
