@@ -1,7 +1,9 @@
 # OpenVAS Reporting:  
-A tool to convert [OpenVAS](http://www.openvas.org/)/Greenbone XML reports into Excel files.
+A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports.
 
 ![Report example screenshot](docs/_static/img/OpenVASreporting.png?raw=true)
+
+*Read the full documentation at [https://openvas-reporting.stijncrevits.be](https://openvas-reporting.stijncrevits.be)*
 
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
 and because I wanted to learn how to use Python for working with XML and creating Excel files.  
