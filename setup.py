@@ -18,7 +18,7 @@ setup(
     requires=['xlsxwriter'],
     entry_points={
         'console_scripts': [
-            'openvas_reporting = openvasreporting:main'
+            'openvasreporting = openvasreporting:main'
         ]
     },
     project_urls={
