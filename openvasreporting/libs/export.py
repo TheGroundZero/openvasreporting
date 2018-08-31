@@ -304,6 +304,8 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         output_file = "{}.docx".format(output_file)
 
     from docx import Document
+    from docx.oxml.shared import qn, OxmlElement
+    from docx.enum.style import WD_BUILTIN_STYLE
 
     # TODO Move to function to de-duplicate this
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
@@ -319,6 +321,38 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     document = Document()
 
     document.add_heading('OpenVAS Report', 0)
+
+    # ====================
+    # TABLE OF CONTENTS
+    # ====================
+    # TODO Use ToC Header so it doesn't end up in the ToC
+    document.add_paragraph('Table of Contents')
+
+    par = document.add_paragraph()
+    run = par.add_run()
+    fldChar = OxmlElement('w:fldChar')  # creates a new element
+    fldChar.set(qn('w:fldCharType'), 'begin')  # sets attribute on element
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')  # sets attribute on element
+    instrText.text = r'TOC \o 1-2 \h \z \u'  # change "1-2" depending on heading levels you need
+
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+    fldChar3 = OxmlElement('w:t')
+    fldChar3.text = "# Right-click to update field. #"
+    fldChar2.append(fldChar3)
+
+    fldChar4 = OxmlElement('w:fldChar')
+    fldChar4.set(qn('w:fldCharType'), 'end')
+
+    r_element = run._r
+    r_element.append(fldChar)
+    r_element.append(instrText)
+    r_element.append(fldChar2)
+    r_element.append(fldChar4)
+    p_element = par._p
+
+    document.add_page_break()
 
     # ====================
     # SUMMARY
@@ -345,30 +379,30 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         row_cells[1].text = str(vn)
         row_cells[2].text = str(ah)
 
-    document.add_page_break()
-
-    # ====================
-    # TABLE OF CONTENTS
-    # ====================
-    document.add_heading('Table of Contents', level=1)
-    document.add_paragraph('Table of contents, listing all vulnerabilities that come next')
-
     # ====================
     # VULN PAGES
     # ====================
+    cur_level = ""
+
     for i, vuln in enumerate(vuln_info, 1):
         # GENERAL
         # --------------------
-        document.add_page_break()
+        level = vuln.level
 
-        document.add_heading(vuln.name, level=1)
-        document.add_paragraph(vuln.description)
+        if level != cur_level:
+            document.add_heading(level.capitalize(), level=1).paragraph_format.page_break_before = True
+            cur_level = level
+        else:
+            document.add_page_break()
+
+        title = "[{}] {}".format(level.upper(), vuln.name)
+        document.add_heading(title, level=2)
     
         table_vuln = document.add_table(rows=4, cols=2)
         hdr_cells = table_vuln.columns[0].cells
-        hdr_cells[0].paragraphs[0].add_run('CVEs').bold = True
-        hdr_cells[1].paragraphs[0].add_run('CVSS').bold = True
-        hdr_cells[2].paragraphs[0].add_run('Level').bold = True
+        hdr_cells[0].paragraphs[0].add_run('Description').bold = True
+        hdr_cells[1].paragraphs[0].add_run('CVEs').bold = True
+        hdr_cells[2].paragraphs[0].add_run('CVSS').bold = True
         hdr_cells[3].paragraphs[0].add_run('Family').bold = True
 
         cves = ", ".join(vuln.cves)
@@ -377,14 +411,14 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         cvss = str(vuln.cvss) if vuln.cvss != -1.0 else "No CVSS"
 
         cells = table_vuln.columns[1].cells
-        cells[0].text = cves
-        cells[1].text = cvss
-        cells[2].text = vuln.level.capitalize()
+        cells[0].text = vuln.description
+        cells[1].text = cves
+        cells[2].text = cvss
         cells[3].text = vuln.family
 
         # VULN HOSTS
         # --------------------
-        document.add_heading("Vulnerable hosts", level=2)
+        document.add_heading("Vulnerable hosts", level=3)
 
         table_hosts = document.add_table(cols=5, rows=(len(vuln.hosts) + 1))
         hdr_cells = table_hosts.rows[0].cells
