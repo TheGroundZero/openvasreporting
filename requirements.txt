@@ -1,2 +1,2 @@
-XlsxWriter
-python-docx
+XlsxWriter>=1.0.0
+python-docx>=0.8.7
