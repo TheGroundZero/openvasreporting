@@ -61,5 +61,4 @@ def convert(config):
 
     openvas_info = openvas_parser(config.input_files, config.min_level)
 
-    # export_to_excel(openvas_info, config.output_file)
     exporters()[config.filetype](openvas_info, config.output_file)

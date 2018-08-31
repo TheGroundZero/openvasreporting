@@ -11,8 +11,6 @@ from collections import Counter
 from .config import Config
 from .parsed_data import Vulnerability
 
-__all__ = ["exporters", "export_to_excel"]
-
 
 def exporters():
     return {
@@ -245,10 +243,10 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
         ws_vuln.merge_range("C5:G5", cvss, format_table_cells)
 
-        ws_vuln.write('B6', "level", format_table_titles)
+        ws_vuln.write('B6', "Level", format_table_titles)
         ws_vuln.merge_range("C6:G6", vuln.level.capitalize(), format_table_cells)
 
-        ws_vuln.write('B7', "family", format_table_titles)
+        ws_vuln.write('B7', "Family", format_table_titles)
         ws_vuln.merge_range("C7:G7", vuln.family, format_table_cells)
 
         if len(vuln.description) < 200:
@@ -263,7 +261,7 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.write('F9', "Port protocol", format_table_titles)
         ws_vuln.write('G9', "Port description", format_table_titles)
 
-        for j, (host, port) in enumerate(vuln.hosts, 10):
+        for j, (host, port) in enumerate(vuln.hosts, 1):
 
             ws_vuln.write("C{}".format(j), host.ip)
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
@@ -305,4 +303,107 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     if output_file.split(".")[-1] != "docx":
         output_file = "{}.docx".format(output_file)
 
-    raise NotImplementedError("Export to word not yet implemented")
+    from docx import Document
+
+    # TODO Move to function to de-duplicate this
+    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
+    vuln_levels = Counter()
+    vuln_host_by_level = Counter()
+    vuln_by_family = Counter()
+
+    for i, vuln in enumerate(vuln_info, 1):
+        vuln_levels[vuln.level.lower()] += 1
+        vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
+        vuln_by_family[vuln.family] += 1
+
+    document = Document()
+
+    document.add_heading('OpenVAS Report', 0)
+
+    # ====================
+    # SUMMARY
+    # ====================
+    document.add_heading('Summary', level=1)
+    document.add_paragraph('Symmary info, with graphs, will come here')
+
+    records = (
+        ('Critical', vuln_levels["critical"], vuln_host_by_level["critical"]),
+        ('High', vuln_levels["high"], vuln_host_by_level["high"]),
+        ('Medium', vuln_levels["medium"], vuln_host_by_level["medium"]),
+        ('Low', vuln_levels["low"], vuln_host_by_level["low"]),
+        ('None', vuln_levels["none"], vuln_host_by_level["none"]),
+    )
+
+    table_summary = document.add_table(rows=1, cols=3)
+    hdr_cells = table_summary.rows[0].cells
+    hdr_cells[0].paragraphs[0].add_run('Threat').bold = True
+    hdr_cells[1].paragraphs[0].add_run('Vulns number').bold = True
+    hdr_cells[2].paragraphs[0].add_run('Affected hosts').bold = True
+    for t, vn, ah in records:
+        row_cells = table_summary.add_row().cells
+        row_cells[0].text = t
+        row_cells[1].text = str(vn)
+        row_cells[2].text = str(ah)
+
+    document.add_page_break()
+
+    # ====================
+    # TABLE OF CONTENTS
+    # ====================
+    document.add_heading('Table of Contents', level=1)
+    document.add_paragraph('Table of contents, listing all vulnerabilities that come next')
+
+    # ====================
+    # VULN PAGES
+    # ====================
+    for i, vuln in enumerate(vuln_info, 1):
+        # GENERAL
+        # --------------------
+        document.add_page_break()
+
+        document.add_heading(vuln.name, level=1)
+        document.add_paragraph(vuln.description)
+    
+        table_vuln = document.add_table(rows=4, cols=2)
+        hdr_cells = table_vuln.columns[0].cells
+        hdr_cells[0].paragraphs[0].add_run('CVEs').bold = True
+        hdr_cells[1].paragraphs[0].add_run('CVSS').bold = True
+        hdr_cells[2].paragraphs[0].add_run('Level').bold = True
+        hdr_cells[3].paragraphs[0].add_run('Family').bold = True
+
+        cves = ", ".join(vuln.cves)
+        cves = cves.upper() if cves != "" else "No CVE"
+
+        cvss = str(vuln.cvss) if vuln.cvss != -1.0 else "No CVSS"
+
+        cells = table_vuln.columns[1].cells
+        cells[0].text = cves
+        cells[1].text = cvss
+        cells[2].text = vuln.level.capitalize()
+        cells[3].text = vuln.family
+
+        # VULN HOSTS
+        # --------------------
+        document.add_heading("Vulnerable hosts", level=2)
+
+        table_hosts = document.add_table(cols=5, rows=(len(vuln.hosts) + 1))
+        hdr_cells = table_hosts.rows[0].cells
+        hdr_cells[0].paragraphs[0].add_run('IP').bold = True
+        hdr_cells[1].paragraphs[0].add_run('Host name').bold = True
+        hdr_cells[2].paragraphs[0].add_run('Port number').bold = True
+        hdr_cells[3].paragraphs[0].add_run('Port protocol').bold = True
+        hdr_cells[4].paragraphs[0].add_run('Port description').bold = True
+
+        for j, (host, port) in enumerate(vuln.hosts, 1):
+
+            cells = table_hosts.rows[j].cells
+            cells[0].text = host.ip
+            cells[1].text = host.host_name if host.host_name else "-"
+            if port:
+                cells[2].text = port.number
+                cells[3].text = port.protocol
+                cells[4].text = port.description
+            else:
+                cells[2].text = "No port info"
+
+    document.save(output_file)
