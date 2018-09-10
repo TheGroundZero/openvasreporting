@@ -18,7 +18,6 @@ def exporters():
         'docx': export_to_word
     }
 
-
 def export_to_excel(vuln_info, output_file="openvas_report"):
     """
     Export vulnerabilities info in an Excel file.
@@ -304,8 +303,11 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         output_file = "{}.docx".format(output_file)
 
     from docx import Document
+    from docx.enum.style import WD_STYLE_TYPE
     from docx.oxml.shared import qn, OxmlElement
-    from docx.enum.style import WD_BUILTIN_STYLE
+    from docx.oxml.ns import nsdecls
+    from docx.oxml import parse_xml
+    from docx.shared import Cm, Pt, RGBColor
 
     # TODO Move to function to de-duplicate this
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
@@ -318,46 +320,88 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
         vuln_by_family[vuln.family] += 1
 
+    # ====================
+    # DOCUMENT PROPERTIES
+    # ====================
     document = Document()
 
-    document.add_heading('OpenVAS Report', 0)
+    doc_prop = document.core_properties
+    doc_prop.title = "OpenVAS Report"
+    doc_prop.category = "Report"
+
+    # MARGINS
+    # --------------------
+    for section in document.sections:
+        section.top_margin = Cm(2.54)
+        section.bottom_margin = Cm(2.54)
+        section.left_margin = Cm(2.54)
+        section.right_margin = Cm(2.54)
+
+    # FONTS
+    # --------------------
+    styles = document.styles
+
+    color_blue = RGBColor.from_string(Config.colors()['blue'][1:])
+
+    font_normal = styles['Normal'].font
+    font_normal.name = 'Tahoma'
+    font_normal.size = Pt(10)
+
+    def add_style(new_style_name, base_style_name, font_size, font_color, font_bold, widow_ctrl):
+        style = styles.add_style(new_style_name, WD_STYLE_TYPE.PARAGRAPH)
+        style.base_style = styles[base_style_name]
+        style.font.name = 'Tahoma'
+        style.font.size = font_size
+        style.font.bold = font_bold
+        style.font.color.rgb = font_color
+        style.paragraph_format.widow_control = widow_ctrl
+        style.next_paragraph_style = styles['Body Text']
+        style.hidden = False
+        style.quick_style = True
+    
+    add_style('Report Title', 'Title', Pt(36), color_blue, True, True)
+    add_style('Report Heading TOC', 'Normal', Pt(16), color_blue, True, True)
+    add_style('Report Heading 1', 'Heading 1', Pt(16), color_blue, True, True)
+    add_style('Report Heading 2', 'Heading 2', Pt(14), color_blue, True, True)
+    add_style('Report Heading 3', 'Heading 3', Pt(13), color_blue, True, True)
+
+    document.add_paragraph('OpenVAS Report', style='Report Title')
 
     # ====================
     # TABLE OF CONTENTS
     # ====================
     # TODO Use ToC Header so it doesn't end up in the ToC
-    document.add_paragraph('Table of Contents')
+    document.add_paragraph('Table of Contents', style='Report Heading TOC')
 
     par = document.add_paragraph()
     run = par.add_run()
-    fldChar = OxmlElement('w:fldChar')  # creates a new element
-    fldChar.set(qn('w:fldCharType'), 'begin')  # sets attribute on element
-    instrText = OxmlElement('w:instrText')
-    instrText.set(qn('xml:space'), 'preserve')  # sets attribute on element
-    instrText.text = r'TOC \o 1-2 \h \z \u'  # change "1-2" depending on heading levels you need
+    fld_char = OxmlElement('w:fldChar')  # creates a new element
+    fld_char.set(qn('w:fldCharType'), 'begin')  # sets attribute on element
+    instr_text = OxmlElement('w:instrText')
+    instr_text.set(qn('xml:space'), 'preserve')  # sets attribute on element
+    instr_text.text = r'TOC \o 1-2 \h \z \u'  # change "1-2" depending on heading levels you need
 
-    fldChar2 = OxmlElement('w:fldChar')
-    fldChar2.set(qn('w:fldCharType'), 'separate')
-    fldChar3 = OxmlElement('w:t')
-    fldChar3.text = "# Right-click to update field. #"
-    fldChar2.append(fldChar3)
+    fld_char2 = OxmlElement('w:fldChar')
+    fld_char2.set(qn('w:fldCharType'), 'separate')
+    fld_char3 = OxmlElement('w:t')
+    fld_char3.text = "# Right-click to update field. #"
+    fld_char2.append(fld_char3)
 
-    fldChar4 = OxmlElement('w:fldChar')
-    fldChar4.set(qn('w:fldCharType'), 'end')
+    fld_char4 = OxmlElement('w:fldChar')
+    fld_char4.set(qn('w:fldCharType'), 'end')
 
     r_element = run._r
-    r_element.append(fldChar)
-    r_element.append(instrText)
-    r_element.append(fldChar2)
-    r_element.append(fldChar4)
-    p_element = par._p
+    r_element.append(fld_char)
+    r_element.append(instr_text)
+    r_element.append(fld_char2)
+    r_element.append(fld_char4)
 
     document.add_page_break()
 
     # ====================
     # SUMMARY
     # ====================
-    document.add_heading('Summary', level=1)
+    document.add_paragraph('Summary', style='Report Heading 1')
     document.add_paragraph('Symmary info, with graphs, will come here')
 
     records = (
@@ -379,6 +423,8 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         row_cells[1].text = str(vn)
         row_cells[2].text = str(ah)
 
+    # TODO Add graphs
+
     # ====================
     # VULN PAGES
     # ====================
@@ -387,38 +433,58 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     for i, vuln in enumerate(vuln_info, 1):
         # GENERAL
         # --------------------
-        level = vuln.level
+        level = vuln.level.lower()
 
         if level != cur_level:
-            document.add_heading(level.capitalize(), level=1).paragraph_format.page_break_before = True
+            document.add_paragraph(
+                level.capitalize(), style='Report Heading 1').paragraph_format.page_break_before = True
             cur_level = level
         else:
             document.add_page_break()
 
         title = "[{}] {}".format(level.upper(), vuln.name)
-        document.add_heading(title, level=2)
+        document.add_paragraph(title, style='Report Heading 2')
     
-        table_vuln = document.add_table(rows=4, cols=2)
-        hdr_cells = table_vuln.columns[0].cells
+        table_vuln = document.add_table(rows=4, cols=3)
+        table_vuln.autofit = False
+
+        # Color
+        col_cells = table_vuln.columns[0].cells
+        col_cells[0].merge(col_cells[3])
+        color_fill = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), Config.colors()[vuln.level][1:]))
+        col_cells[0]._tc.get_or_add_tcPr().append(color_fill)
+
+        for col_cell in col_cells:
+            col_cell.width = Cm(0.42)
+
+        # Headers
+        hdr_cells = table_vuln.columns[1].cells
         hdr_cells[0].paragraphs[0].add_run('Description').bold = True
         hdr_cells[1].paragraphs[0].add_run('CVEs').bold = True
         hdr_cells[2].paragraphs[0].add_run('CVSS').bold = True
         hdr_cells[3].paragraphs[0].add_run('Family').bold = True
 
+        for hdr_cell in hdr_cells:
+            hdr_cell.width = Cm(3.58)
+
+        # Fields
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
 
         cvss = str(vuln.cvss) if vuln.cvss != -1.0 else "No CVSS"
 
-        cells = table_vuln.columns[1].cells
-        cells[0].text = vuln.description
-        cells[1].text = cves
-        cells[2].text = cvss
-        cells[3].text = vuln.family
+        txt_cells = table_vuln.columns[2].cells
+        txt_cells[0].text = vuln.description
+        txt_cells[1].text = cves
+        txt_cells[2].text = cvss
+        txt_cells[3].text = vuln.family
+
+        for txt_cell in txt_cells:
+            txt_cell.width = Cm(12.51)
 
         # VULN HOSTS
         # --------------------
-        document.add_heading("Vulnerable hosts", level=3)
+        document.add_paragraph('Vulnerable hosts', style='Report Heading 3')
 
         table_hosts = document.add_table(cols=5, rows=(len(vuln.hosts) + 1))
         hdr_cells = table_hosts.rows[0].cells
