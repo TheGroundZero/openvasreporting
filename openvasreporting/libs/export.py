@@ -260,7 +260,8 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.write('F9', "Port protocol", format_table_titles)
         ws_vuln.write('G9', "Port description", format_table_titles)
 
-        for j, (host, port) in enumerate(vuln.hosts, 1):
+        # Affected hosts
+        for j, (host, port) in enumerate(vuln.hosts, 10):
 
             ws_vuln.write("C{}".format(j), host.ip)
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
