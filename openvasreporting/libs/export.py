@@ -258,7 +258,6 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.write('D9', "Host name", format_table_titles)
         ws_vuln.write('E9', "Port number", format_table_titles)
         ws_vuln.write('F9', "Port protocol", format_table_titles)
-        ws_vuln.write('G9', "Port description", format_table_titles)
 
         # Affected hosts
         for j, (host, port) in enumerate(vuln.hosts, 10):
@@ -267,9 +266,8 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
 
             if port:
-                ws_vuln.write("E{}".format(j), port.number)
+                ws_vuln.write("E{}".format(j), "-" if port.number == 0 else port.number)
                 ws_vuln.write("F{}".format(j), port.protocol)
-                ws_vuln.write("G{}".format(j), port.description)
             else:
                 ws_vuln.write("E{}".format(j), "No port info")
 
@@ -487,23 +485,21 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         # --------------------
         document.add_paragraph('Vulnerable hosts', style='Report Heading 3')
 
-        table_hosts = document.add_table(cols=5, rows=(len(vuln.hosts) + 1))
+        table_hosts = document.add_table(cols=4, rows=(len(vuln.hosts) + 1))
         hdr_cells = table_hosts.rows[0].cells
         hdr_cells[0].paragraphs[0].add_run('IP').bold = True
         hdr_cells[1].paragraphs[0].add_run('Host name').bold = True
         hdr_cells[2].paragraphs[0].add_run('Port number').bold = True
         hdr_cells[3].paragraphs[0].add_run('Port protocol').bold = True
-        hdr_cells[4].paragraphs[0].add_run('Port description').bold = True
 
         for j, (host, port) in enumerate(vuln.hosts, 1):
 
             cells = table_hosts.rows[j].cells
             cells[0].text = host.ip
             cells[1].text = host.host_name if host.host_name else "-"
-            if port:
-                cells[2].text = port.number
+            if port and port is not None:
+                cells[2].text = "-" if port.number == 0 else str(port.number)
                 cells[3].text = port.protocol
-                cells[4].text = port.description
             else:
                 cells[2].text = "No port info"
 
