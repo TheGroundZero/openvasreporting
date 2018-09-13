@@ -210,7 +210,7 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
                                            family=vuln_family,
                                            level=vuln_level)
 
-            vuln_store.add_host(host, port)
+            vuln_store.add_vuln_host(host, port)
             vulnerabilities[vuln_id] = vuln_store
 
     return list(vulnerabilities.values())
