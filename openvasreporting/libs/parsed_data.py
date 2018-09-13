@@ -220,7 +220,7 @@ class Vulnerability(object):
         # Hosts
         self.hosts = []
 
-    def add_host(self, host, port):
+    def add_vuln_host(self, host, port):
         """
         Add a host and a port associated to this vulnerability
 
