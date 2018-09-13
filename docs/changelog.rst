@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.2.2  - Fix bug where port info was not correctly extracted.
+
 1.2.1  - Fix bug where affected hosts were added on wrong row in Excel export.
 
 1.2.0  - Functional export to Word document (.docx). Includes some formatting. TODO: graphs

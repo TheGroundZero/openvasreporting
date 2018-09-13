@@ -12,16 +12,13 @@ import re
 class Port(object):
     """Port information"""
 
-    def __init__(self, number, protocol="tcp", description=""):
+    def __init__(self, number, protocol="tcp"):
         """
         :param number: port number
         :type number: int
 
         :param protocol: port protocol (tcp, udp, ...)
         :type protocol: basestring
-
-        :param description: port description
-        :type description: basestring
 
         :raises: TypeError, ValueError
         """
@@ -34,12 +31,8 @@ class Port(object):
         if not isinstance(protocol, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(protocol)))
 
-        if not isinstance(description, str):
-            raise TypeError("Expected basestring, got '{}' instead".format(type(description)))
-
         self.number = number
         self.protocol = protocol
-        self.description = description
 
     @staticmethod
     def string2port(info):
@@ -49,13 +42,17 @@ class Port(object):
         ..note:
             Raises value error if information can't be processed.
 
-        # >>> p=Port.string2port("callbook (2000/tcp)")
+        # >>> p=Port.string2port("2000/tcp")
         # >>> print p.number
           2000
-        # >>> print p.desc
-          "callbook"
         # >>> print p.proto
           "tcp"
+
+        # >>> p=Port.string2port("general/icmp")
+        # >>> print p.number
+          0
+        # >>> print p.proto
+          "icmp"
 
         :param info: raw string with port information
         :type info: basestring
@@ -68,20 +65,19 @@ class Port(object):
         if not isinstance(info, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(info)))
 
-        regex = re.search("([\w\W]+)(\()([\d]+)(/)([\w]+)", info)
+        regex_nr = re.search("([\d]+)(/)([\w]+)", info)
+        regex_general = re.search("(general)(/)([\w]+)", info)
 
-        if regex:
-            if len(regex.groups()) != 5:
-                raise ValueError("Can't parse input string")
-
-            description = regex.group(1).strip()
-            number = int(regex.group(3))
-            protocol = regex.group(5)
-
-            return Port(number, protocol, description)
-
+        if regex_nr and len(regex_nr.groups()) == 3:
+            number = int(regex_nr.group(1))
+            protocol = regex_nr.group(3)
+        elif regex_general and len(regex_general.groups()) == 3:
+            number = 0
+            protocol = regex_general.group(3)
         else:
             raise ValueError("Can't parse input string")
+
+        return Port(number, protocol)
 
     def __eq__(self, other):
         if not isinstance(other, Port):
@@ -90,8 +86,6 @@ class Port(object):
         if other.number != self.number:
             return False
         if other.protocol != self.protocol:
-            return False
-        if other.description != self.description:
             return False
 
         return True
