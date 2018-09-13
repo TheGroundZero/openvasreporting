@@ -27,10 +27,13 @@ I reorganised some of the files, removed some functionality and added some extra
 
 At this moment in time, the script only output .xlsx documents in one format, this may (not) change in the future.
 
+
 ## Requirements
 
  - [Python](https://www.python.org/) version 3
  - [XlsxWriter](https://xlsxwriter.readthedocs.io/)
+ - [Python-docx](https://python-docx.readthedocs.io)
+
 
 ## Installation
 
@@ -42,28 +45,41 @@ At this moment in time, the script only output .xlsx documents in one format, th
     # clone repo
     git clone git@github.com:TheGroundZero/openvas_to_report.git
 
+
 ## Usage
 
-    python3 -m openvasreporting -i [OpenVAS xml file(s)] -o [Report output file.xlsx] [-l [minimal threat level (n, l, m, h, c)]]
+    python3 -m openvasreporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]]
+
+### Parameters
+
+| Short param | Long param | Description     | Required | Default value  |
+| :---------: | :--------- | :-------------- | :------: | :------------- |
+| -i          | --input    | Input file(s)   | YES      | n/a            |
+| -o          | --output   | Output filename | No       | openvas_report |
+| -f          | --format   | Output format   | No       | xlsx           |
+| -l          | --level    | Minimal level   | No       | n              |
+
+
+## Examples
 
 ### Create Excel report from 1 OpenVAS XML report using default settings
 
-    python3 -m openvasreporting -i openvasreport.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i openvasreport.xml -f xlsx
 
 ### Create Excel report from multiple OpenVAS reports using default settings
 
     # wildcard select
-    python3 -m openvasreporting -i *.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i *.xml -f xlsx
     # selective
-    python3 -m openvasreporting -i openvasreport1.xml -i openvasreport2.xml -o excelreport.xlsx
+    python3 -m openvasreporting -i openvasreport1.xml -i openvasreport2.xml -f xlsx
 
 ### Create Excel report from multiple OpenVAS reports, reporting only threat level high and up
 
-    python3 -m openvasreporting -i *.xml -o excelreport.xlsx -l h
+    python3 -m openvasreporting -i *.xml -o excelreport -f xlsx -l h
 
 ## Result
 
-The final report will then look something like this:
+The final report (in Excel format) will then look something like this:
 
 ![Report example screenshot - Summary](docs/_static/img/screenshot-report.png?raw=true)
 ![Report example screenshot - ToC](docs/_static/img/screenshot-report1.png?raw=true)
@@ -78,6 +94,6 @@ Some of the ideas I still have for future functionality:
  - list vulnerabilities per host
  - make pip installer
  - filter by host (scope/exclude) as in OpenVAS2Report
- - export to other formats (CSV, Word, PDF)
+ - export to other formats (CSV, PDF)
  - select threat levels individually (e.g. none and low; but not med, high and crit)
  
