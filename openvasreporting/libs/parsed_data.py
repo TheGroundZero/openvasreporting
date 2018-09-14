@@ -160,11 +160,11 @@ class Vulnerability(object):
         """
         # Get info
         cves = kwargs.get("cves", list()) or list()
-        cvss = kwargs.get("cvss", -1.0)
-        level = kwargs.get("level", "Low")
-        description = kwargs.get("description", "")
+        cvss = kwargs.get("cvss", -1.0) or -1.0
+        level = kwargs.get("level", "None") or "None"
+        description = kwargs.get("description", "") or ""
         references = kwargs.get("references", list()) or list()
-        family = kwargs.get("family", "unknown") or "unknown"
+        family = kwargs.get("family", "Unknown") or "Unknown"
 
         if not isinstance(vuln_id, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(vuln_id)))
