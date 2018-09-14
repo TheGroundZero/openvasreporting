@@ -29,7 +29,16 @@ Command line usage
 
 
 .. todo::
-   Export to other formats (Word [docx], PDF, [proper] CSV)
+   [Feature] Export to other formats (PDF, [proper] CSV)
+
+.. todo::
+   [Feature] List vulnerabilities per host
+
+.. todo::
+   [Feature] Filter by host (scope/exclude) as in OpenVAS2Report
+
+.. todo::
+   [Feature] Select threat levels individually (e.g. none and low; but not medium, high, or critical)
 
 
 .. toctree::
@@ -37,3 +46,4 @@ Command line usage
    :maxdepth: 1
 
    export-excel
+   export-word

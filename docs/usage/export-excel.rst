@@ -30,7 +30,7 @@ Create Excel report from 1 OpenVAS XML report, reporting only severity level hig
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml -l h
+   python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f xlsx -l h
 
 
 Result
@@ -51,12 +51,3 @@ The final report will look similar to this:
    :width: 30%
 
 Worksheets are sorted according to CVSS score and are colored according to the vulnerability level.
-
-.. todo::
-   list vulnerabilities per host
-
-.. todo::
-   filter by host (scope/exclude) as in OpenVAS2Report
-
-.. todo::
-   select threat levels individually (e.g. none and low; but not medium, high, or critical)

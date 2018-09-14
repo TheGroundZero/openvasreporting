@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.2.3  - Implement https://github.com/cr0hn/openvas_to_report/pull/12
+
 1.2.2  - Fix bug where port info was not correctly extracted.
 
 1.2.1  - Fix bug where affected hosts were added on wrong row in Excel export.
