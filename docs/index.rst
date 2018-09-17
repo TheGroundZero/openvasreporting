@@ -5,8 +5,6 @@ OpenVAS Reporting
 
 A tool to convert OpenVAS XML into reports.
 
-**Current stable version:** 1.0.0
-
 Table of contents
 -----------------
 
