@@ -91,10 +91,10 @@ TODO list
    :target: https://github.com/TheGroundZero/openvasreporting/blob/master/LICENSE
 .. |pypi_format| image:: https://img.shields.io/pypi/format/OpenVAS-Reporting.svg
    :alt: PyPI - Format
-   :target: https://pypi.org/project/openvasreporting/
+   :target: https://pypi.org/project/OpenVAS-Reporting/
 .. |pypi_versions| image:: https://img.shields.io/pypi/pyversions/OpenVAS-Reporting.svg
    :alt: PyPI - Python Version
-   :target: https://pypi.org/project/openvasreporting/
+   :target: https://pypi.org/project/OpenVAS-Reporting/
 .. |requires| image:: https://requires.io/github/TheGroundZero/openvasreporting/requirements.svg?branch=master
    :target: https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master
    :alt: Requirements Status

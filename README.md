@@ -6,10 +6,8 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/TheGroundZero/openvasreporting/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/TheGroundZero/openvasreporting?targetFile=requirements.txt)
 [![codecov](https://codecov.io/gh/TheGroundZero/openvasreporting/branch/master/graph/badge.svg)](https://codecov.io/gh/TheGroundZero/openvasreporting)
 [![Requirements Status](https://requires.io/github/TheGroundZero/openvasreporting/requirements.svg?branch=master)](https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master)
-<!-- 
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openvasreporting.svg)](https://pypi.org/project/openvasreporting/)
-[![PyPI - Format](https://img.shields.io/pypi/format/openvasreporting.svg)](https://pypi.org/project/openvasreporting/)
--->
+[![PyPI - Format](https://img.shields.io/pypi/format/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
 
 A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports.
 
