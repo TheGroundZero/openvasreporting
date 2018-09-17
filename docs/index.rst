@@ -1,7 +1,7 @@
 OpenVAS Reporting
 =================
 
-|version| |license| |docs| |vulns| |codecov| |requires|
+|version| |license| |docs| |vulns| |codecov| |requires| |pypi_format| |pypi_versions|
 
 A tool to convert OpenVAS XML into reports.
 
@@ -84,20 +84,20 @@ TODO list
    :alt: Code Coverage
    :target: https://codecov.io/gh/TheGroundZero/openvasreporting
 .. |docs| image:: https://readthedocs.org/projects/openvas-reporting/badge/?version=latest&style=flat
-    :target: https://openvas-reporting.stijncrevits.be
-    :alt: Documentation
+   :target: https://openvas-reporting.stijncrevits.be
+   :alt: Documentation
 .. |license| image:: https://img.shields.io/github/license/TheGroundZero/openvasreporting.svg
    :alt: GitHub
    :target: https://github.com/TheGroundZero/openvasreporting/blob/master/LICENSE
-.. |pypi_format| image:: https://img.shields.io/pypi/format/openvasreporting.svg
+.. |pypi_format| image:: https://img.shields.io/pypi/format/OpenVAS-Reporting.svg
    :alt: PyPI - Format
    :target: https://pypi.org/project/openvasreporting/
-.. |pypi_versions| image:: https://img.shields.io/pypi/pyversions/openvasreporting.svg
+.. |pypi_versions| image:: https://img.shields.io/pypi/pyversions/OpenVAS-Reporting.svg
    :alt: PyPI - Python Version
    :target: https://pypi.org/project/openvasreporting/
 .. |requires| image:: https://requires.io/github/TheGroundZero/openvasreporting/requirements.svg?branch=master
-     :target: https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master
-     :alt: Requirements Status
+   :target: https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master
+   :alt: Requirements Status
 .. |version| image:: https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting.svg
    :target: https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting
 .. |vulns| image:: https://snyk.io/test/github/TheGroundZero/openvasreporting/badge.svg?targetFile=requirements.txt
