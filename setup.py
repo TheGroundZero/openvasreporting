@@ -17,6 +17,7 @@ setup(
     url='https://github.com/TheGroundZero/openvasreporting',
     packages=['openvasreporting'],
     install_requires=['xlsxwriter>=1.0.0', 'python-docx>=0.8.7'],
+    python_requires='~=3.7',
     entry_points={
         'console_scripts': ['openvasreporting = openvasreporting:main']
     },
