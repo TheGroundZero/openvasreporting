@@ -46,12 +46,12 @@ class Config(object):
     @staticmethod
     def colors():
         return {
-            'blue': '#183868',
+            'blue':     '#183868',
             'critical': '#702da0',
-            'high': '#c80000',
-            'medium': '#ffc000',
-            'low': '#00b050',
-            'none': '#0070c0',
+            'high':     '#c80000',
+            'medium':   '#ffc000',
+            'low':      '#00b050',
+            'none':     '#0070c0',
         }
 
     @staticmethod
@@ -62,4 +62,25 @@ class Config(object):
             'm': 'medium',
             'l': 'low',
             'n': 'none'
+        }
+
+    @staticmethod
+    def thresholds():
+        return {
+            'critical': 9.0,
+            'high':     7.0,
+            'medium':   4.0,
+            'low':      0.1,
+            'none':     0.0
+        }
+
+    @staticmethod
+    def min_levels():
+        return {
+            'critical': [Config.levels()['c']],
+            'high':     [Config.levels()['c'], Config.levels()['h']],
+            'medium':   [Config.levels()['c'], Config.levels()['h'], Config.levels()['m']],
+            'low':      [Config.levels()['c'], Config.levels()['h'], Config.levels()['m'], Config.levels()['l']],
+            'none':     [Config.levels()['c'], Config.levels()['h'], Config.levels()['m'], Config.levels()['l'],
+                         Config.levels()['n']]
         }
