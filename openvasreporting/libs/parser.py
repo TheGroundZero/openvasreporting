@@ -23,15 +23,15 @@ except ImportError:
     from xml.etree import ElementTree as Et
 
 
-def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
+def openvas_parser(input_files, min_level=Config.levels()["n"]):
     """
     This function takes an OpenVAS XML report and returns Vulnerability info
 
     :param input_files: path to XML files
     :type input_files: list(str)
 
-    :param min_lvl: Minimal level (none, low, medium, high, critical) for displaying vulnerabilities
-    :type min_lvl: str
+    :param min_level: Minimal level (none, low, medium, high, critical) for displaying vulnerabilities
+    :type min_level: str
 
     :return: list
 
@@ -49,8 +49,8 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
                         not all(True for x in ("extension", "format_id", "content_type") if x in first_line):
                     raise IOError("Invalid report format")
 
-    if not isinstance(min_lvl, str):
-        raise TypeError("Expected basestring, got '{}' instead".format(type(min_lvl)))
+    if not isinstance(min_level, str):
+        raise TypeError("Expected basestring, got '{}' instead".format(type(min_level)))
 
     vulnerabilities = {}
 
@@ -77,6 +77,7 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
             # VULN_ID
             vuln_id = nvt_tmp.get("oid")
             if not vuln_id or vuln_id == "0":
+                logging.debug("  ==> SKIP")  # DEBUG
                 continue
             logging.debug("* vuln_id:\t{}".format(vuln_id))  # DEBUG
 
@@ -92,42 +93,16 @@ def openvas_parser(input_files, min_lvl=Config.levels()["n"]):
             # --------------------
             #
             # VULN_LEVEL
-            if vuln_cvss < 0.1:
-                vuln_level = Config.levels()["n"]
-                if min_lvl not in Config.levels()["n"]:
-                    continue
-            elif vuln_cvss < 4:
-                vuln_level = Config.levels()["l"]
-                if min_lvl not in (Config.levels()["n"], Config.levels()["l"]):
-                    continue
-            elif vuln_cvss < 7:
-                vuln_level = Config.levels()["m"]
-                if min_lvl not in (Config.levels()["n"], Config.levels()["l"], Config.levels()["m"]):
-                    continue
-            elif vuln_cvss < 9:
-                vuln_level = Config.levels()["h"]
-                if min_lvl not in (Config.levels()["n"], Config.levels()["l"], Config.levels()["m"],
-                                   Config.levels()["h"]):
-                    continue
-            else:
-                vuln_level = Config.levels()["c"]
+            vuln_level = "none"
+            for level in Config.levels().values():
+                if vuln_cvss >= Config.thresholds()[level]:
+                    vuln_level = level
+                    logging.debug("* vuln_level:\t{}".format(vuln_level))  # DEBUG
+                    break
 
-            logging.debug("* vuln_level:\t{}".format(vuln_level))  # DEBUG
-
-            # --------------------
-            #
-            # VULN_LEVEL >= MIN_LEVEL (param)?
-            if (min_lvl == Config.levels()["c"] and vuln_level not in (Config.levels()["c"])) or \
-                    (min_lvl == Config.levels()["h"] and vuln_level not in (Config.levels()["c"],
-                                                                            Config.levels()["h"])) or \
-                    (min_lvl == Config.levels()["m"] and vuln_level not in (Config.levels()["c"],
-                                                                            Config.levels()["h"],
-                                                                            Config.levels()["m"])) or \
-                    (min_lvl == Config.levels()["l"] and vuln_level not in (Config.levels()["c"],
-                                                                            Config.levels()["h"],
-                                                                            Config.levels()["m"],
-                                                                            Config.levels()["l"])):
-                logging.debug("  ==> SKIP")  # DEBUG
+            logging.debug("* min_level:\t{}".format(min_level))  # DEBUG
+            if vuln_level not in Config.min_levels()[min_level]:
+                logging.debug("   => SKIP")  # DEBUG
                 continue
 
             # --------------------
