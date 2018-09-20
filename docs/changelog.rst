@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.3.0  - Fix retrieval of description and other useful info by parsing <tags> instead of <description>
+
 1.2.3  - Implement https://github.com/cr0hn/openvas_to_report/pull/12
 
 1.2.2  - Fix bug where port info was not correctly extracted.

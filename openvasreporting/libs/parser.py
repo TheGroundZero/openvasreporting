@@ -3,7 +3,7 @@
 #
 # Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
 # Project URL: https://github.com/TheGroundZero/openvas_to_report
-
+import re
 import sys
 import logging
 
@@ -65,6 +65,8 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
 
             nvt_tmp = vuln.find("./nvt")
 
+            # --------------------
+            #
             # VULN_NAME
             vuln_name = nvt_tmp.find("./name").text
 
@@ -114,9 +116,15 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
 
             # --------------------
             #
-            # VULN_DESCRIPTION
-            vuln_description = vuln.find("./description").text
-            logging.debug("* vuln_desc:\t{}".format(vuln_description))  # DEBUG
+            # VULN_TAGS
+            # Replace double newlines by a single newline
+            vuln_tags_text = re.sub(r"(\r\n)+", "\r\n", nvt_tmp.find("./tags").text)
+            vuln_tags_text = re.sub(r"\n+", "\n", vuln_tags_text)
+            # Remove useless whitespace but not newlines
+            vuln_tags_text = re.sub(r"[^\S\r\n]+", " ", vuln_tags_text)
+            vuln_tags_temp = vuln_tags_text.split('|')
+            vuln_tags = dict(tag.split('=', 1) for tag in vuln_tags_temp)
+            logging.debug("* vuln_tags:\t{}".format(vuln_tags))  # DEBUG
 
             # --------------------
             #
@@ -178,7 +186,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
                 vuln_store = Vulnerability(vuln_id,
                                            name=vuln_name,
                                            threat=vuln_threat,
-                                           description=vuln_description,
+                                           tags=vuln_tags,
                                            cvss=vuln_cvss,
                                            cves=vuln_cves,
                                            references=vuln_references,

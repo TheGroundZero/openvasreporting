@@ -18,6 +18,7 @@ def exporters():
         'docx': export_to_word
     }
 
+
 def export_to_excel(vuln_info, output_file="openvas_report"):
     """
     Export vulnerabilities info in an Excel file.
@@ -220,12 +221,14 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
                           string="<< TOC")
         # / Add to Table of Contents
 
-        ws_vuln.set_column("B:B", 14, format_align_center)
+        ws_vuln.set_column("A:A", 7, format_align_center)
+        ws_vuln.set_column("B:B", 20, format_align_center)
         ws_vuln.set_column("C:C", 14, format_align_center)
         ws_vuln.set_column("D:D", 30, format_align_center)
         ws_vuln.set_column("E:E", 12, format_align_center)
         ws_vuln.set_column("F:F", 13, format_align_center)
         ws_vuln.set_column("G:G", 20, format_align_center)
+        ws_vuln.set_column("H:H", 7, format_align_center)
 
         ws_vuln.write('B2', "Title", format_table_titles)
         ws_vuln.merge_range("C2:G2", vuln.name, format_sheet_title_content)
@@ -233,20 +236,29 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.write('B3', "Description", format_table_titles)
         ws_vuln.merge_range("C3:G3", vuln.description, format_description)
 
-        ws_vuln.write('B4', "CVEs", format_table_titles)
+        ws_vuln.write('B4', "Impact", format_table_titles)
+        ws_vuln.merge_range("C4:G4", vuln.impact, format_description)
+
+        ws_vuln.write('B5', "Recommendation", format_table_titles)
+        ws_vuln.merge_range("C5:G5", vuln.solution, format_description)
+
+        ws_vuln.write('B6', "Details", format_table_titles)
+        ws_vuln.merge_range("C6:G6", vuln.insight, format_description)
+
+        ws_vuln.write('B7', "CVEs", format_table_titles)
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
-        ws_vuln.merge_range("C4:G4", cves, format_table_cells)
+        ws_vuln.merge_range("C7:G7", cves, format_table_cells)
 
-        ws_vuln.write('B5', "CVSS", format_table_titles)
+        ws_vuln.write('B8', "CVSS", format_table_titles)
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
-        ws_vuln.merge_range("C5:G5", cvss, format_table_cells)
+        ws_vuln.merge_range("C8:G8", cvss, format_table_cells)
 
-        ws_vuln.write('B6', "Level", format_table_titles)
-        ws_vuln.merge_range("C6:G6", vuln.level.capitalize(), format_table_cells)
+        ws_vuln.write('B9', "Level", format_table_titles)
+        ws_vuln.merge_range("C9:G9", vuln.level.capitalize(), format_table_cells)
 
-        ws_vuln.write('B7', "Family", format_table_titles)
-        ws_vuln.merge_range("C7:G7", vuln.family, format_table_cells)
+        ws_vuln.write('B10', "Family", format_table_titles)
+        ws_vuln.merge_range("C10:G10", vuln.family, format_table_cells)
 
         if len(vuln.description) < 200:
             description_height = 20
@@ -254,13 +266,13 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
             description_height = 80
         ws_vuln.set_row(2, description_height, None)
 
-        ws_vuln.write('C9', "IP", format_table_titles)
-        ws_vuln.write('D9', "Host name", format_table_titles)
-        ws_vuln.write('E9', "Port number", format_table_titles)
-        ws_vuln.write('F9', "Port protocol", format_table_titles)
+        ws_vuln.write('C12', "IP", format_table_titles)
+        ws_vuln.write('D12', "Host name", format_table_titles)
+        ws_vuln.write('E12', "Port number", format_table_titles)
+        ws_vuln.write('F12', "Port protocol", format_table_titles)
 
         # Affected hosts
-        for j, (host, port) in enumerate(vuln.hosts, 10):
+        for j, (host, port) in enumerate(vuln.hosts, 13):
 
             ws_vuln.write("C{}".format(j), host.ip)
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
@@ -444,12 +456,12 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         title = "[{}] {}".format(level.upper(), vuln.name)
         document.add_paragraph(title, style='Report Heading 2')
     
-        table_vuln = document.add_table(rows=4, cols=3)
+        table_vuln = document.add_table(rows=6, cols=3)
         table_vuln.autofit = False
 
         # Color
         col_cells = table_vuln.columns[0].cells
-        col_cells[0].merge(col_cells[3])
+        col_cells[0].merge(col_cells[5])
         color_fill = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), Config.colors()[vuln.level][1:]))
         col_cells[0]._tc.get_or_add_tcPr().append(color_fill)
 
@@ -459,9 +471,11 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         # Headers
         hdr_cells = table_vuln.columns[1].cells
         hdr_cells[0].paragraphs[0].add_run('Description').bold = True
-        hdr_cells[1].paragraphs[0].add_run('CVEs').bold = True
-        hdr_cells[2].paragraphs[0].add_run('CVSS').bold = True
-        hdr_cells[3].paragraphs[0].add_run('Family').bold = True
+        hdr_cells[1].paragraphs[0].add_run('Impact').bold = True
+        hdr_cells[2].paragraphs[0].add_run('Recommendation').bold = True
+        hdr_cells[3].paragraphs[0].add_run('Details').bold = True
+        hdr_cells[4].paragraphs[0].add_run('CVSS').bold = True
+        hdr_cells[5].paragraphs[0].add_run('CVEs').bold = True
 
         for hdr_cell in hdr_cells:
             hdr_cell.width = Cm(3.58)
@@ -474,9 +488,11 @@ def export_to_word(vuln_info, output_file="openvas_report"):
 
         txt_cells = table_vuln.columns[2].cells
         txt_cells[0].text = vuln.description
-        txt_cells[1].text = cves
-        txt_cells[2].text = cvss
-        txt_cells[3].text = vuln.family
+        txt_cells[1].text = vuln.impact
+        txt_cells[2].text = vuln.solution
+        txt_cells[3].text = vuln.insight
+        txt_cells[4].text = cvss
+        txt_cells[5].text = cves
 
         for txt_cell in txt_cells:
             txt_cell.width = Cm(12.51)

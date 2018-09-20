@@ -147,8 +147,8 @@ class Vulnerability(object):
         :param level: Threat level according to CVSS: None, Low, Medium, High, Critical
         :type level: str
 
-        :param description: vulnerability description
-        :type description: basestring
+        :param tags: vulnerability tags
+        :type tags: dict
 
         :param references: list of references
         :type references: list(str)
@@ -162,7 +162,7 @@ class Vulnerability(object):
         cves = kwargs.get("cves", list()) or list()
         cvss = kwargs.get("cvss", -1.0) or -1.0
         level = kwargs.get("level", "None") or "None"
-        description = kwargs.get("description", "") or ""
+        tags = kwargs.get("tags", dict()) or dict()
         references = kwargs.get("references", list()) or list()
         family = kwargs.get("family", "Unknown") or "Unknown"
 
@@ -185,12 +185,8 @@ class Vulnerability(object):
             raise TypeError("Expected float, got '{}' instead".format(type(cvss)))
         if not isinstance(level, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(level)))
-        if description is not None:
-            if not isinstance(description, str):
-                raise TypeError("Expected basestring, got '{}' instead".format(type(description)))
-        else:
-            description = name
-
+        if not isinstance(tags, dict):
+            raise TypeError("Expected dict, got '{}' instead".format(type(tags)))
         if not isinstance(references, list):
             raise TypeError("Expected list, got '{}' instead".format(type(references)))
         else:
@@ -198,15 +194,18 @@ class Vulnerability(object):
                 if not isinstance(x, str):
                     raise TypeError("Expected basestring, got '{}' instead".format(type(x)))
 
-        description = re.sub("([\n\r]*[\s]*[Ss]ummary[:]*[\n\r\s]*)", "", description)
-        description = re.sub("[\w][\r\n][\w]", "", description)
-
         self.vuln_id = vuln_id
         self.name = name
         self.cves = cves
         self.cvss = float(cvss)
         self.level = level
-        self.description = description
+        self.description = tags.get('summary', '')
+        self.detect = tags.get('vuldetect', '')
+        self.insight = tags.get('insight', '')
+        self.impact = tags.get('impact', '')
+        self.affected = tags.get('affected', '')
+        self.solution = tags.get('solution', '')
+        self.solution_type = tags.get('solution_type', '')
         self.references = references
         self.threat = threat
         self.family = family
