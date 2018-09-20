@@ -1,7 +1,7 @@
 OpenVAS Reporting
 =================
 
-|version| |license| |docs| |vulns| |codecov| |requires| |pypi_format| |pypi_versions|
+|version| |license| |docs| |vulns| |codecov| |requires| |pypi_version| |pypi_format|
 
 A tool to convert OpenVAS XML into reports.
 
@@ -92,8 +92,8 @@ TODO list
 .. |pypi_format| image:: https://img.shields.io/pypi/format/OpenVAS-Reporting.svg
    :alt: PyPI - Format
    :target: https://pypi.org/project/OpenVAS-Reporting/
-.. |pypi_versions| image:: https://img.shields.io/pypi/pyversions/OpenVAS-Reporting.svg
-   :alt: PyPI - Python Version
+.. |pypi_version| image:: https://img.shields.io/pypi/v/OpenVAS-Reporting.svg
+   :alt: PyPI - Version
    :target: https://pypi.org/project/OpenVAS-Reporting/
 .. |requires| image:: https://requires.io/github/TheGroundZero/openvasreporting/requirements.svg?branch=master
    :target: https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master
