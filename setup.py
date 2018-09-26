@@ -9,14 +9,14 @@ with open('README.md') as f:
 setup(
     name='OpenVAS Reporting',
     description='A tool to convert OpenVAS XML into reports.',
-    version='1.3.0',
+    version='1.3.1',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='TheGroundZero (@DezeStijn)',
     author_email='2406013+TheGroundZero@users.noreply.github.com',
     url='https://github.com/TheGroundZero/openvasreporting',
     packages=['openvasreporting'],
-    install_requires=['xlsxwriter>=1.0.0', 'python-docx>=0.8.7'],
+    install_requires=['xlsxwriter>=1.0.0', 'python-docx>=0.8.7', 'matplotlib>=2.2.2'],
     python_requires='~=3.7',
     entry_points={
         'console_scripts': ['openvasreporting = openvasreporting:main']

@@ -13,6 +13,13 @@ from .parsed_data import Vulnerability
 
 
 def exporters():
+    """
+    Enum-like instance containing references to correct exporter function
+
+    > exporters()[key](param[s])
+
+    :return: Pointer to exporter function
+    """
     return {
         'xlsx': export_to_excel,
         'docx': export_to_word
@@ -48,6 +55,12 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
 
     import xlsxwriter
 
+    # ====================
+    # FUNCTIONS
+    # ====================
+    def __row_height(text, width):
+        return (max((len(text) // width), text.count('\n')) + 1) * 15
+
     workbook = xlsxwriter.Workbook(output_file)
 
     workbook.set_properties({
@@ -58,15 +71,17 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         'keywords': 'OpenVAS, report',
         'comments': 'TheGroundZero (https://github.com/TheGroundZero)'})
 
+    # ====================
+    # FORMATTING
+    # ====================
     format_sheet_title_content = workbook.add_format({'align': 'center', 'valign': 'vcenter',
                                                       'font_color': Config.colors()['blue'], 'bold': True, 'border': 1})
     format_table_titles = workbook.add_format({'align': 'center', 'valign': 'vcenter',
                                                'bold': True, 'font_color': 'white', 'border': 1,
                                                'bg_color': Config.colors()['blue']})
-    format_table_cells = workbook.add_format({'align': 'left', 'valign': 'top', 'border': 1})
+    format_table_cells = workbook.add_format({'align': 'left', 'valign': 'top', 'text_wrap': 1, 'border': 1})
     format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
     format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'text_wrap': 1, 'border': 1})
-    format_description = workbook.add_format({'valign': 'top', 'text_wrap': 1, 'border': 1})
     format_toc = {
         'critical': workbook.add_format({'font_color': Config.colors()['critical'],
                                          'align': 'left', 'valign': 'top', 'border': 1}),
@@ -80,6 +95,7 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
                                      'align': 'left', 'valign': 'top', 'border': 1})
     }
 
+    # TODO Move to function to de-duplicate this
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
     vuln_levels = Counter()
     vuln_host_by_level = Counter()
@@ -109,26 +125,10 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
     ws_sum.write("C3", "Vulns number", format_table_titles)
     ws_sum.write("D3", "Affected hosts", format_table_titles)
 
-    ws_sum.write("B4", "Critical", format_sheet_title_content)
-    ws_sum.write("B5", "High", format_sheet_title_content)
-    ws_sum.write("B6", "Medium", format_sheet_title_content)
-    ws_sum.write("B7", "Low", format_sheet_title_content)
-    ws_sum.write("B8", "None", format_sheet_title_content)
-
-    ws_sum.write("C4", vuln_levels["critical"], format_align_border)
-    ws_sum.write("D4", vuln_host_by_level["critical"], format_align_border)
-
-    ws_sum.write("C5", vuln_levels["high"], format_align_border)
-    ws_sum.write("D5", vuln_host_by_level["high"], format_align_border)
-
-    ws_sum.write("C6", vuln_levels["medium"], format_align_border)
-    ws_sum.write("D6", vuln_host_by_level["medium"], format_align_border)
-
-    ws_sum.write("C7", vuln_levels["low"], format_align_border)
-    ws_sum.write("D7", vuln_host_by_level["low"], format_align_border)
-
-    ws_sum.write("C8", vuln_levels["none"], format_align_border)
-    ws_sum.write("D8", vuln_host_by_level["none"], format_align_border)
+    for i, level in enumerate(Config.levels().values(), 4):
+        ws_sum.write("B{}".format(i), level.capitalize(), format_sheet_title_content)
+        ws_sum.write("C{}".format(i), vuln_levels[level], format_align_border)
+        ws_sum.write("D{}".format(i), vuln_host_by_level["level"], format_align_border)
 
     ws_sum.write("B9", "Total", format_table_titles)
     ws_sum.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
@@ -186,7 +186,6 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
     # ====================
     # TABLE OF CONTENTS
     # ====================
-
     sheet_name = "TOC"
     ws_toc = workbook.add_worksheet(sheet_name)
     ws_toc.set_tab_color(Config.colors()['blue'])
@@ -213,14 +212,18 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln = workbook.add_worksheet(name)
         ws_vuln.set_tab_color(Config.colors()[vuln.level.lower()])
 
-        # Add to Table of Contents
+        # --------------------
+        # TABLE OF CONTENTS
+        # --------------------
         ws_toc.write("B{}".format(i + 3), vuln.level.capitalize(), format_toc[vuln.level.lower()])
         ws_toc.write("C{}".format(i + 3), "{:03X}".format(i), format_table_cells)
         ws_toc.write_url("D{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
         ws_vuln.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
                           string="<< TOC")
-        # / Add to Table of Contents
 
+        # --------------------
+        # VULN INFO
+        # --------------------
         ws_vuln.set_column("A:A", 7, format_align_center)
         ws_vuln.set_column("B:B", 20, format_align_center)
         ws_vuln.set_column("C:C", 14, format_align_center)
@@ -229,26 +232,33 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.set_column("F:F", 13, format_align_center)
         ws_vuln.set_column("G:G", 20, format_align_center)
         ws_vuln.set_column("H:H", 7, format_align_center)
+        content_width = 89
 
         ws_vuln.write('B2', "Title", format_table_titles)
         ws_vuln.merge_range("C2:G2", vuln.name, format_sheet_title_content)
+        ws_vuln.set_row(1, __row_height(vuln.name, content_width), None)
 
         ws_vuln.write('B3', "Description", format_table_titles)
-        ws_vuln.merge_range("C3:G3", vuln.description, format_description)
+        ws_vuln.merge_range("C3:G3", vuln.description, format_table_cells)
+        ws_vuln.set_row(2, __row_height(vuln.description, content_width), None)
 
         ws_vuln.write('B4', "Impact", format_table_titles)
-        ws_vuln.merge_range("C4:G4", vuln.impact, format_description)
+        ws_vuln.merge_range("C4:G4", vuln.impact, format_table_cells)
+        ws_vuln.set_row(3, __row_height(vuln.impact, content_width), None)
 
         ws_vuln.write('B5', "Recommendation", format_table_titles)
-        ws_vuln.merge_range("C5:G5", vuln.solution, format_description)
+        ws_vuln.merge_range("C5:G5", vuln.solution, format_table_cells)
+        ws_vuln.set_row(4, __row_height(vuln.solution, content_width), None)
 
         ws_vuln.write('B6', "Details", format_table_titles)
-        ws_vuln.merge_range("C6:G6", vuln.insight, format_description)
+        ws_vuln.merge_range("C6:G6", vuln.insight, format_table_cells)
+        ws_vuln.set_row(5, __row_height(vuln.insight, content_width), None)
 
         ws_vuln.write('B7', "CVEs", format_table_titles)
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
         ws_vuln.merge_range("C7:G7", cves, format_table_cells)
+        ws_vuln.set_row(6, __row_height(cves, content_width), None)
 
         ws_vuln.write('B8', "CVSS", format_table_titles)
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
@@ -260,18 +270,14 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
         ws_vuln.write('B10', "Family", format_table_titles)
         ws_vuln.merge_range("C10:G10", vuln.family, format_table_cells)
 
-        if len(vuln.description) < 200:
-            description_height = 20
-        else:
-            description_height = 80
-        ws_vuln.set_row(2, description_height, None)
-
         ws_vuln.write('C12', "IP", format_table_titles)
         ws_vuln.write('D12', "Host name", format_table_titles)
         ws_vuln.write('E12', "Port number", format_table_titles)
         ws_vuln.write('F12', "Port protocol", format_table_titles)
 
-        # Affected hosts
+        # --------------------
+        # AFFECTED HOSTS
+        # --------------------
         for j, (host, port) in enumerate(vuln.hosts, 13):
 
             ws_vuln.write("C{}".format(j), host.ip)
@@ -313,6 +319,11 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     if output_file.split(".")[-1] != "docx":
         output_file = "{}.docx".format(output_file)
 
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import tempfile
+    import os
+
     from docx import Document
     from docx.enum.style import WD_STYLE_TYPE
     from docx.oxml.shared import qn, OxmlElement
@@ -348,6 +359,7 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         section.left_margin = Cm(2.54)
         section.right_margin = Cm(2.54)
 
+    # --------------------
     # FONTS
     # --------------------
     styles = document.styles
@@ -369,7 +381,7 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         style.next_paragraph_style = styles['Body Text']
         style.hidden = False
         style.quick_style = True
-    
+
     add_style('Report Title', 'Title', Pt(36), color_blue, True, True)
     add_style('Report Heading TOC', 'Normal', Pt(16), color_blue, True, True)
     add_style('Report Heading 1', 'Heading 1', Pt(16), color_blue, True, True)
@@ -413,28 +425,94 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     # SUMMARY
     # ====================
     document.add_paragraph('Summary', style='Report Heading 1')
-    document.add_paragraph('Symmary info, with graphs, will come here')
+    document.add_paragraph('Summary info, with graphs, will come here')
 
-    records = (
-        ('Critical', vuln_levels["critical"], vuln_host_by_level["critical"]),
-        ('High', vuln_levels["high"], vuln_host_by_level["high"]),
-        ('Medium', vuln_levels["medium"], vuln_host_by_level["medium"]),
-        ('Low', vuln_levels["low"], vuln_host_by_level["low"]),
-        ('None', vuln_levels["none"], vuln_host_by_level["none"]),
-    )
+    colors_sum = []
+    labels_sum = []
+    vuln_sum = []
+    aff_sum = []
 
+    # --------------------
+    # SUMMARY TABLE
+    # --------------------
     table_summary = document.add_table(rows=1, cols=3)
     hdr_cells = table_summary.rows[0].cells
-    hdr_cells[0].paragraphs[0].add_run('Threat').bold = True
+    hdr_cells[0].paragraphs[0].add_run('Risk level').bold = True
     hdr_cells[1].paragraphs[0].add_run('Vulns number').bold = True
     hdr_cells[2].paragraphs[0].add_run('Affected hosts').bold = True
-    for t, vn, ah in records:
-        row_cells = table_summary.add_row().cells
-        row_cells[0].text = t
-        row_cells[1].text = str(vn)
-        row_cells[2].text = str(ah)
 
-    # TODO Add graphs
+    # Provide data to table and charts
+    for level in Config.levels().values():
+        row_cells = table_summary.add_row().cells
+        row_cells[0].text = level.capitalize()
+        row_cells[1].text = str(vuln_levels[level])
+        row_cells[2].text = str(vuln_host_by_level[level])
+        colors_sum.append(Config.colors()[level])
+        labels_sum.append(level)
+        vuln_sum.append(vuln_levels[level])
+        aff_sum.append(vuln_host_by_level[level])
+
+    # --------------------
+    # CHART
+    # --------------------
+    fd, path = tempfile.mkstemp(suffix='.png')
+
+    par_chart = document.add_paragraph()
+    run_chart = par_chart.add_run()
+
+    plt.figure()
+
+    pos = np.arange(len(labels_sum))
+    width = 0.35
+
+    bars_vuln = plt.bar(pos - width/2, vuln_sum, width, align='center', label='Vulnerabilities',
+                        color=colors_sum, edgecolor='black')
+    bars_aff = plt.bar(pos + width/2, aff_sum, width, align='center', label='Affected hosts',
+                       color=colors_sum, edgecolor='black', hatch='//')
+    plt.title('Vulnerability summary by risk level')
+    plt.subplot().set_xticks(pos)
+    plt.subplot().set_xticklabels(labels_sum)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['bottom'].set_position('zero')
+    plt.tick_params(top=False, bottom=True, left=False, right=False,
+                    labelleft=False, labelbottom=True)
+    plt.subplots_adjust(left=0.0, right=1.0)
+
+    def __label_bars(barcontainer):
+        for bar in barcontainer:
+            height = bar.get_height()
+            plt.gca().text(bar.get_x() + bar.get_width()/2, bar.get_height()+0.3, str(int(height)),
+                           ha='center', color='black', fontsize=9)
+
+    __label_bars(bars_vuln)
+    __label_bars(bars_aff)
+
+    plt.legend()
+
+    plt.savefig(path)
+
+    # plt.show()  # DEBUG
+
+    run_chart.add_picture(path, width=Cm(8.0))
+    os.remove(path)
+
+    plt.figure()
+
+    values = list(vuln_by_family.values())
+    pie, tx, autotexts = plt.pie(values, labels=vuln_by_family.keys(), autopct='')
+    plt.title('Vulnerability by family')
+    for i, txt in enumerate(autotexts):
+        txt.set_text('{}'.format(values[i]))
+    plt.axis('equal')
+
+    plt.savefig(path, bbox_inches='tight')  # bbox_inches fixes labels being cut, however only on save not on show
+
+    # plt.show()  # DEBUG
+
+    run_chart.add_picture(path, width=Cm(8.0))
+    os.remove(path)
 
     # ====================
     # VULN PAGES
@@ -442,6 +520,7 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     cur_level = ""
 
     for i, vuln in enumerate(vuln_info, 1):
+        # --------------------
         # GENERAL
         # --------------------
         level = vuln.level.lower()
@@ -456,19 +535,21 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         title = "[{}] {}".format(level.upper(), vuln.name)
         document.add_paragraph(title, style='Report Heading 2')
     
-        table_vuln = document.add_table(rows=6, cols=3)
+        table_vuln = document.add_table(rows=7, cols=3)
         table_vuln.autofit = False
 
-        # Color
+        # COLOR
+        # --------------------
         col_cells = table_vuln.columns[0].cells
-        col_cells[0].merge(col_cells[5])
+        col_cells[0].merge(col_cells[6])
         color_fill = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), Config.colors()[vuln.level][1:]))
         col_cells[0]._tc.get_or_add_tcPr().append(color_fill)
 
         for col_cell in col_cells:
             col_cell.width = Cm(0.42)
 
-        # Headers
+        # TABLE HEADERS
+        # --------------------
         hdr_cells = table_vuln.columns[1].cells
         hdr_cells[0].paragraphs[0].add_run('Description').bold = True
         hdr_cells[1].paragraphs[0].add_run('Impact').bold = True
@@ -476,11 +557,13 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         hdr_cells[3].paragraphs[0].add_run('Details').bold = True
         hdr_cells[4].paragraphs[0].add_run('CVSS').bold = True
         hdr_cells[5].paragraphs[0].add_run('CVEs').bold = True
+        hdr_cells[6].paragraphs[0].add_run('Family').bold = True
 
         for hdr_cell in hdr_cells:
             hdr_cell.width = Cm(3.58)
 
-        # Fields
+        # FIELDS
+        # --------------------
         cves = ", ".join(vuln.cves)
         cves = cves.upper() if cves != "" else "No CVE"
 
@@ -493,9 +576,10 @@ def export_to_word(vuln_info, output_file="openvas_report"):
         txt_cells[3].text = vuln.insight
         txt_cells[4].text = cvss
         txt_cells[5].text = cves
+        txt_cells[6].text = vuln.family
 
         for txt_cell in txt_cells:
-            txt_cell.width = Cm(12.51)
+            txt_cell.width = Cm(12.50)
 
         # VULN HOSTS
         # --------------------

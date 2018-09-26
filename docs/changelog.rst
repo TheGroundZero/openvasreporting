@@ -1,13 +1,15 @@
 Changelog
 =========
 
+1.3.1  - Add charts to Word document using matplotlib. Some code clean-up and small lay-out changes in Excel.
+
 1.3.0  - Fix retrieval of description and other useful info by parsing <tags> instead of <description>
 
 1.2.3  - Implement https://github.com/cr0hn/openvas_to_report/pull/12
 
-1.2.2  - Fix bug where port info was not correctly extracted.
+1.2.2  - Fix bug where port info was not correctly extracted
 
-1.2.1  - Fix bug where affected hosts were added on wrong row in Excel export.
+1.2.1  - Fix bug where affected hosts were added on wrong row in Excel export
 
 1.2.0  - Functional export to Word document (.docx). Includes some formatting. TODO: graphs
 
