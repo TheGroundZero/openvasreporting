@@ -1,3 +1,4 @@
-XlsxWriter>=1.0.0
+XlsxWriter>=1.1.1
 python-docx>=0.8.7
-matplotlib>=2.2.2
+matplotlib>=3.0.0
+numpy>=1.15.2

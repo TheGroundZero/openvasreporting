@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.4.0  - Use Word template for report building
+
 1.3.1  - Add charts to Word document using matplotlib. Some code clean-up and small lay-out changes in Excel.
 
 1.3.0  - Fix retrieval of description and other useful info by parsing <tags> instead of <description>

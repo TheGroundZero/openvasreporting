@@ -23,6 +23,7 @@ def main():
     parser.add_argument("-l", "--level", dest="min_level", help="Minimal level (c, h, m, l, n)", required=False,
                         default="n")
     parser.add_argument("-f", "--format", dest="filetype", help="Output format (xlsx)", required=False, default="xlsx")
+    parser.add_argument("-t", "--template", dest="template", help="Template file for docx export", required=False)
 
     args = parser.parse_args()
 
@@ -38,7 +39,10 @@ def main():
         raise ValueError("Filetype not supported, got {}, expecting one of {}".format(args.filetype,
                                                                                       exporters().keys()))
 
-    config = Config(args.input_files, args.output_file, min_lvl, args.filetype)
+    if args.template is not None:
+        config = Config(args.input_files, args.output_file, min_lvl, args.filetype, args.template)
+    else:
+        config = Config(args.input_files, args.output_file, min_lvl, args.filetype)
 
     convert(config)
 
@@ -61,4 +65,4 @@ def convert(config):
 
     openvas_info = openvas_parser(config.input_files, config.min_level)
 
-    exporters()[config.filetype](openvas_info, config.output_file)
+    exporters()[config.filetype](openvas_info, config.template, config.output_file)

@@ -26,18 +26,24 @@ def exporters():
     }
 
 
-def export_to_excel(vuln_info, output_file="openvas_report"):
+def export_to_excel(vuln_info, template=None, output_file='openvas_report'):
     """
     Export vulnerabilities info in an Excel file.
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
 
+    :param template: Not supported in xlsx-output
+    :type template: NoneType
+
     :param output_file: Filename of the Excel file
     :type output_file: str
 
-    :raises: TypeError
+    :raises: TypeError, NotImplementedError
     """
+
+    import xlsxwriter
+
     if not isinstance(vuln_info, list):
         raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
     else:
@@ -45,15 +51,12 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
     if not isinstance(output_file, str):
-        raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
         if not output_file:
             raise ValueError("output_file must have a valid name.")
-
-    if output_file.split(".")[-1] != "xlsx":
-        output_file = "{}.xlsx".format(output_file)
-
-    import xlsxwriter
+    if template is not None:
+        raise NotImplementedError("Use of template is not supported in XSLX-output.")
 
     # ====================
     # FUNCTIONS
@@ -292,7 +295,7 @@ def export_to_excel(vuln_info, output_file="openvas_report"):
     workbook.close()
 
 
-def export_to_word(vuln_info, output_file="openvas_report"):
+def export_to_word(vuln_info, template, output_file='openvas_report'):
     """
     Export vulnerabilities info in a Word file.
 
@@ -301,9 +304,25 @@ def export_to_word(vuln_info, output_file="openvas_report"):
 
     :param output_file: Filename of the Excel file
     :type output_file: str
+    
+    :param template: Path to Docx template
+    :type template: PosixPath, str
 
-    :raises: NotImplementedError
+    :raises: TypeError
     """
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import tempfile
+    import os
+
+    from pathlib import PosixPath
+    from docx import Document
+    from docx.oxml.shared import qn, OxmlElement
+    from docx.oxml.ns import nsdecls
+    from docx.oxml import parse_xml
+    from docx.shared import Cm
+    
     if not isinstance(vuln_info, list):
         raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
     else:
@@ -311,25 +330,12 @@ def export_to_word(vuln_info, output_file="openvas_report"):
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
     if not isinstance(output_file, str):
-        raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
         if not output_file:
             raise ValueError("output_file must have a valid name.")
-
-    if output_file.split(".")[-1] != "docx":
-        output_file = "{}.docx".format(output_file)
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import tempfile
-    import os
-
-    from docx import Document
-    from docx.enum.style import WD_STYLE_TYPE
-    from docx.oxml.shared import qn, OxmlElement
-    from docx.oxml.ns import nsdecls
-    from docx.oxml import parse_xml
-    from docx.shared import Cm, Pt, RGBColor
+    if not isinstance(template, (str, PosixPath)):
+        raise TypeError("Expected str or PosixPath, got '{}' instead".format(type(template)))
 
     # TODO Move to function to de-duplicate this
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
@@ -345,56 +351,18 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     # ====================
     # DOCUMENT PROPERTIES
     # ====================
-    document = Document()
+    document = Document(template)
 
     doc_prop = document.core_properties
     doc_prop.title = "OpenVAS Report"
     doc_prop.category = "Report"
 
-    # MARGINS
-    # --------------------
-    for section in document.sections:
-        section.top_margin = Cm(2.54)
-        section.bottom_margin = Cm(2.54)
-        section.left_margin = Cm(2.54)
-        section.right_margin = Cm(2.54)
-
-    # --------------------
-    # FONTS
-    # --------------------
-    styles = document.styles
-
-    color_blue = RGBColor.from_string(Config.colors()['blue'][1:])
-
-    font_normal = styles['Normal'].font
-    font_normal.name = 'Tahoma'
-    font_normal.size = Pt(10)
-
-    def add_style(new_style_name, base_style_name, font_size, font_color, font_bold, widow_ctrl):
-        style = styles.add_style(new_style_name, WD_STYLE_TYPE.PARAGRAPH)
-        style.base_style = styles[base_style_name]
-        style.font.name = 'Tahoma'
-        style.font.size = font_size
-        style.font.bold = font_bold
-        style.font.color.rgb = font_color
-        style.paragraph_format.widow_control = widow_ctrl
-        style.next_paragraph_style = styles['Body Text']
-        style.hidden = False
-        style.quick_style = True
-
-    add_style('Report Title', 'Title', Pt(36), color_blue, True, True)
-    add_style('Report Heading TOC', 'Normal', Pt(16), color_blue, True, True)
-    add_style('Report Heading 1', 'Heading 1', Pt(16), color_blue, True, True)
-    add_style('Report Heading 2', 'Heading 2', Pt(14), color_blue, True, True)
-    add_style('Report Heading 3', 'Heading 3', Pt(13), color_blue, True, True)
-
-    document.add_paragraph('OpenVAS Report', style='Report Title')
+    document.add_paragraph('OpenVAS Report', style='Title')
 
     # ====================
     # TABLE OF CONTENTS
     # ====================
-    # TODO Use ToC Header so it doesn't end up in the ToC
-    document.add_paragraph('Table of Contents', style='Report Heading TOC')
+    document.add_paragraph('Table of Contents', style='Heading 1')
 
     par = document.add_paragraph()
     run = par.add_run()
@@ -402,7 +370,7 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     fld_char.set(qn('w:fldCharType'), 'begin')  # sets attribute on element
     instr_text = OxmlElement('w:instrText')
     instr_text.set(qn('xml:space'), 'preserve')  # sets attribute on element
-    instr_text.text = r'TOC \o 1-2 \h \z \u'  # change "1-2" depending on heading levels you need
+    instr_text.text = r'TOC \h \z \t "OV-H1toc;1;OV-H2toc;2;OV-H3toc;3;OV-Finding;3"'
 
     fld_char2 = OxmlElement('w:fldChar')
     fld_char2.set(qn('w:fldCharType'), 'separate')
@@ -422,19 +390,28 @@ def export_to_word(vuln_info, output_file="openvas_report"):
     document.add_page_break()
 
     # ====================
-    # SUMMARY
+    # MANAGEMENT SUMMARY
     # ====================
-    document.add_paragraph('Summary', style='Report Heading 1')
-    document.add_paragraph('Summary info, with graphs, will come here')
+    document.add_paragraph('Management Summary', style='OV-H1toc')
+    document.add_paragraph('< TYPE YOUR MANAGEMENT SUMMARY HERE >')
+    document.add_page_break()
+
+    # ====================
+    # TECHNICAL FINDINGS
+    # ====================
+    document.add_paragraph('Technical Findings', style='OV-H1toc')
+    document.add_paragraph('The section below discusses the technical findings.')
+
+    # --------------------
+    # SUMMARY TABLE
+    # --------------------
+    document.add_paragraph('Summary', style='OV-H2toc')
 
     colors_sum = []
     labels_sum = []
     vuln_sum = []
     aff_sum = []
 
-    # --------------------
-    # SUMMARY TABLE
-    # --------------------
     table_summary = document.add_table(rows=1, cols=3)
     hdr_cells = table_summary.rows[0].cells
     hdr_cells[0].paragraphs[0].add_run('Risk level').bold = True
@@ -527,13 +504,13 @@ def export_to_word(vuln_info, output_file="openvas_report"):
 
         if level != cur_level:
             document.add_paragraph(
-                level.capitalize(), style='Report Heading 1').paragraph_format.page_break_before = True
+                level.capitalize(), style='OV-H2toc').paragraph_format.page_break_before = True
             cur_level = level
         else:
             document.add_page_break()
 
         title = "[{}] {}".format(level.upper(), vuln.name)
-        document.add_paragraph(title, style='Report Heading 2')
+        document.add_paragraph(title, style='OV-Finding')
     
         table_vuln = document.add_table(rows=7, cols=3)
         table_vuln.autofit = False
@@ -583,7 +560,7 @@ def export_to_word(vuln_info, output_file="openvas_report"):
 
         # VULN HOSTS
         # --------------------
-        document.add_paragraph('Vulnerable hosts', style='Report Heading 3')
+        document.add_paragraph('Vulnerable hosts', style='Heading 4')
 
         table_hosts = document.add_table(cols=4, rows=(len(vuln.hosts) + 1))
         hdr_cells = table_hosts.rows[0].cells

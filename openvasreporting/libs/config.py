@@ -6,9 +6,12 @@
 
 """This file contains data structures"""
 
+from pathlib import Path
+
 
 class Config(object):
-    def __init__(self, input_files, output_file="openvas_report", min_level="none", filetype="xlsx"):
+    def __init__(self, input_files, output_file="openvas_report", min_level="none", filetype="xlsx",
+                 template="openvasreporting/src/openvas-template.docx"):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -22,6 +25,9 @@ class Config(object):
         :param filetype: output file filetype
         :type filetype: str
 
+        :param template: template to use
+        :type filetype: str
+
         :raises: TypeError, ValueError
         """
         if not isinstance(input_files, list):
@@ -29,19 +35,23 @@ class Config(object):
         else:
             for i in input_files:
                 if not isinstance(i, str):
-                    raise TypeError("Expected basestring, got '{}' instead".format(type(i)))
+                    raise TypeError("Expected str, got '{}' instead".format(type(i)))
 
         if not isinstance(output_file, str):
-            raise TypeError("Expected basestring, got '{}' instead".format(type(output_file)))
+            raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
         if not isinstance(min_level, str):
-            raise TypeError("Expected basestring, got '{}' instead".format(type(min_level)))
+            raise TypeError("Expected str, got '{}' instead".format(type(min_level)))
         if not isinstance(filetype, str):
-            raise TypeError("Expected basestring, got '{}' instead".format(type(filetype)))
+            raise TypeError("Expected str, got '{}' instead".format(type(filetype)))
+        if not isinstance(template, str):
+            raise TypeError("Expected str, got '{}' instead".format(type(template)))
 
         self.input_files = input_files
-        self.output_file = output_file
+        self.output_file = "{}.{}".format(output_file, filetype) if output_file.split(".")[-1] != filetype \
+            else output_file
         self.min_level = min_level
         self.filetype = filetype
+        self.template = Path(template).resolve()
 
     @staticmethod
     def colors():
