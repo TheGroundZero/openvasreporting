@@ -32,6 +32,13 @@ Create Word report from 1 OpenVAS XML report, reporting only severity level high
 
    python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f docx -l h
 
+Create Word report using a different template
+"""""""""""""""""""""""""""""""""""""""""""""
+
+.. code-block:: bash
+
+   python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f docx -t /home/user/myOpenvasTemplate.docx
+
 
 Result
 ^^^^^^

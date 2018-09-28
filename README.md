@@ -43,19 +43,32 @@ At this moment in time, the script only output .xlsx documents in one format, th
     # clone repo
     git clone git@github.com:TheGroundZero/openvas_to_report.git
 
+Alternatively, you can install the package through the Python package installer 'pip'.
+
+    # Install pip
+    apt(-get) install python3 python3-pip # Debian, Ubuntu
+    yum -y install python3 python3-pip    # CentOS
+    dnf install python3 python3-pip       # Fedora
+    # Install the package
+    pip install OpenVAS-Reporting
+
 
 ## Usage
 
-    python3 -m openvasreporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]]
+    # When working from the Git repo
+    python3 -m openvasreporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]] [-f [docx template]]
+    # When using the pip package
+    OpenVAS-Reporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]] [-f [docx template]]
 
 ### Parameters
 
-| Short param | Long param | Description     | Required | Default value  |
-| :---------: | :--------- | :-------------- | :------: | :------------- |
-| -i          | --input    | Input file(s)   | YES      | n/a            |
-| -o          | --output   | Output filename | No       | openvas_report |
-| -f          | --format   | Output format   | No       | xlsx           |
-| -l          | --level    | Minimal level   | No       | n              |
+| Short param | Long param | Description     | Required | Default value                              |
+| :---------: | :--------- | :-------------- | :------: | :----------------------------------------- |
+| -i          | --input    | Input file(s)   | YES      | n/a                                        |
+| -o          | --output   | Output filename | No       | openvas_report                             |
+| -f          | --format   | Output format   | No       | xlsx                                       |
+| -l          | --level    | Minimal level   | No       | n                                          |
+| -t          | --template | Docx template   | No       | openvasreporting/src/openvas-template.docx |
 
 
 ## Examples
@@ -71,9 +84,9 @@ At this moment in time, the script only output .xlsx documents in one format, th
     # selective
     python3 -m openvasreporting -i openvasreport1.xml -i openvasreport2.xml -f xlsx
 
-### Create Excel report from multiple OpenVAS reports, reporting only threat level high and up
+### Create Word report from multiple OpenVAS reports, reporting only threat level high and up, use custom template
 
-    python3 -m openvasreporting -i *.xml -o excelreport -f xlsx -l h
+    python3 -m openvasreporting -i *.xml -o docxreport -f docx -l h -t "/home/user/myOpenvasTemplate.docx"
 
 ## Result
 
@@ -90,8 +103,6 @@ Worksheets are sorted according to CVSS score and are colored according to the v
 Some of the ideas I still have for future functionality:
 
  - list vulnerabilities per host
- - make pip installer
  - filter by host (scope/exclude) as in OpenVAS2Report
  - export to other formats (CSV, PDF)
- - select threat levels individually (e.g. none and low; but not med, high and crit)
  
