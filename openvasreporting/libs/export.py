@@ -86,16 +86,16 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
     format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'text_wrap': 1, 'border': 1})
     format_toc = {
-        'critical': workbook.add_format({'font_color': Config.colors()['critical'],
-                                         'align': 'left', 'valign': 'top', 'border': 1}),
-        'high': workbook.add_format({'font_color': Config.colors()['high'],
-                                     'align': 'left', 'valign': 'top', 'border': 1}),
-        'medium': workbook.add_format({'font_color': Config.colors()['medium'],
-                                       'align': 'left', 'valign': 'top', 'border': 1}),
-        'low': workbook.add_format({'font_color': Config.colors()['low'],
-                                    'align': 'left', 'valign': 'top', 'border': 1}),
-        'none': workbook.add_format({'font_color': Config.colors()['none'],
-                                     'align': 'left', 'valign': 'top', 'border': 1})
+        'critical': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['critical'],
+                                         'align': 'center', 'valign': 'top', 'border': 1}),
+        'high': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['high'],
+                                     'align': 'center', 'valign': 'top', 'border': 1}),
+        'medium': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['medium'],
+                                       'align': 'center', 'valign': 'top', 'border': 1}),
+        'low': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['low'],
+                                    'align': 'center', 'valign': 'top', 'border': 1}),
+        'none': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['none'],
+                                     'align': 'center', 'valign': 'top', 'border': 1})
     }
 
     # TODO Move to function to de-duplicate this
@@ -193,16 +193,16 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     ws_toc = workbook.add_worksheet(sheet_name)
     ws_toc.set_tab_color(Config.colors()['blue'])
 
-    ws_toc.set_column("A:A", 5)
-    ws_toc.set_column("B:B", 8)
-    ws_toc.set_column("C:C", 4)
-    ws_toc.set_column("D:D", 150)
-    ws_toc.set_column("E:E", 5)
+    ws_toc.set_column("A:A", 7)
+    ws_toc.set_column("B:B", 5)
+    ws_toc.set_column("C:C", 150)
+    ws_toc.set_column("D:D", 15)
+    ws_toc.set_column("E:E", 7)
 
     ws_toc.merge_range("B2:D2", "TABLE OF CONTENTS", format_sheet_title_content)
-    ws_toc.write("B3", "Level", format_table_titles)
-    ws_toc.write("C3", "No.", format_table_titles)
-    ws_toc.write("D3", "Vuln Title", format_table_titles)
+    ws_toc.write("B3", "No.", format_table_titles)
+    ws_toc.write("C3", "Vuln Title", format_table_titles)
+    ws_toc.write("D3", "Level", format_table_titles)
 
     # ====================
     # VULN SHEETS
@@ -218,9 +218,11 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         # --------------------
         # TABLE OF CONTENTS
         # --------------------
-        ws_toc.write("B{}".format(i + 3), vuln.level.capitalize(), format_toc[vuln.level.lower()])
-        ws_toc.write("C{}".format(i + 3), "{:03X}".format(i), format_table_cells)
-        ws_toc.write_url("D{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
+        ws_toc.write("B{}".format(i + 3), "{:03X}".format(i), format_table_cells)
+        ws_toc.write_url("C{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
+        ws_toc.write("D{}".format(i + 3), "{:.1f} ({})".format(vuln.cvss, vuln.level.capitalize()),
+                     format_toc[vuln.level])
+        ws_toc.set_row(i + 3, __row_height(name, 150), None)
         ws_vuln.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
                           string="<< TOC")
 
@@ -229,13 +231,13 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         # --------------------
         ws_vuln.set_column("A:A", 7, format_align_center)
         ws_vuln.set_column("B:B", 20, format_align_center)
-        ws_vuln.set_column("C:C", 14, format_align_center)
-        ws_vuln.set_column("D:D", 30, format_align_center)
-        ws_vuln.set_column("E:E", 12, format_align_center)
-        ws_vuln.set_column("F:F", 13, format_align_center)
+        ws_vuln.set_column("C:C", 20, format_align_center)
+        ws_vuln.set_column("D:D", 80, format_align_center)
+        ws_vuln.set_column("E:E", 15, format_align_center)
+        ws_vuln.set_column("F:F", 15, format_align_center)
         ws_vuln.set_column("G:G", 20, format_align_center)
         ws_vuln.set_column("H:H", 7, format_align_center)
-        content_width = 89
+        content_width = 135
 
         ws_vuln.write('B2', "Title", format_table_titles)
         ws_vuln.merge_range("C2:G2", vuln.name, format_sheet_title_content)
@@ -265,7 +267,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
 
         ws_vuln.write('B8', "CVSS", format_table_titles)
         cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
-        ws_vuln.merge_range("C8:G8", cvss, format_table_cells)
+        ws_vuln.merge_range("C8:G8", "{:.1f}".format(cvss), format_table_cells)
 
         ws_vuln.write('B9', "Level", format_table_titles)
         ws_vuln.merge_range("C9:G9", vuln.level.capitalize(), format_table_cells)
