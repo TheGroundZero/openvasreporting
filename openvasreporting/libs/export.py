@@ -131,7 +131,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     for i, level in enumerate(Config.levels().values(), 4):
         ws_sum.write("B{}".format(i), level.capitalize(), format_sheet_title_content)
         ws_sum.write("C{}".format(i), vuln_levels[level], format_align_border)
-        ws_sum.write("D{}".format(i), vuln_host_by_level["level"], format_align_border)
+        ws_sum.write("D{}".format(i), vuln_host_by_level[level], format_align_border)
 
     ws_sum.write("B9", "Total", format_table_titles)
     ws_sum.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
