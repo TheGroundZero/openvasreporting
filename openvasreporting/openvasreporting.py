@@ -37,7 +37,7 @@ def create_config(input_files, output_file="openvas_report", min_lvl="none", fil
     Create config file to be used by converter.
 
     :param input_files: input XML file(s) to be converted
-    :type input_files: str
+    :type input_files: list(str)
 
     :param output_file: output filename for report
     :type output_file: str
