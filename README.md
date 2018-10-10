@@ -70,7 +70,6 @@ Alternatively, you can install the package through the Python package installer 
 | -l          | --level    | Minimal level   | No       | n                                          |
 | -t          | --template | Docx template   | No       | openvasreporting/src/openvas-template.docx |
 
-
 ## Examples
 
 ### Create Excel report from 1 OpenVAS XML report using default settings
@@ -103,6 +102,8 @@ Worksheets are sorted according to CVSS score and are colored according to the v
 Some of the ideas I still have for future functionality:
 
  - list vulnerabilities per host
+ - make pip installer
  - filter by host (scope/exclude) as in OpenVAS2Report
  - export to other formats (CSV, PDF)
+ - select threat levels individually (e.g. none and low; but not med, high and crit)
  

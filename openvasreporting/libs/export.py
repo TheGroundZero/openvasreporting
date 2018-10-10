@@ -33,7 +33,6 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
-
     :param template: Not supported in xlsx-output
     :type template: NoneType
 
@@ -322,7 +321,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     from docx.oxml.ns import nsdecls
     from docx.oxml import parse_xml
     from docx.shared import Cm
-    
+
     if not isinstance(vuln_info, list):
         raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
     else:
