@@ -22,11 +22,12 @@ def exporters():
     """
     return {
         'xlsx': export_to_excel,
-        'docx': export_to_word
+        'docx': export_to_word,
+        'csv': export_to_csv
     }
 
 
-def export_to_excel(vuln_info, template=None, output_file='openvas_report'):
+def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx'):
     """
     Export vulnerabilities info in an Excel file.
 
@@ -295,7 +296,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report'):
     workbook.close()
 
 
-def export_to_word(vuln_info, template, output_file='openvas_report'):
+def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     """
     Export vulnerabilities info in a Word file.
 
@@ -306,7 +307,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report'):
     :type output_file: str
     
     :param template: Path to Docx template
-    :type template: PosixPath, str
+    :type template: str
 
     :raises: TypeError
     """
@@ -316,7 +317,6 @@ def export_to_word(vuln_info, template, output_file='openvas_report'):
     import tempfile
     import os
 
-    from pathlib import PosixPath
     from docx import Document
     from docx.oxml.shared import qn, OxmlElement
     from docx.oxml.ns import nsdecls
@@ -334,8 +334,11 @@ def export_to_word(vuln_info, template, output_file='openvas_report'):
     else:
         if not output_file:
             raise ValueError("output_file must have a valid name.")
-    if not isinstance(template, (str, PosixPath)):
-        raise TypeError("Expected str or PosixPath, got '{}' instead".format(type(template)))
+    if template is not None:
+        if not isinstance(template, str):
+            raise TypeError("Expected str, got '{}' instead".format(type(template)))
+    else:
+        template = 'openvasreporting/src/openvas-template.docx'
 
     # TODO Move to function to de-duplicate this
     vuln_info.sort(key=lambda key: key.cvss, reverse=True)
@@ -581,3 +584,71 @@ def export_to_word(vuln_info, template, output_file='openvas_report'):
                 cells[2].text = "No port info"
 
     document.save(output_file)
+
+
+def export_to_csv(vuln_info, template=None, output_file='openvas_report.csv'):
+    """
+    Export vulnerabilities info in a Comma Separated Values (csv) file
+
+    :param vuln_info: Vulnerability list info
+    :type vuln_info: list(Vulnerability)
+
+    :param template: Not supported in csv-output
+    :type template: NoneType
+
+    :param output_file: Filename of the csv file
+    :type output_file: str
+
+    :raises: TypeError, NotImplementedError
+    """
+
+    import csv
+
+    if not isinstance(vuln_info, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
+    else:
+        for x in vuln_info:
+            if not isinstance(x, Vulnerability):
+                raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    if not isinstance(output_file, str):
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
+    else:
+        if not output_file:
+            raise ValueError("output_file must have a valid name.")
+    if template is not None:
+        raise NotImplementedError("Use of template is not supported in CSV-output.")
+
+    # TODO Move to function to de-duplicate this
+    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
+
+    with open(output_file, 'w') as csvfile:
+        fieldnames = ['hostname', 'ip', 'port', 'protocol',
+                      'vulnerability', 'cvss', 'threat', 'family',
+                      'description', 'detection', 'insight', 'impact', 'affected', 'solution', 'solution_type',
+                      'vuln_id', 'cve', 'references']
+        writer = csv.DictWriter(csvfile, dialect='excel', fieldnames=fieldnames)
+        writer.writeheader()
+
+        for vuln in vuln_info:
+            for (host, port) in vuln.hosts:
+                rowdata = {
+                    'hostname': host.host_name,
+                    'ip': host.ip,
+                    'port': port.number,
+                    'protocol': port.protocol,
+                    'vulnerability': vuln.name,
+                    'cvss': vuln.cvss,
+                    'threat': vuln.level,
+                    'family': vuln.family,
+                    'description': vuln.description,
+                    'detection': vuln.detect,
+                    'insight': vuln.insight,
+                    'impact': vuln.impact,
+                    'affected': vuln.affected,
+                    'solution': vuln.solution,
+                    'solution_type': vuln.solution_type,
+                    'vuln_id': vuln.vuln_id,
+                    'cve': ' - '.join(vuln.cves),
+                    'references': ' - '.join(vuln.references)
+                }
+                writer.writerow(rowdata)

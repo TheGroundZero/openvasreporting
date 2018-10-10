@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.4.1  - Small bugfixes and code refactoring
+
 1.4.0  - Use Word template for report building
 
 1.3.1  - Add charts to Word document using matplotlib. Some code clean-up and small lay-out changes in Excel.

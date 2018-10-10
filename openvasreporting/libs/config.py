@@ -6,12 +6,10 @@
 
 """This file contains data structures"""
 
-from pathlib import Path
-
 
 class Config(object):
     def __init__(self, input_files, output_file="openvas_report", min_level="none", filetype="xlsx",
-                 template="openvasreporting/src/openvas-template.docx"):
+                 template=None):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -43,7 +41,7 @@ class Config(object):
             raise TypeError("Expected str, got '{}' instead".format(type(min_level)))
         if not isinstance(filetype, str):
             raise TypeError("Expected str, got '{}' instead".format(type(filetype)))
-        if not isinstance(template, str):
+        if template is not None and not isinstance(template, str):
             raise TypeError("Expected str, got '{}' instead".format(type(template)))
 
         self.input_files = input_files
@@ -51,7 +49,7 @@ class Config(object):
             else output_file
         self.min_level = min_level
         self.filetype = filetype
-        self.template = Path(template).resolve()
+        self.template = template
 
     @staticmethod
     def colors():

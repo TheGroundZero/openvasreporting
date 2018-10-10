@@ -20,31 +20,59 @@ def main():
     parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports", required=True)
     parser.add_argument("-o", "--output", dest="output_file", help="Output file, no extension", required=False,
                         default="openvas_report")
-    parser.add_argument("-l", "--level", dest="min_level", help="Minimal level (c, h, m, l, n)", required=False,
-                        default="n")
+    parser.add_argument("-l", "--level", dest="min_lvl", help="Minimal level (c, h, m, l, n)", required=False,
+                        default="none")
     parser.add_argument("-f", "--format", dest="filetype", help="Output format (xlsx)", required=False, default="xlsx")
     parser.add_argument("-t", "--template", dest="template", help="Template file for docx export", required=False)
 
     args = parser.parse_args()
 
-    min_lvl = args.min_level.lower()[0]
+    config = create_config(args.input_files, args.output_file, args.min_lvl, args.filetype, args.template)
+
+    convert(config)
+
+
+def create_config(input_files, output_file="openvas_report", min_lvl="none", filetype="xlsx", template=None):
+    """
+    Create config file to be used by converter.
+
+    :param input_files: input XML file(s) to be converted
+    :type input_files: str
+
+    :param output_file: output filename for report
+    :type output_file: str
+
+    :param min_lvl: minimal threat level to be included in the report
+    :type min_lvl: str
+
+    :param filetype: filetype of the output file
+    :type filetype: str
+
+    :param template: template to be used in case of export to docx filetype
+    :type template: str
+
+    :raises: ValueError
+
+    :return: config file to be passed to converter
+    :rtype: Config
+    """
+
+    min_lvl = min_lvl.lower()[0]
 
     if min_lvl in Config.levels().keys():
         min_lvl = Config.levels()[min_lvl]
     else:
         raise ValueError("Invalid value for level parameter, \
-        must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
+            must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
 
-    if args.filetype not in exporters().keys():
-        raise ValueError("Filetype not supported, got {}, expecting one of {}".format(args.filetype,
+    if filetype not in exporters().keys():
+        raise ValueError("Filetype not supported, got {}, expecting one of {}".format(filetype,
                                                                                       exporters().keys()))
 
-    if args.template is not None:
-        config = Config(args.input_files, args.output_file, min_lvl, args.filetype, args.template)
+    if template is not None:
+        return Config(input_files, output_file, min_lvl, filetype, template)
     else:
-        config = Config(args.input_files, args.output_file, min_lvl, args.filetype)
-
-    convert(config)
+        return Config(input_files, output_file, min_lvl, filetype)
 
 
 def convert(config):
