@@ -5,7 +5,6 @@
 # Project URL: https://github.com/TheGroundZero/openvas_to_report
 
 import re
-
 from collections import Counter
 
 from .config import Config
@@ -77,25 +76,41 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     # ====================
     # FORMATTING
     # ====================
-    format_sheet_title_content = workbook.add_format({'align': 'center', 'valign': 'vcenter',
-                                                      'font_color': Config.colors()['blue'], 'bold': True, 'border': 1})
-    format_table_titles = workbook.add_format({'align': 'center', 'valign': 'vcenter',
-                                               'bold': True, 'font_color': 'white', 'border': 1,
+    workbook.formats[0].set_font_name('Tahoma')
+
+    format_sheet_title_content = workbook.add_format({'font_name': 'Tahoma', 'font_size': 12,
+                                                      'font_color': Config.colors()['blue'], 'bold': True,
+                                                      'align': 'center', 'valign': 'vcenter', 'border': 1})
+    format_table_titles = workbook.add_format({'font_name': 'Tahoma', 'font_size': 11,
+                                               'font_color': 'white', 'bold': True,
+                                               'align': 'center', 'valign': 'vcenter',
+                                               'border': 1,
                                                'bg_color': Config.colors()['blue']})
-    format_table_cells = workbook.add_format({'align': 'left', 'valign': 'top', 'text_wrap': 1, 'border': 1})
-    format_align_center = workbook.add_format({'align': 'center', 'valign': 'top'})
-    format_align_border = workbook.add_format({'align': 'center', 'valign': 'top', 'text_wrap': 1, 'border': 1})
+    format_table_cells = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                              'align': 'left', 'valign': 'top',
+                                              'border': 1, 'text_wrap': 1})
+    format_align_center = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'center', 'valign': 'top'})
+    format_align_border = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'center', 'valign': 'top',
+                                               'border': 1, 'text_wrap': 1})
     format_toc = {
-        'critical': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['critical'],
-                                         'align': 'center', 'valign': 'top', 'border': 1}),
-        'high': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['high'],
-                                     'align': 'center', 'valign': 'top', 'border': 1}),
-        'medium': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['medium'],
-                                       'align': 'center', 'valign': 'top', 'border': 1}),
-        'low': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['low'],
-                                    'align': 'center', 'valign': 'top', 'border': 1}),
-        'none': workbook.add_format({'font_color': 'white', 'bg_color': Config.colors()['none'],
-                                     'align': 'center', 'valign': 'top', 'border': 1})
+        'critical': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                         'align': 'center', 'valign': 'top',
+                                         'border': 1,
+                                         'bg_color': Config.colors()['critical']}),
+        'high': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                     'align': 'center', 'valign': 'top',
+                                     'border': 1, 'bg_color': Config.colors()['high']}),
+        'medium': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                       'align': 'center', 'valign': 'top',
+                                       'border': 1, 'bg_color': Config.colors()['medium']}),
+        'low': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                    'align': 'center', 'valign': 'top',
+                                    'border': 1, 'bg_color': Config.colors()['low']}),
+        'none': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                     'align': 'center', 'valign': 'top',
+                                     'border': 1, 'bg_color': Config.colors()['none']})
     }
 
     # TODO Move to function to de-duplicate this
@@ -116,9 +131,11 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     ws_sum = workbook.add_worksheet(sheet_name)
     ws_sum.set_tab_color(Config.colors()['blue'])
 
+    ws_sum.set_column("A:A", 7, format_align_center)
     ws_sum.set_column("B:B", 25, format_align_center)
     ws_sum.set_column("C:C", 24, format_align_center)
     ws_sum.set_column("D:D", 20, format_align_center)
+    ws_sum.set_column("E:E", 7, format_align_center)
 
     # --------------------
     # VULN SUMMARY
@@ -145,7 +162,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         'name': 'vulnerability summary by affected hosts',
         'categories': '={}!B4:B8'.format(sheet_name),
         'values': '={}!D4:D8'.format(sheet_name),
-        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True},
+        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma'}},
         'points': [
             {'fill': {'color': Config.colors()['critical']}},
             {'fill': {'color': Config.colors()['high']}},
@@ -154,7 +171,9 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
             {'fill': {'color': Config.colors()['none']}},
         ],
     })
-    chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False})
+    chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False, 'name_font': {'name': 'Tahoma'}})
+    chart_vulns_summary.set_size({'width': 500, 'height': 300})
+    chart_vulns_summary.set_legend({'position': 'right', 'font': {'name': 'Tahoma'}})
     ws_sum.insert_chart("F2", chart_vulns_summary)
 
     # --------------------
@@ -181,9 +200,12 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         'name': 'vulnerability summary by family',
         'categories': '={}!B21:B{}'.format(sheet_name, last),
         'values': '={}!C21:C{}'.format(sheet_name, last),
-        'data_labels': {'value': True, 'position': 'best_fit', 'leader_lines': True},
+        'data_labels': {'value': True, 'position': 'best_fit', 'leader_lines': True, 'font': {'name': 'Tahoma'}},
     })
-    chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False})
+    chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False,
+                                     'name_font': {'name': 'Tahoma'}})
+    chart_vulns_by_family.set_size({'width': 500, 'height': 500})
+    chart_vulns_by_family.set_legend({'position': 'bottom', 'font': {'name': 'Tahoma'}})
     ws_sum.insert_chart("F19", chart_vulns_by_family)
 
     # ====================
@@ -197,12 +219,14 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     ws_toc.set_column("B:B", 5)
     ws_toc.set_column("C:C", 150)
     ws_toc.set_column("D:D", 15)
-    ws_toc.set_column("E:E", 7)
+    ws_toc.set_column("E:E", 50)
+    ws_toc.set_column("F:F", 7)
 
-    ws_toc.merge_range("B2:D2", "TABLE OF CONTENTS", format_sheet_title_content)
+    ws_toc.merge_range("B2:E2", "TABLE OF CONTENTS", format_sheet_title_content)
     ws_toc.write("B3", "No.", format_table_titles)
     ws_toc.write("C3", "Vuln Title", format_table_titles)
     ws_toc.write("D3", "Level", format_table_titles)
+    ws_toc.write("E3", "Hosts", format_table_titles)
 
     # ====================
     # VULN SHEETS
@@ -222,9 +246,11 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_toc.write_url("C{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, string=vuln.name)
         ws_toc.write("D{}".format(i + 3), "{:.1f} ({})".format(vuln.cvss, vuln.level.capitalize()),
                      format_toc[vuln.level])
-        ws_toc.set_row(i + 3, __row_height(name, 150), None)
+        ws_toc.write("E{}".format(i + 3), "{}".format(', '.join([host.ip for host, _ in vuln.hosts])),
+                     format_table_cells)
         ws_vuln.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
                           string="<< TOC")
+        ws_toc.set_row(i + 3, __row_height(name, 150), None)
 
         # --------------------
         # VULN INFO
@@ -232,12 +258,12 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_vuln.set_column("A:A", 7, format_align_center)
         ws_vuln.set_column("B:B", 20, format_align_center)
         ws_vuln.set_column("C:C", 20, format_align_center)
-        ws_vuln.set_column("D:D", 80, format_align_center)
+        ws_vuln.set_column("D:D", 50, format_align_center)
         ws_vuln.set_column("E:E", 15, format_align_center)
         ws_vuln.set_column("F:F", 15, format_align_center)
         ws_vuln.set_column("G:G", 20, format_align_center)
         ws_vuln.set_column("H:H", 7, format_align_center)
-        content_width = 135
+        content_width = 120
 
         ws_vuln.write('B2', "Title", format_table_titles)
         ws_vuln.merge_range("C2:G2", vuln.name, format_sheet_title_content)
@@ -289,7 +315,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
 
             if port:
-                ws_vuln.write("E{}".format(j), "-" if port.number == 0 else port.number)
+                ws_vuln.write("E{}".format(j), "" if port.number == 0 else port.number)
                 ws_vuln.write("F{}".format(j), port.protocol)
             else:
                 ws_vuln.write("E{}".format(j), "No port info")
@@ -446,9 +472,9 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     pos = np.arange(len(labels_sum))
     width = 0.35
 
-    bars_vuln = plt.bar(pos - width/2, vuln_sum, width, align='center', label='Vulnerabilities',
+    bars_vuln = plt.bar(pos - width / 2, vuln_sum, width, align='center', label='Vulnerabilities',
                         color=colors_sum, edgecolor='black')
-    bars_aff = plt.bar(pos + width/2, aff_sum, width, align='center', label='Affected hosts',
+    bars_aff = plt.bar(pos + width / 2, aff_sum, width, align='center', label='Affected hosts',
                        color=colors_sum, edgecolor='black', hatch='//')
     plt.title('Vulnerability summary by risk level')
     plt.subplot().set_xticks(pos)
@@ -464,7 +490,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     def __label_bars(barcontainer):
         for bar in barcontainer:
             height = bar.get_height()
-            plt.gca().text(bar.get_x() + bar.get_width()/2, bar.get_height()+0.3, str(int(height)),
+            plt.gca().text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3, str(int(height)),
                            ha='center', color='black', fontsize=9)
 
     __label_bars(bars_vuln)
@@ -515,7 +541,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
 
         title = "[{}] {}".format(level.upper(), vuln.name)
         document.add_paragraph(title, style='OV-Finding')
-    
+
         table_vuln = document.add_table(rows=7, cols=3)
         table_vuln.autofit = False
 
