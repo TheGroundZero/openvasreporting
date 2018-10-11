@@ -26,6 +26,34 @@ def exporters():
     }
 
 
+def _get_collections(vuln_info):
+    """
+    Sort vulnerability list info according to CVSS (desc) and Name (asc).
+    Provide collections to be used in export.
+
+    :param vuln_info: Vulnerability list info
+    :type vuln_info: list(Vulnerability)
+
+    :return: vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
+    :rtype vuln_info: list(Vulnerability)
+    :rtype vuln_levels: Counter
+    :rtype vuln_host_by_level: Counter
+    :rtype vuln_by_family: Counter
+    """
+    vuln_info.sort(key=lambda key: key.name)
+    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
+    vuln_levels = Counter()
+    vuln_host_by_level = Counter()
+    vuln_by_family = Counter()
+
+    for i, vuln in enumerate(vuln_info, 1):
+        vuln_levels[vuln.level.lower()] += 1
+        vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
+        vuln_by_family[vuln.family] += 1
+
+    return vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
+
+
 def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx'):
     """
     Export vulnerabilities info in an Excel file.
@@ -56,6 +84,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
             raise ValueError("output_file must have a valid name.")
     if template is not None:
         raise NotImplementedError("Use of template is not supported in XSLX-output.")
+
+    vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family = _get_collections(vuln_info)
 
     # ====================
     # FUNCTIONS
@@ -112,17 +142,6 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
                                      'align': 'center', 'valign': 'top',
                                      'border': 1, 'bg_color': Config.colors()['none']})
     }
-
-    # TODO Move to function to de-duplicate this
-    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
-    vuln_levels = Counter()
-    vuln_host_by_level = Counter()
-    vuln_by_family = Counter()
-
-    for i, vuln in enumerate(vuln_info, 1):
-        vuln_levels[vuln.level.lower()] += 1
-        vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
-        vuln_by_family[vuln.family] += 1
 
     # ====================
     # SUMMARY SHEET
@@ -367,16 +386,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     else:
         template = 'openvasreporting/src/openvas-template.docx'
 
-    # TODO Move to function to de-duplicate this
-    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
-    vuln_levels = Counter()
-    vuln_host_by_level = Counter()
-    vuln_by_family = Counter()
-
-    for i, vuln in enumerate(vuln_info, 1):
-        vuln_levels[vuln.level.lower()] += 1
-        vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
-        vuln_by_family[vuln.family] += 1
+    vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family = _get_collections(vuln_info)
 
     # ====================
     # DOCUMENT PROPERTIES
@@ -600,7 +610,6 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         hdr_cells[3].paragraphs[0].add_run('Port protocol').bold = True
 
         for j, (host, port) in enumerate(vuln.hosts, 1):
-
             cells = table_hosts.rows[j].cells
             cells[0].text = host.ip
             cells[1].text = host.host_name if host.host_name else "-"
@@ -645,8 +654,7 @@ def export_to_csv(vuln_info, template=None, output_file='openvas_report.csv'):
     if template is not None:
         raise NotImplementedError("Use of template is not supported in CSV-output.")
 
-    # TODO Move to function to de-duplicate this
-    vuln_info.sort(key=lambda key: key.cvss, reverse=True)
+    vuln_info, _, _, _ = _get_collections(vuln_info)
 
     with open(output_file, 'w') as csvfile:
         fieldnames = ['hostname', 'ip', 'port', 'protocol',
