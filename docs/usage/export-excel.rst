@@ -50,4 +50,4 @@ The final report will look similar to this:
    :alt: Report example screenshot - Vulnerability description
    :width: 30%
 
-Worksheets are sorted according to CVSS score and are colored according to the vulnerability level.
+Vulnerability detail worksheets are sorted according to CVSS score and are colored according to the threat level.

@@ -21,7 +21,7 @@ Command line usage
 \-f, --format
    | Optional
    | Type of output file.
-   | Valid values are: xlsx
+   | Valid values are: xlsx, docx, csv
    | Defaults to: xlsx
 
 \-l, --level
@@ -53,3 +53,4 @@ Command line usage
 
    export-excel
    export-word
+   export-csv

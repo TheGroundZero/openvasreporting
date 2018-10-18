@@ -39,6 +39,15 @@ Create Word report using a different template
 
    python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f docx -t /home/user/myOpenvasTemplate.docx
 
+The custom template document must contain a definition for the following styles:
+
+- Title (default)
+- Heading 1 (default)
+- Heading 4 (default)
+- OV-H1toc (custom format for Heading 1, included in Table of Contents)
+- OV-H2toc (custom format for Heading 2, included in Table of Contents)
+- OV-Finding (custom format for finding titles, included in Table of Contents)
+
 
 Result
 ^^^^^^
@@ -48,4 +57,4 @@ The final report will look similar to this:
 .. todo::
    [DOCS] Add screenshots of Word report
 
-Vulnerability detail pages are sorted according to CVSS score and are grouped and coloured according to the vulnerability level.
+Vulnerabilities are sorted according to CVSS score (descending) and vulnerability name (ascending).
