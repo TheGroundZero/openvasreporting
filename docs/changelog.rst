@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.4.2  - Fixed "ValueError: Unknown format code 'f' for object of type 'str'"
+
 1.4.1  - Small bugfixes and code refactoring
 
 1.4.0  - Use Word template for report building

@@ -9,7 +9,7 @@ with open('README.md') as f:
 setup(
     name='OpenVAS Reporting',
     description='A tool to convert OpenVAS XML into reports.',
-    version='1.4.1',
+    version='1.4.2',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='TheGroundZero (@DezeStijn)',
