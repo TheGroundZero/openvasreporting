@@ -311,8 +311,11 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_vuln.set_row(6, __row_height(cves, content_width), None)
 
         ws_vuln.write('B8', "CVSS", format_table_titles)
-        cvss = vuln.cvss if vuln.cvss != -1.0 else "No CVSS"
-        ws_vuln.merge_range("C8:G8", "{:.1f}".format(cvss), format_table_cells)
+        cvss = float(vuln.cvss)
+        if cvss >= 0.0:
+            ws_vuln.merge_range("C8:G8", "{:.1f}".format(cvss), format_table_cells)
+        else:
+            ws_vuln.merge_range("C8:G8", "{}".format("No CVSS"), format_table_cells)
 
         ws_vuln.write('B9', "Level", format_table_titles)
         ws_vuln.merge_range("C9:G9", vuln.level.capitalize(), format_table_cells)
