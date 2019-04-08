@@ -9,7 +9,7 @@ with open('README.md') as f:
 setup(
     name='OpenVAS Reporting',
     description='A tool to convert OpenVAS XML into reports.',
-    version='1.4.2',
+    version='1.4.3',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='TheGroundZero (@DezeStijn)',
@@ -24,7 +24,7 @@ setup(
     project_urls={
         'Source Code': 'https://github.com/TheGroundZero/openvasreporting',
         'Documentation': 'https://openvas-reporting.stijncrevits.be',
-        'Issues': 'https://github.com/TheGroundZero/openvas_to_report/issues/',
+        'Issues': 'https://github.com/TheGroundZero/openvasreporting/issues/',
     },
     license='GPL-3.0-or-later',
     keywords='OpenVAS OpenVAS-reports Excel xlsxwriter xlsx reporting reports report',

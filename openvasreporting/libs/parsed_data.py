@@ -2,7 +2,7 @@
 #
 #
 # Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
-# Project URL: https://github.com/TheGroundZero/openvas_to_report
+# Project URL: https://github.com/TheGroundZero/openvasreporting
 
 """This file contains data structures"""
 
@@ -80,15 +80,11 @@ class Port(object):
         return Port(number, protocol)
 
     def __eq__(self, other):
-        if not isinstance(other, Port):
-            return False
-
-        if other.number != self.number:
-            return False
-        if other.protocol != self.protocol:
-            return False
-
-        return True
+        return (
+                isinstance(other, Port) and
+                other.number == self.number and
+                other.protocol == self.protocol
+        )
 
 
 class Host(object):
@@ -113,15 +109,11 @@ class Host(object):
         self.host_name = host_name
 
     def __eq__(self, other):
-        if not isinstance(other, Host):
-            return False
-
-        if other.ip != self.ip:
-            return False
-        if other.host_name != self.host_name:
-            return False
-
-        return True
+        return (
+                isinstance(other, Host) and
+                other.ip == self.ip and
+                other.host_name == self.host_name
+        )
 
 
 class Vulnerability(object):
@@ -238,28 +230,28 @@ class Vulnerability(object):
         if not isinstance(other, Vulnerability):
             raise TypeError("Expected Vulnerability, got '{}' instead".format(type(other)))
 
-        if other.cves != self.cves:
-            return False
-        if other.threat != self.threat:
-            return False
-        if other.name != self.name:
-            return False
-        if other.cvss != self.cvss:
-            return False
-        if other.description != self.description:
-            return False
-        if other.vuln_id != self.vuln_id:
-            return False
-        if other.level != self.level:
-            return False
-        if other.references != self.references:
+        if (
+                other.vuln_id != self.vuln_id or
+                other.name != self.name or
+                other.cves != self.cves or
+                other.cvss != self.cvss or
+                other.level != self.level or
+                other.description != self.description or
+                other.detect != self.detect or
+                other.insight != self.insight or
+                other.impact != self.impact or
+                other.affected != self.affected or
+                other.solution != self.solution or
+                other.solution_type != self.solution_type or
+                other.references != self.references or
+                other.threat != self.threat or
+                other.family != self.family
+        ):
             return False
 
         for host, port in self.hosts:
             for o_host, o_port in other.hosts:
-                if o_host == host and o_port == port:
-                    break
-            else:
-                return False
+                if o_host != host or o_port != port:
+                    return False
 
         return True

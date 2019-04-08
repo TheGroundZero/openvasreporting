@@ -72,7 +72,7 @@ I also plan on adding more functionality as I feel the need for it, or receive r
 
 If you feel like I'd need to implement a new feature, rewrite some code, fix a bug, ...
 hit me up on `Twitter <https://twitter.com/DezeStijn>`_
-or file an issue on `GitHub <https://github.com/TheGroundZero/openvas_to_report>`_.
+or file an issue on `GitHub <https://github.com/TheGroundZero/openvasreporting>`_.
 
 TODO list
 ---------

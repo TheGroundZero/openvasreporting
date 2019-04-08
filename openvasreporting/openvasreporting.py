@@ -2,7 +2,7 @@
 #
 #
 # Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
-# Project URL: https://github.com/TheGroundZero/openvas_to_report
+# Project URL: https://github.com/TheGroundZero/openvasreporting
 
 import argparse
 
@@ -57,17 +57,9 @@ def create_config(input_files, output_file="openvas_report", min_lvl="none", fil
     :rtype: Config
     """
 
-    min_lvl = min_lvl.lower()[0]
+    min_lvl = check_level(min_lvl.lower()[0])
 
-    if min_lvl in Config.levels().keys():
-        min_lvl = Config.levels()[min_lvl]
-    else:
-        raise ValueError("Invalid value for level parameter, \
-            must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
-
-    if filetype not in exporters().keys():
-        raise ValueError("Filetype not supported, got {}, expecting one of {}".format(filetype,
-                                                                                      exporters().keys()))
+    check_filetype(filetype)
 
     if template is not None:
         return Config(input_files, output_file, min_lvl, filetype, template)
@@ -94,3 +86,33 @@ def convert(config):
     openvas_info = openvas_parser(config.input_files, config.min_level)
 
     exporters()[config.filetype](openvas_info, config.template, config.output_file)
+
+
+def check_level(min_lvl):
+    """
+    Check if min_lvl is a correct level
+
+    :param min_lvl: min_lvl
+    :return: min_lvl
+
+    :raises: ValueError
+    """
+    if min_lvl in Config.levels().keys():
+        return Config.levels()[min_lvl]
+    else:
+        raise ValueError("Invalid value for level parameter, \
+            must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
+
+
+def check_filetype(filetype):
+    """
+    Check if filetype is a correct filetype
+
+    :param filetype: filetype
+    :return:
+
+    :raises: ValueError
+    """
+    if filetype not in exporters().keys():
+        raise ValueError("Filetype not supported, got {}, expecting one of {}".format(filetype,
+                                                                                      exporters().keys()))
