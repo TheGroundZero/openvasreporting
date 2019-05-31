@@ -102,8 +102,6 @@ Worksheets are sorted according to CVSS score and are colored according to the v
 Some of the ideas I still have for future functionality:
 
  - list vulnerabilities per host
- - make pip installer
  - filter by host (scope/exclude) as in OpenVAS2Report
- - export to other formats (CSV, PDF)
  - select threat levels individually (e.g. none and low; but not med, high and crit)
- 
+ - import other formats (not only XML), e.g. CSV as suggested in [this issue](https://github.com/TheGroundZero/openvasreporting_server/issues/3)
