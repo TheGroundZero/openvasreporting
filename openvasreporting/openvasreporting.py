@@ -23,7 +23,8 @@ def main():
     parser.add_argument("-l", "--level", dest="min_lvl", help="Minimal level (c, h, m, l, n)", required=False,
                         default="none")
     parser.add_argument("-f", "--format", dest="filetype", help="Output format (xlsx)", required=False, default="xlsx")
-    parser.add_argument("-t", "--template", dest="template", help="Template file for docx export", required=False)
+    parser.add_argument("-t", "--template", dest="template", help="Template file for docx export", required=False,
+                        default=None)
 
     args = parser.parse_args()
 
