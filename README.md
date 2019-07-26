@@ -42,9 +42,9 @@ At this moment in time, the script only output .xlsx documents in one format, th
     pip3 install -r requirements.txt
     # Clone repo
     git clone https://github.com/TheGroundZero/openvasreporting.git
-    # Install module
-    cd openvasreporting
-    pip3 install .
+    ## Install module (not required when running from repo base folder)
+    #cd openvasreporting
+    #pip3 install .
     
 
 Alternatively, you can install the package through the Python package installer 'pip'.  
