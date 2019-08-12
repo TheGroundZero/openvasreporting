@@ -82,8 +82,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     else:
         if not output_file:
             raise ValueError("output_file must have a valid name.")
-    if template is not None:
-        raise NotImplementedError("Use of template is not supported in XSLX-output.")
+    # if template is not None:
+    #     raise NotImplementedError("Use of template is not supported in XSLX-output.")
 
     vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family = _get_collections(vuln_info)
 
