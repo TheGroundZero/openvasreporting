@@ -35,22 +35,27 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 ## Installation
 
-    # install requirements
+    # Install requirements
     apt(-get) install python3 python3-pip # Debian, Ubuntu
     yum -y install python3 python3-pip    # CentOS
     dnf install python3 python3-pip       # Fedora
     pip3 install -r requirements.txt
-    # clone repo
-    git clone git@github.com:TheGroundZero/openvas_to_report.git
+    # Clone repo
+    git clone https://github.com/TheGroundZero/openvasreporting.git
+    ## Install module (not required when running from repo base folder)
+    #cd openvasreporting
+    #pip3 install .
+    
 
-Alternatively, you can install the package through the Python package installer 'pip'.
+Alternatively, you can install the package through the Python package installer 'pip'.  
+This currently has some issues (see #4)
 
-    # Install pip
+    # Install pip3
     apt(-get) install python3 python3-pip # Debian, Ubuntu
     yum -y install python3 python3-pip    # CentOS
     dnf install python3 python3-pip       # Fedora
     # Install the package
-    pip install OpenVAS-Reporting
+    pip3 install OpenVAS-Reporting
 
 
 ## Usage
@@ -58,7 +63,7 @@ Alternatively, you can install the package through the Python package installer 
     # When working from the Git repo
     python3 -m openvasreporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]] [-f [docx template]]
     # When using the pip package
-    OpenVAS-Reporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]] [-f [docx template]]
+    openvasreporting -i [OpenVAS xml file(s)] [-o [Output file]] [-f [Output format]] [-l [minimal threat level (n, l, m, h, c)]] [-f [docx template]]
 
 ### Parameters
 
