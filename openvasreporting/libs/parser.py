@@ -61,6 +61,10 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
         logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
         logging.debug("================================================================================")
 
+        for detail in root.findall(".//host/detail"):
+            if detail.find("./name").text == "hostname":
+                host_name = detail.find("./value").text
+        
         for vuln in root.findall(".//results/result"):
 
             nvt_tmp = vuln.find("./nvt")
@@ -174,7 +178,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # --------------------
             #
             # STORE VULN_HOSTS PER VULN
-            host = Host(vuln_host)
+            host = Host(vuln_host, host_name)
             try:
                 port = Port.string2port(vuln_port)
             except ValueError:
