@@ -10,10 +10,10 @@ import logging
 from .config import Config
 from .parsed_data import Host, Port, Vulnerability
 
-# logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
-#                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
-                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
+                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+#logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
+#                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 __all__ = ["openvas_parser"]
 
@@ -58,7 +58,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
         root = Et.parse(f_file).getroot()
 
         logging.debug("================================================================================")
-        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
+#        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
         logging.debug("================================================================================")
 
         for vuln in root.findall(".//results/result"):
@@ -164,19 +164,35 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
                 if vuln_references.lower() == "noxref":
                     vuln_references = []
                 else:
-                    tmp1 = vuln_references.strip().lower()
-                    tmp1_init = tmp1.find("url:")
-                    tmp2 = tmp1[tmp1_init + 4:].split(",")
-                    vuln_references = [x.strip() for x in tmp2]
+                    # tmp1 = vuln_references.strip().lower()
+                    # tmp1_init = tmp1.find("url:")
+                    #tmp2 = tmp1[tmp1_init + 4:].split(",")
+                    vuln_references = vuln_references.lower().replace("url:", "\n")
 
             logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
+
+            # --------------------
+            #
+            # VULN_DESCRIPTION
+            vuln_result = vuln.find("./description").text
+            if vuln_result is None:
+                vuln_result = []
+
+            if type(vuln_result) == list:
+                vuln_result = "\n".join(vuln_result)
+
+            # Replace double newlines by a single newline
+            vuln_result = vuln_result.replace("(\r\n)+", "\n")
+
+            logging.debug("* vuln_result:\t{}".format(vuln_result))  # DEBUG
 
             # --------------------
             #
             # STORE VULN_HOSTS PER VULN
             host = Host(vuln_host)
             try:
-                port = Port.string2port(vuln_port)
+	    # added results to port function as will ne unique per port on each host.
+                port = Port.string2port(vuln_port, vuln_result)
             except ValueError:
                 port = None
 
