@@ -8,17 +8,20 @@
 
 import re
 
-
+# Port object modifed to include result data field
 class Port(object):
     """Port information"""
 
-    def __init__(self, number, protocol="tcp"):
+    def __init__(self, number, protocol="tcp", result=""):
         """
         :param number: port number
         :type number: int
 
         :param protocol: port protocol (tcp, udp, ...)
         :type protocol: basestring
+
+	:param result: port result
+	:type result: str
 
         :raises: TypeError, ValueError
         """
@@ -31,31 +34,44 @@ class Port(object):
         if not isinstance(protocol, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(protocol)))
 
+        if not isinstance(result, str):
+            raise TypeError("Expected basestring, got '{}' instead".format(type(result)))
+
         self.number = number
         self.protocol = protocol
+        self.result = result
 
+    # Modified to include result in structure
     @staticmethod
-    def string2port(info):
+    def string2port(info,result):
         """
         Extract port number, protocol and description from an string.
+	resturn a port class with seperate port, protocol and result
 
         ..note:
             Raises value error if information can't be processed.
 
-        # >>> p=Port.string2port("2000/tcp")
+        # >>> p=Port.string2port("2000/tcp","result string")
         # >>> print p.number
           2000
         # >>> print p.proto
           "tcp"
+	# >>> print p.result
+	  "string"
 
-        # >>> p=Port.string2port("general/icmp")
+        # >>> p=Port.string2port("general/icmp", "string test")
         # >>> print p.number
           0
         # >>> print p.proto
           "icmp"
+	# >>> print p.result
+	  "stringntest"
 
         :param info: raw string with port information
         :type info: basestring
+
+        :param result: raw string with port information
+        :type result: basestring
 
         :return: Port instance
         :rtype: Port
@@ -64,6 +80,9 @@ class Port(object):
         """
         if not isinstance(info, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(info)))
+
+        if not isinstance(result, str):
+            raise TypeError("Expected basestring, got '{}' instead".format(type(result)))
 
         regex_nr = re.search("([\d]+)(/)([\w]+)", info)
         regex_general = re.search("(general)(/)([\w]+)", info)
@@ -75,15 +94,16 @@ class Port(object):
             number = 0
             protocol = regex_general.group(3)
         else:
-            raise ValueError("Can't parse input string")
+            raise ValueError("Can't parse port input string")
 
-        return Port(number, protocol)
+        return Port(number, protocol, result)
 
     def __eq__(self, other):
         return (
                 isinstance(other, Port) and
                 other.number == self.number and
-                other.protocol == self.protocol
+                other.protocol == self.protocol and
+                other.result == self.result
         )
 
 
@@ -148,6 +168,9 @@ class Vulnerability(object):
         :param family: Vulnerability family
         :type family: str
 
+        :param result: Vulnerability result
+        :type description: str
+
         :raises: TypeError, ValueError
         """
         # Get info
@@ -155,8 +178,9 @@ class Vulnerability(object):
         cvss = kwargs.get("cvss", -1.0) or -1.0
         level = kwargs.get("level", "None") or "None"
         tags = kwargs.get("tags", dict()) or dict()
-        references = kwargs.get("references", list()) or list()
+        references = kwargs.get("references", "Uknown") or "Unknown"
         family = kwargs.get("family", "Unknown") or "Unknown"
+        result = kwargs.get("description", "Unknown") or "Unknown"
 
         if not isinstance(vuln_id, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(vuln_id)))
@@ -166,6 +190,8 @@ class Vulnerability(object):
             raise TypeError("Expected basestring, got '{}' instead".format(type(threat)))
         if not isinstance(family, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(family)))
+        if not isinstance(result, str):
+            raise TypeError("Expected basestring, got '{}' instead".format(type(result)))
         if not isinstance(cves, list):
             raise TypeError("Expected list, got '{}' instead".format(type(cves)))
         else:
@@ -179,7 +205,7 @@ class Vulnerability(object):
             raise TypeError("Expected basestring, got '{}' instead".format(type(level)))
         if not isinstance(tags, dict):
             raise TypeError("Expected dict, got '{}' instead".format(type(tags)))
-        if not isinstance(references, list):
+        if not isinstance(references, str):
             raise TypeError("Expected list, got '{}' instead".format(type(references)))
         else:
             for x in references:
@@ -201,6 +227,7 @@ class Vulnerability(object):
         self.references = references
         self.threat = threat
         self.family = family
+        self.result = result
 
         # Hosts
         self.hosts = []
@@ -245,7 +272,8 @@ class Vulnerability(object):
                 other.solution_type != self.solution_type or
                 other.references != self.references or
                 other.threat != self.threat or
-                other.family != self.family
+                other.family != self.family or
+                other.result != self.result
         ):
             return False
 
