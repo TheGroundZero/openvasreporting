@@ -10,6 +10,12 @@ from collections import Counter
 from .config import Config
 from .parsed_data import Vulnerability
 
+# DEBUG
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
+                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+
 
 def exporters():
     """
@@ -45,11 +51,24 @@ def _get_collections(vuln_info):
     vuln_levels = Counter()
     vuln_host_by_level = Counter()
     vuln_by_family = Counter()
+    # collect host names
+    vuln_hostcount_by_level =[[] for _ in range(5)]
+    level_choices = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3, 'none': 4}
 
     for i, vuln in enumerate(vuln_info, 1):
         vuln_levels[vuln.level.lower()] += 1
-        vuln_host_by_level[vuln.level.lower()] += len(vuln.hosts)
+        # add host names to list so we count unquie hosts per level
+        level_index = level_choices.get(vuln.level.lower())
+
+        for i, (host, port) in enumerate(vuln.hosts, 1):    
+            if host.ip not in vuln_hostcount_by_level[level_index]:
+                vuln_hostcount_by_level[level_index].append(host.ip)       
+
         vuln_by_family[vuln.family] += 1
+
+    # now count hosts per level and return
+    for level in Config.levels().values():
+        vuln_host_by_level[level] = len((vuln_hostcount_by_level[level_choices.get(level.lower())]))
 
     return vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
 
@@ -323,15 +342,20 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_vuln.write('B10', "Family", format_table_titles)
         ws_vuln.merge_range("C10:G10", vuln.family, format_table_cells)
 
-        ws_vuln.write('C12', "IP", format_table_titles)
-        ws_vuln.write('D12', "Host name", format_table_titles)
-        ws_vuln.write('E12', "Port number", format_table_titles)
-        ws_vuln.write('F12', "Port protocol", format_table_titles)
+        ws_vuln.write('B11', "References", format_table_titles)
+        ws_vuln.merge_range("C11:G11", vuln.references, format_table_cells)
+        ws_vuln.set_row(10, __row_height(vuln.references, content_width), None)
+
+        ws_vuln.write('C13', "IP", format_table_titles)
+        ws_vuln.write('D13', "Host name", format_table_titles)
+        ws_vuln.write('E13', "Port number", format_table_titles)
+        ws_vuln.write('F13', "Port protocol", format_table_titles)
+        ws_vuln.write('G13', "Port Result", format_table_titles)
 
         # --------------------
         # AFFECTED HOSTS
         # --------------------
-        for j, (host, port) in enumerate(vuln.hosts, 13):
+        for j, (host, port) in enumerate(vuln.hosts, 14):
 
             ws_vuln.write("C{}".format(j), host.ip)
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
@@ -339,6 +363,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
             if port:
                 ws_vuln.write("E{}".format(j), "" if port.number == 0 else port.number)
                 ws_vuln.write("F{}".format(j), port.protocol)
+                ws_vuln.write("G{}".format(j), port.result, format_table_cells)
+                ws_vuln.set_row(j, __row_height(port.result, content_width), None)
             else:
                 ws_vuln.write("E{}".format(j), "No port info")
 
@@ -555,13 +581,13 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         title = "[{}] {}".format(level.upper(), vuln.name)
         document.add_paragraph(title, style='OV-Finding')
 
-        table_vuln = document.add_table(rows=7, cols=3)
+        table_vuln = document.add_table(rows=8, cols=3)
         table_vuln.autofit = False
 
         # COLOR
         # --------------------
         col_cells = table_vuln.columns[0].cells
-        col_cells[0].merge(col_cells[6])
+        col_cells[0].merge(col_cells[7])
         color_fill = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), Config.colors()[vuln.level][1:]))
         col_cells[0]._tc.get_or_add_tcPr().append(color_fill)
 
@@ -578,6 +604,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         hdr_cells[4].paragraphs[0].add_run('CVSS').bold = True
         hdr_cells[5].paragraphs[0].add_run('CVEs').bold = True
         hdr_cells[6].paragraphs[0].add_run('Family').bold = True
+        hdr_cells[7].paragraphs[0].add_run('References').bold = True
 
         for hdr_cell in hdr_cells:
             hdr_cell.width = Cm(3.58)
@@ -597,6 +624,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         txt_cells[4].text = cvss
         txt_cells[5].text = cves
         txt_cells[6].text = vuln.family
+        txt_cells[7].text = vuln.references
 
         for txt_cell in txt_cells:
             txt_cell.width = Cm(12.50)
@@ -605,12 +633,35 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         # --------------------
         document.add_paragraph('Vulnerable hosts', style='Heading 4')
 
-        table_hosts = document.add_table(cols=4, rows=(len(vuln.hosts) + 1))
+        # add coloumn for result per port and resize columns
+        table_hosts = document.add_table(cols=5, rows=(len(vuln.hosts) + 1))
+
+        col_cells = table_hosts.columns[1].cells
+        for col_cell in col_cells:
+            col_cell.width = Cm(3.2)
+
+        col_cells = table_hosts.columns[2].cells
+        for col_cell in col_cells:
+            col_cell.width = Cm(3.2)
+
+        col_cells = table_hosts.columns[2].cells
+        for col_cell in col_cells:
+            col_cell.width = Cm(1.6)
+
+        col_cells = table_hosts.columns[3].cells
+        for col_cell in col_cells:
+            col_cell.width = Cm(1.6)
+
+        col_cells = table_hosts.columns[4].cells
+        for col_cell in col_cells:
+            col_cell.width = Cm(6.4)
+
         hdr_cells = table_hosts.rows[0].cells
         hdr_cells[0].paragraphs[0].add_run('IP').bold = True
         hdr_cells[1].paragraphs[0].add_run('Host name').bold = True
         hdr_cells[2].paragraphs[0].add_run('Port number').bold = True
         hdr_cells[3].paragraphs[0].add_run('Port protocol').bold = True
+        hdr_cells[4].paragraphs[0].add_run('Port result').bold = True
 
         for j, (host, port) in enumerate(vuln.hosts, 1):
             cells = table_hosts.rows[j].cells
@@ -619,6 +670,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
             if port and port is not None:
                 cells[2].text = "-" if port.number == 0 else str(port.number)
                 cells[3].text = port.protocol
+                cells[4].text = port.result
             else:
                 cells[2].text = "No port info"
 
