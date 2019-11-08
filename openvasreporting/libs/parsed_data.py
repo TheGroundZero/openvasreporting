@@ -46,7 +46,7 @@ class Port(object):
     def string2port(info,result):
         """
         Extract port number, protocol and description from an string.
-	resturn a port class with seperate port, protocol and result
+	return a port class with seperate port, protocol and result
 
         ..note:
             Raises value error if information can't be processed.
@@ -57,7 +57,7 @@ class Port(object):
         # >>> print p.proto
           "tcp"
 	# >>> print p.result
-	  "string"
+	  "result string"
 
         # >>> p=Port.string2port("general/icmp", "string test")
         # >>> print p.number
@@ -65,7 +65,7 @@ class Port(object):
         # >>> print p.proto
           "icmp"
 	# >>> print p.result
-	  "stringntest"
+	  "string test"
 
         :param info: raw string with port information
         :type info: basestring
@@ -206,7 +206,7 @@ class Vulnerability(object):
         if not isinstance(tags, dict):
             raise TypeError("Expected dict, got '{}' instead".format(type(tags)))
         if not isinstance(references, str):
-            raise TypeError("Expected list, got '{}' instead".format(type(references)))
+            raise TypeError("Expected string, got '{}' instead".format(type(references)))
         else:
             for x in references:
                 if not isinstance(x, str):
