@@ -10,10 +10,10 @@ import logging
 from .config import Config
 from .parsed_data import Host, Port, Vulnerability
 
-#logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
-#                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
-                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
+                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+#logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
+#                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 __all__ = ["openvas_parser"]
 
@@ -58,7 +58,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
         root = Et.parse(f_file).getroot()
 
         logging.debug("================================================================================")
-        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
+#        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
         logging.debug("================================================================================")
 
         for vuln in root.findall(".//results/result"):
@@ -174,8 +174,11 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # --------------------
             #
             # VULN_DESCRIPTION
-            vuln_result = vuln.find("./description").text
-            if vuln_result is None:
+            test=vuln.find("./description")
+            if test is not None:
+                vuln_result = vuln.find("./description").text
+            
+            if test is None or vuln_result is None:
                 vuln_result = []
 
             if type(vuln_result) == list:
@@ -191,7 +194,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # STORE VULN_HOSTS PER VULN
             host = Host(vuln_host)
             try:
-	    # added results to port function as will be unique per port on each host.
+	    # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(vuln_port, vuln_result)
             except ValueError:
                 port = None
