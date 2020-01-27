@@ -49,7 +49,7 @@ The custom template document must contain a definition for the following styles:
 - OV-Finding (custom format for finding titles, included in Table of Contents)
 
 To modify these styles, use the style selector in your prefered document editor (e.g. MS Office Word, LibreOffice, ...).  
-See also [this issue on GitHub](https://github.com/TheGroundZero/openvasreporting/issues/11#issuecomment-578644876 "Issue #11").
+See also `this issue on GitHub`_.
 
 Result
 ^^^^^^
@@ -60,3 +60,5 @@ The final report will look similar to this:
    [DOCS] Add screenshots of Word report
 
 Vulnerabilities are sorted according to CVSS score (descending) and vulnerability name (ascending).
+
+.. _this issue on GitHub: https://github.com/TheGroundZero/openvasreporting/issues/11#issuecomment-578644876
