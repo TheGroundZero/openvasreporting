@@ -25,9 +25,9 @@ copyright = '2018, TheGroundZero (@DezeStijn)'
 author = 'TheGroundZero (@DezeStijn)'
 
 # The short X.Y version
-version = '1.0'
+version = '1.4'
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.4.4'
 
 
 # -- General configuration ---------------------------------------------------

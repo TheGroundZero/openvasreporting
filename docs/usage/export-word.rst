@@ -48,6 +48,8 @@ The custom template document must contain a definition for the following styles:
 - OV-H2toc (custom format for Heading 2, included in Table of Contents)
 - OV-Finding (custom format for finding titles, included in Table of Contents)
 
+To modify these styles, use the style selector in your prefered document editor (e.g. MS Office Word, LibreOffice, ...).  
+See also [this issue on GitHub](https://github.com/TheGroundZero/openvasreporting/issues/11#issuecomment-578644876 "Issue #11").
 
 Result
 ^^^^^^
