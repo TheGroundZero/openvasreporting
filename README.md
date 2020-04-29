@@ -35,22 +35,23 @@ At this moment in time, the script only output .xlsx documents in one format, th
 
 ## Installation
 
-    # Install requirements
+    # Install Python3 and pip3
     apt(-get) install python3 python3-pip # Debian, Ubuntu
     yum -y install python3 python3-pip    # CentOS
     dnf install python3 python3-pip       # Fedora
-    pip3 install -r requirements.txt
     # Clone repo
     git clone https://github.com/TheGroundZero/openvasreporting.git
-    ## Install module (not required when running from repo base folder)
-    #cd openvasreporting
+    # Install required python packages
+    cd openvasreporting
+    pip3 install -r requirements.txt
+    # Install module (not required when running from repo base folder)
     #pip3 install .
     
 
 Alternatively, you can install the package through the Python package installer 'pip'.  
 This currently has some issues (see #4)
 
-    # Install pip3
+    # Install Python3 and pip3
     apt(-get) install python3 python3-pip # Debian, Ubuntu
     yum -y install python3 python3-pip    # CentOS
     dnf install python3 python3-pip       # Fedora
