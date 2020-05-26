@@ -147,42 +147,33 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # --------------------
             #
             # VULN_CVES
-            vuln_cves = nvt_tmp.find("./cve").text
-            if vuln_cves:
-                if vuln_cves.lower() == "nocve":
-                    vuln_cves = []
-                else:
-                    vuln_cves = [vuln_cves.lower()]
+            vuln_cves = nvt_tmp.find("./cve")
+            if vuln_cves is None or vuln_cves.text.lower() == "nocve":
+                vuln_cves = []
+            else:
+                vuln_cves = [vuln_cves.text.lower()]
 
             logging.debug("* vuln_cves:\t{}".format(vuln_cves))  # DEBUG
 
             # --------------------
             #
             # VULN_REFERENCES
-            vuln_references = nvt_tmp.find("./xref").text
-            if vuln_references:
-                if vuln_references.lower() == "noxref":
+            vuln_references = nvt_tmp.find("./xref")
+            if vuln_references is None or vuln_references.text.lower() == "noxref":
                     vuln_references = []
                 else:
-                    # tmp1 = vuln_references.strip().lower()
-                    # tmp1_init = tmp1.find("url:")
-                    #tmp2 = tmp1[tmp1_init + 4:].split(",")
-                    vuln_references = vuln_references.lower().replace("url:", "\n")
+                    vuln_references = vuln_references.text.lower().replace("url:", "\n")
 
             logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
 
             # --------------------
             #
             # VULN_DESCRIPTION
-            test=vuln.find("./description")
-            if test is not None:
-                vuln_result = vuln.find("./description").text
-            
-            if test is None or vuln_result is None:
-                vuln_result = []
-
-            if type(vuln_result) == list:
-                vuln_result = "\n".join(vuln_result)
+            vuln_result = vuln.find("./description")
+            if vuln_result is None or vuln.find("./description").text is None:
+                vuln_result = ""
+            else:
+                vuln_result = vuln_result.text
 
             # Replace double newlines by a single newline
             vuln_result = vuln_result.replace("(\r\n)+", "\n")
@@ -194,7 +185,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # STORE VULN_HOSTS PER VULN
             host = Host(vuln_host)
             try:
-	    # added results to port function as will ne unique per port on each host.
+	            # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(vuln_port, vuln_result)
             except ValueError:
                 port = None
