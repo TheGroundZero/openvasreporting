@@ -111,6 +111,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             #
             # VULN_HOST
             vuln_host = vuln.find("./host").text
+            vuln_host_name = vuln.find("./host/hostname").text
             vuln_port = vuln.find("./port").text
             logging.debug("* vuln_host:\t{} port:\t{}".format(vuln_host, vuln_port))  # DEBUG
 
@@ -183,7 +184,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # --------------------
             #
             # STORE VULN_HOSTS PER VULN
-            host = Host(vuln_host)
+            host = Host(vuln_host, host_name=vuln_host_name)
             try:
                 # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(vuln_port, vuln_result)
