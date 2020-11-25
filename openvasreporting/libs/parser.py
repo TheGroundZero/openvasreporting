@@ -185,7 +185,7 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # STORE VULN_HOSTS PER VULN
             host = Host(vuln_host)
             try:
-	            # added results to port function as will ne unique per port on each host.
+                # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(vuln_port, vuln_result)
             except ValueError:
                 port = None
