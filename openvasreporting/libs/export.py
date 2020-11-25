@@ -263,7 +263,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     ws_toc.merge_range("B2:E2", "TABLE OF CONTENTS", format_sheet_title_content)
     ws_toc.write("B3", "No.", format_table_titles)
     ws_toc.write("C3", "Vulnerability", format_table_titles)
-    ws_toc.write("D3", "Threat Level", format_table_titles)
+    ws_toc.write("D3", "CVSS Score", format_table_titles)
     ws_toc.write("E3", "Hosts", format_table_titles)
 
     # ====================
