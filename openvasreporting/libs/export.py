@@ -542,7 +542,6 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     # plt.show()  # DEBUG
 
     run_chart.add_picture(path, width=Cm(8.0))
-    os.remove(path)
 
     plt.figure()
 
@@ -558,6 +557,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     # plt.show()  # DEBUG
 
     run_chart.add_picture(path, width=Cm(8.0))
+    os.close(fd)
     os.remove(path)
 
     # ====================
