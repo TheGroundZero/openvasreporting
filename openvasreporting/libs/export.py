@@ -179,8 +179,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     # VULN SUMMARY
     # --------------------
     ws_sum.merge_range("B2:D2", "VULNERABILITY SUMMARY", format_sheet_title_content)
-    ws_sum.write("B3", "Threat", format_table_titles)
-    ws_sum.write("C3", "Vulns number", format_table_titles)
+    ws_sum.write("B3", "Threat Level", format_table_titles)
+    ws_sum.write("C3", "Vulnerabilities", format_table_titles)
     ws_sum.write("D3", "Affected hosts", format_table_titles)
 
     for i, level in enumerate(Config.levels().values(), 4):
@@ -218,8 +218,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     # VULN BY FAMILY
     # --------------------
     ws_sum.merge_range("B19:C19", "VULNERABILITIES BY FAMILY", format_sheet_title_content)
-    ws_sum.write("B20", "family", format_table_titles)
-    ws_sum.write("C20", "vulns number", format_table_titles)
+    ws_sum.write("B20", "Family", format_table_titles)
+    ws_sum.write("C20", "Vulnerabilities", format_table_titles)
 
     last = 21
     for i, (family, number) in enumerate(iter(vuln_by_family.items()), last):
@@ -240,7 +240,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         'values': '={}!C21:C{}'.format(sheet_name, last),
         'data_labels': {'value': True, 'position': 'best_fit', 'leader_lines': True, 'font': {'name': 'Tahoma'}},
     })
-    chart_vulns_by_family.set_title({'name': 'Vulnerability by family', 'overlay': False,
+    chart_vulns_by_family.set_title({'name': 'Vulnerabilities by family', 'overlay': False,
                                      'name_font': {'name': 'Tahoma'}})
     chart_vulns_by_family.set_size({'width': 500, 'height': 500})
     chart_vulns_by_family.set_legend({'position': 'bottom', 'font': {'name': 'Tahoma'}})
@@ -262,8 +262,8 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
 
     ws_toc.merge_range("B2:E2", "TABLE OF CONTENTS", format_sheet_title_content)
     ws_toc.write("B3", "No.", format_table_titles)
-    ws_toc.write("C3", "Vuln Title", format_table_titles)
-    ws_toc.write("D3", "Level", format_table_titles)
+    ws_toc.write("C3", "Vulnerability", format_table_titles)
+    ws_toc.write("D3", "CVSS Score", format_table_titles)
     ws_toc.write("E3", "Hosts", format_table_titles)
 
     # ====================
@@ -350,7 +350,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_vuln.write('D13', "Host name", format_table_titles)
         ws_vuln.write('E13', "Port number", format_table_titles)
         ws_vuln.write('F13', "Port protocol", format_table_titles)
-        ws_vuln.write('G13', "Port Result", format_table_titles)
+        ws_vuln.write('G13', "Result", format_table_titles)
 
         # --------------------
         # AFFECTED HOSTS
