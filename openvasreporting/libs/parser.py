@@ -11,8 +11,8 @@ from .config import Config
 from .parsed_data import Host, Port, Vulnerability
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
-                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-#logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
+                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+# logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
 #                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 __all__ = ["openvas_parser"]
@@ -42,7 +42,8 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
     else:
         for file in input_files:
             if not isinstance(file, str):
-                raise TypeError("Expected basestring, got '{}' instead".format(type(file)))
+                raise TypeError(
+                    "Expected basestring, got '{}' instead".format(type(file)))
             with open(file, "r", newline=None) as f:
                 first_line = f.readline()
                 if not first_line.startswith("<report") or \
@@ -57,9 +58,11 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
     for f_file in input_files:
         root = Et.parse(f_file).getroot()
 
-        logging.debug("================================================================================")
+        logging.debug(
+            "================================================================================")
 #        logging.debug("= {}".format(root.find("./task/name").text))  # DEBUG
-        logging.debug("================================================================================")
+        logging.debug(
+            "================================================================================")
 
         for vuln in root.findall(".//results/result"):
 
@@ -70,9 +73,11 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # VULN_NAME
             vuln_name = nvt_tmp.find("./name").text
 
-            logging.debug("--------------------------------------------------------------------------------")
+            logging.debug(
+                "--------------------------------------------------------------------------------")
             logging.debug("- {}".format(vuln_name))  # DEBUG
-            logging.debug("--------------------------------------------------------------------------------")
+            logging.debug(
+                "--------------------------------------------------------------------------------")
 
             # --------------------
             #
@@ -112,8 +117,12 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # VULN_HOST
             vuln_host = vuln.find("./host").text
             vuln_host_name = vuln.find("./host/hostname").text
+            if vuln_host_name is None:
+                vuln_host_name = "N/A"
+            logging.debug("* hostname:\t{}".format(vuln_host_name))  # DEBUG
             vuln_port = vuln.find("./port").text
-            logging.debug("* vuln_host:\t{} port:\t{}".format(vuln_host, vuln_port))  # DEBUG
+            logging.debug(
+                "* vuln_host:\t{} port:\t{}".format(vuln_host, vuln_port))  # DEBUG
 
             # --------------------
             #
@@ -148,24 +157,33 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             # --------------------
             #
             # VULN_CVES
-            vuln_cves = nvt_tmp.find("./cve")
-            if vuln_cves is None or vuln_cves.text.lower() == "nocve":
-                vuln_cves = []
-            else:
-                vuln_cves = [vuln_cves.text.lower()]
-
+            #vuln_cves = nvt_tmp.findall("./refs/ref")
+            vuln_cves = []
+            ref_list = []
+            for reference in nvt_tmp.findall('./refs/ref'):
+                if reference.attrib.get('type') == 'cve':
+                    vuln_cves.append(reference.attrib.get('id'))
+                else:
+                    ref_list.append(reference.attrib.get('id'))
+            # logging.debug("* vuln_cves:\t{}".format(vuln_cves))  # DEBUG
+            # logging.debug("* vuln_cves:\t{}".format(Et.tostring(vuln_cves).decode()))  # DEBUG
+            # if vuln_cves is None or vuln_cves.text.lower() == "nocve":
+            #     vuln_cves = []
+            # else:
+            #     vuln_cves = [vuln_cves.text.lower()]
+            vuln_references = ' , '.join(ref_list)
             logging.debug("* vuln_cves:\t{}".format(vuln_cves))  # DEBUG
-
+            logging.debug("* vuln_references:\t{}".format(vuln_references))
             # --------------------
             #
             # VULN_REFERENCES
-            vuln_references = nvt_tmp.find("./xref")
-            if vuln_references is None or vuln_references.text.lower() == "noxref":
-                vuln_references = []
-            else:
-                vuln_references = vuln_references.text.lower().replace("url:", "\n")
+            # vuln_references = nvt_tmp.find("./xref")
+            # if vuln_references is None or vuln_references.text.lower() == "noxref":
+            #     vuln_references = []
+            # else:
+            #     vuln_references = vuln_references.text.lower().replace("url:", "\n")
 
-            logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
+            # logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
 
             # --------------------
             #
