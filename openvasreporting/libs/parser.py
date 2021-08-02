@@ -23,7 +23,7 @@ except ImportError:
     from xml.etree import ElementTree as Et
 
 
-def openvas_parser(input_files, min_level=Config.levels()["n"]):
+def openvas_parser(input_files, min_level=Config.levels()["n"], hostname_file=None):
     """
     This function takes an OpenVAS XML report and returns Vulnerability info
 
@@ -32,6 +32,9 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
 
     :param min_level: Minimal level (none, low, medium, high, critical) for displaying vulnerabilities
     :type min_level: str
+
+    :param hostname_file: File containg a list of hostnames and ips to use when converting IPs to host names
+    :type hostname_file: str
 
     :return: list
 
@@ -52,6 +55,9 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
 
     if not isinstance(min_level, str):
         raise TypeError("Expected basestring, got '{}' instead".format(type(min_level)))
+
+    # Load hostname dictionary
+    hostname_dictionary = load_hostname_map(hostname_file)
 
     vulnerabilities = {}
 
@@ -118,7 +124,13 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             vuln_host = vuln.find("./host").text
             vuln_host_name = vuln.find("./host/hostname").text
             if vuln_host_name is None:
-                vuln_host_name = "N/A"
+                    vuln_host_name = "N/A"
+            
+            # If we are using a hostname map try lookup host name
+            if len(hostname_dictionary) > 0:
+                if vuln_host in hostname_dictionary:
+                    vuln_host_name = hostname_dictionary[vuln_host]
+
             logging.debug("* hostname:\t{}".format(vuln_host_name))  # DEBUG
             vuln_port = vuln.find("./port").text
             logging.debug(
@@ -226,3 +238,8 @@ def openvas_parser(input_files, min_level=Config.levels()["n"]):
             vulnerabilities[vuln_id] = vuln_store
 
     return list(vulnerabilities.values())
+
+def load_hostname_map(hostname_file):
+    if hostname_file is not None and not isinstance(hostname_file, str):
+        raise TypeError("Expected str, got '{}' instead".format(type(hostname_file)))
+    return {}

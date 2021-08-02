@@ -30,7 +30,7 @@ def main():
 
     args = parser.parse_args()
 
-    config = create_config(args.input_files, args.output_file, args.min_lvl, args.filetype, args.template)
+    config = create_config(args.input_files, args.output_file, args.min_lvl, args.filetype, args.template, args.hostname_file)
 
     convert(config)
 
