@@ -9,22 +9,11 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
 [![PyPI - Format](https://img.shields.io/pypi/format/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
 
-A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports.
+A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports wiht the ability to supply a custom hostname file.
 
 ![Report example screenshot](docs/_static/img/OpenVASreporting.png?raw=true)
 
 *Read the full documentation at [https://openvas-reporting.sequr.be](https://openvas-reporting.sequr.be)*
-
-I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
-and because I wanted to learn how to use Python for working with XML and creating Excel files.  
-Also, OpenVAS mixes their own threat levels with the [CVSS](https://www.first.org/cvss/) scoring, the latter of which I prefer to use in my reports.
-
-Looking for a fix and providing an actual fix through a pull request would have been too much work,
-so I chose to fork the repo and try my own thing.  
-I reorganised some of the files, removed some functionality and added some extra, and rewrote some functions.
-
-At this moment in time, the script only output .xlsx documents in one format, this may (not) change in the future.
-
 
 ## Requirements
 
@@ -40,7 +29,7 @@ At this moment in time, the script only output .xlsx documents in one format, th
     yum -y install python3 python3-pip    # CentOS
     dnf install python3 python3-pip       # Fedora
     # Clone repo
-    git clone https://github.com/TheGroundZero/openvasreporting.git
+    git clone https://github.com/Bradley01429/openvasreporting
     # Install required python packages
     cd openvasreporting
     pip3 install -r requirements.txt
@@ -75,6 +64,7 @@ This currently has some issues (see #4)
 | -f          | --format   | Output format   | No       | xlsx                                       |
 | -l          | --level    | Minimal level   | No       | n                                          |
 | -t          | --template | Docx template   | No       | openvasreporting/src/openvas-template.docx |
+| -h          | --hostname | Docx template   | No       | n/a                                        |
 
 ## Examples
 

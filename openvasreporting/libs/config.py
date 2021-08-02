@@ -26,7 +26,7 @@ class Config(object):
         :param template: template to use
         :type template: str
 
-        :param hostname_file: file containg a list of hostnames and ips to use when converting IPs to host names
+        :param hostname_file: File containg a list of hostnames and ips to use when converting IPs to host names
         :type hostname_file: str
 
         :raises: TypeError, ValueError
