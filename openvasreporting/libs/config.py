@@ -9,7 +9,7 @@
 
 class Config(object):
     def __init__(self, input_files, output_file="openvas_report", min_level="none", filetype="xlsx",
-                 template=None):
+                 template=None, hostname_file=None):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -24,7 +24,10 @@ class Config(object):
         :type filetype: str
 
         :param template: template to use
-        :type filetype: str
+        :type template: str
+
+        :param hostname_file: file containg a list of hostnames and ips to use when converting IPs to host names
+        :type hostname_file: str
 
         :raises: TypeError, ValueError
         """
@@ -43,6 +46,8 @@ class Config(object):
             raise TypeError("Expected str, got '{}' instead".format(type(filetype)))
         if template is not None and not isinstance(template, str):
             raise TypeError("Expected str, got '{}' instead".format(type(template)))
+        if hostname_file is not None and not isinstance(hostname_file, str):
+            raise TypeError("Expected str, got '{}' instead".format(type(hostname_file)))
 
         self.input_files = input_files
         self.output_file = "{}.{}".format(output_file, filetype) if output_file.split(".")[-1] != filetype \
@@ -50,6 +55,7 @@ class Config(object):
         self.min_level = min_level
         self.filetype = filetype
         self.template = template
+        self.hostname_file = hostname_file
 
     @staticmethod
     def colors():
