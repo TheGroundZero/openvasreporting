@@ -1,0 +1,31 @@
+level:
+  medium
+
+format:
+  xlsx
+
+reporttype:
+  host
+
+networks:
+  includes:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  excludes:
+    - 10.1.16.234
+    - 10.1.16.236
+    - 10.1.16.237
+    - 10.1.16.238
+    - 10.1.16.239
+    - 192.168.16.120
+
+regex:
+  excludes:
+    - Defender
+    - Firefox
+
+# I use this section to filter out recent ms patches not put in production yet
+cve:
+  excludes:
+    - CVE-2021-1971

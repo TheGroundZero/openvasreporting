@@ -5,32 +5,36 @@
 # Project URL: https://github.com/TheGroundZero/openvasreporting
 
 import re
+
 from collections import Counter
 
 from .config import Config
-from .parsed_data import Vulnerability
+from .parsed_data import ResultTree, Host, Vulnerability
 
 # DEBUG
-import sys
-import logging
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
-                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+#import sys
+#import logging
+#logging.basicConfig(stream=sys.stderr, level=logging.WARNING,
+#                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 
-def exporters():
+def implemented_exporters():
     """
-    Enum-like instance containing references to correct exporter function
+    Enum-link instance containing references to already implemented exporter function
 
-    > exporters()[key](param[s])
+    > implemented_exporters()[key](param[s])
+    
+    key is a concatenation of the report-type arg + '-' + format arg
 
     :return: Pointer to exporter function
     """
     return {
-        'xlsx': export_to_excel,
-        'docx': export_to_word,
-        'csv': export_to_csv
+        'vulnerability-xlsx': export_to_excel_by_vuln,
+        'vulnerability-docx': export_to_word_by_vuln,
+        'vulnerability-csv': export_to_csv_by_vuln,
+        'host-xlsx': export_to_excel_by_host,
+        'host-csv': export_to_csv_by_host
     }
-
 
 def _get_collections(vuln_info):
     """
@@ -73,7 +77,7 @@ def _get_collections(vuln_info):
     return vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
 
 
-def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx'):
+def export_to_excel_by_vuln(vuln_info, template=None, output_file='openvas_report.xlsx'):
     """
     Export vulnerabilities info in an Excel file.
 
@@ -343,7 +347,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
         ws_vuln.merge_range("C10:G10", vuln.family, format_table_cells)
 
         ws_vuln.write('B11', "References", format_table_titles)
-        ws_vuln.merge_range("C11:G11", vuln.references, format_table_cells)
+        ws_vuln.merge_range("C11:G11", " {}".format(vuln.references), format_table_cells)
         ws_vuln.set_row(10, __row_height(vuln.references, content_width), None)
 
         ws_vuln.write('C13', "IP", format_table_titles)
@@ -371,7 +375,7 @@ def export_to_excel(vuln_info, template=None, output_file='openvas_report.xlsx')
     workbook.close()
 
 
-def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
+def export_to_word_by_vuln(vuln_info, template, output_file='openvas_report.docx'):
     """
     Export vulnerabilities info in a Word file.
 
@@ -413,8 +417,14 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
         if not isinstance(template, str):
             raise TypeError("Expected str, got '{}' instead".format(type(template)))
     else:
-        template = 'openvasreporting/src/openvas-template.docx'
-
+        # == HAMMER PROGRAMMING (beat it into submission) ==
+        # I had to use pkg_resources because I couldn't find this template any other way. 
+        import pkg_resources
+        template = pkg_resources.resource_filename('openvasreporting', 'src/openvas-template.docx')
+    
+    #mpl_logger = logging.getLogger('matplotlib')
+    #mpl_logger.setLevel(logging.NOTSET)
+    
     vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family = _get_collections(vuln_info)
 
     # ====================
@@ -677,7 +687,7 @@ def export_to_word(vuln_info, template, output_file='openvas_report.docx'):
     document.save(output_file)
 
 
-def export_to_csv(vuln_info, template=None, output_file='openvas_report.csv'):
+def export_to_csv_by_vuln(vuln_info, template=None, output_file='openvas_report.csv'):
     """
     Export vulnerabilities info in a Comma Separated Values (csv) file
 
@@ -740,5 +750,380 @@ def export_to_csv(vuln_info, template=None, output_file='openvas_report.csv'):
                     'vuln_id': vuln.vuln_id,
                     'cve': ' - '.join(vuln.cves),
                     'references': ' - '.join(vuln.references)
+                }
+                writer.writerow(rowdata)
+
+def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='openvas_report.xlsx'):
+    """
+    Export vulnerabilities info in an Excel file.
+
+    :param resulttree: Vulnerability list info
+    :type resulttree: resulttree
+    :param template: Not supported in xlsx-output
+    :type template: NoneType
+
+    :param output_file: Filename of the Excel file
+    :type output_file: str
+
+    :raises: TypeError, NotImplementedError
+    """
+
+    import xlsxwriter
+
+    if not isinstance(resulttree, ResultTree):
+        raise TypeError("Expected ResultTree, got '{}' instead".format(type(resulttree)))
+    else:
+        for key in resulttree.keys():
+            if not isinstance(resulttree[key], Host):
+                raise TypeError("Expected Host, got '{}' instead".format(type(x)))
+    if not isinstance(output_file, str):
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
+    else:
+        if not output_file:
+            raise ValueError("output_file must have a valid name.")
+    if template is not None:
+        raise NotImplementedError("Use of template is not supported in XSLX-output.")
+
+    # ====================
+    # FUNCTIONS
+    # ====================
+    def __row_height(text, width):
+        return (max((len(text) // width), text.count('\n')) + 1) * 15
+
+    workbook = xlsxwriter.Workbook(output_file)
+
+    workbook.set_properties({
+        'title': output_file,
+        'subject': 'OpenVAS report',
+        'author': 'TheGroundZero, ecgf(IcatuHolding)',
+        'category': 'report',
+        'keywords': 'OpenVAS, report',
+        'comments': 'TheGroundZero (https://github.com/TheGroundZero)'})
+
+    # ====================
+    # FORMATTING
+    # ====================
+    workbook.formats[0].set_font_name('Tahoma')
+
+    format_sheet_title_content = workbook.add_format({'font_name': 'Tahoma', 'font_size': 12,
+                                                      'font_color': Config.colors()['blue'], 'bold': True,
+                                                      'align': 'center', 'valign': 'vcenter', 'border': 1})
+    format_table_titles = workbook.add_format({'font_name': 'Tahoma', 'font_size': 11,
+                                               'font_color': 'white', 'bold': True,
+                                               'align': 'center', 'valign': 'vcenter',
+                                               'border': 1,
+                                               'bg_color': Config.colors()['blue']})
+    format_table_left_item = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                                      'font_color': Config.colors()['blue'], 'bold': True,
+                                                      'align': 'left', 'valign': 'vcenter', 'border': 1})
+    format_table_cells = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                              'align': 'left', 'valign': 'top',
+                                              'border': 1, 'text_wrap': 1})
+    format_align_center = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'center', 'valign': 'top'})
+    format_align_left = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'left', 'valign': 'top'})
+    format_align_right = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'right', 'valign': 'top'})
+    format_align_border_left = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'left', 'valign': 'top',
+                                               'border': 1, 'text_wrap': 1})
+    format_align_border_right = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'right', 'valign': 'top',
+                                               'border': 1, 'text_wrap': 1})
+    format_number_border_right = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
+                                               'align': 'right', 'valign': 'top',
+                                               'border': 1, 'text_wrap': 1})
+    format_number_border_right.num_format = '#.00'
+    format_toc = {
+        'critical': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                         'align': 'center', 'valign': 'top',
+                                         'border': 1,
+                                         'bg_color': Config.colors()['critical']}),
+        'high': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                     'align': 'center', 'valign': 'top',
+                                     'border': 1, 'bg_color': Config.colors()['high']}),
+        'medium': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                       'align': 'center', 'valign': 'top',
+                                       'border': 1, 'bg_color': Config.colors()['medium']}),
+        'low': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                    'align': 'center', 'valign': 'top',
+                                    'border': 1, 'bg_color': Config.colors()['low']}),
+        'none': workbook.add_format({'font_name': 'Tahoma', 'font_size': 10, 'font_color': 'white',
+                                     'align': 'center', 'valign': 'top',
+                                     'border': 1, 'bg_color': Config.colors()['none']})
+    }
+
+    # ====================
+    # SUMMARY SHEET
+    # ====================
+    sheet_name = "Summary"
+    ws_sum = workbook.add_worksheet(sheet_name)
+    ws_sum.set_tab_color(Config.colors()['blue'])
+
+    ws_sum.set_column("A:A", 3, format_align_center)
+    ws_sum.set_column("B:B", 8, format_align_left)
+    ws_sum.set_column("C:C", 30, format_align_left)
+    ws_sum.set_column("D:D", 15, format_align_right) # critical
+    ws_sum.set_column("E:E", 8, format_align_right) # high
+    ws_sum.set_column("F:F", 8, format_align_right) # medium
+    ws_sum.set_column("G:G", 8, format_align_right) # low
+    ws_sum.set_column("H:H", 8, format_align_right) # none
+    ws_sum.set_column("I:I", 8, format_align_right) # total
+    ws_sum.set_column("J:J", 8, format_align_right) # severity
+    ws_sum.set_column("K:K", 7, format_align_center)
+
+    # ---------------------
+    # MAX 10 HOSTS 
+    # ---------------------
+    if len(resulttree) < 10:
+        max_hosts = len(resulttree)
+    else:
+        max_hosts = 10
+
+    # --------------------------
+    # HOST SUM SEVERITY SUMMARY
+    # --------------------------
+    ws_sum.merge_range("B2:J2", "Hosts Ranking", format_sheet_title_content)
+    ws_sum.write("B3", "#", format_table_titles)
+    ws_sum.write("C3", "Hostname", format_table_titles)
+    ws_sum.write("D3", "IP", format_table_titles)
+    ws_sum.write("E3", "critical", format_table_titles)
+    ws_sum.write("F3", "high", format_table_titles)
+    ws_sum.write("G3", "medium", format_table_titles)
+    ws_sum.write("H3", "low", format_table_titles)
+    ws_sum.write("I3", "total", format_table_titles)
+    ws_sum.write("J3", "severity", format_table_titles)
+    
+    temp_resulttree = resulttree.sorted_keys_by_rank()
+    
+    for i, key in enumerate(temp_resulttree[:max_hosts], 4):
+        ws_sum.write("B{}".format(i), i-3, format_table_left_item)
+        ws_sum.write("C{}".format(i), resulttree[key].host_name, format_table_left_item)
+        ws_sum.write("D{}".format(i), resulttree[key].ip, format_table_left_item)
+        ws_sum.write("E{}".format(i), resulttree[key].nv['critical'], format_align_border_right)
+        ws_sum.write("F{}".format(i), resulttree[key].nv['high'], format_align_border_right)
+        ws_sum.write("G{}".format(i), resulttree[key].nv['medium'], format_align_border_right)
+        ws_sum.write("H{}".format(i), resulttree[key].nv['low'], format_align_border_right)
+        ws_sum.write("I{}".format(i), resulttree[key].nv_total(), format_align_border_right)
+        ws_sum.write("J{}".format(i), resulttree[key].higher_cvss, 
+                     format_toc[Config.cvss_level(resulttree[key].higher_cvss)])
+
+    # --------------------
+    # CHART
+    # --------------------
+    chart_sumcvss_summary = workbook.add_chart({'type': 'column'})
+    chart_sumcvss_summary.add_series({
+        'name': 'critical',
+        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
+        'values': '={}!E4:E{}'.format(sheet_name, max_hosts + 3),
+        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
+        'fill': { 'width': 8, 'color': Config.colors()['critical']},
+        'border': { 'color': Config.colors()['blue']},
+    })
+    chart_sumcvss_summary.add_series({
+        'name': 'high',
+        'values': '={}!F4:F{}'.format(sheet_name, max_hosts + 3),
+        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
+        'fill': { 'width': 8, 'color': Config.colors()['high']},
+        'border': { 'color': Config.colors()['blue']},
+    })
+    chart_sumcvss_summary.add_series({
+        'name': 'medium',
+        'values': '={}!G4:G{}'.format(sheet_name, max_hosts + 3),
+        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
+        'fill': { 'width': 8, 'color': Config.colors()['medium']},
+        'border': { 'color': Config.colors()['blue']},
+    })
+    
+    #chart_sumcvss_summary.add_series({
+        #'name': 'Hosts Ranking',
+        #'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
+        #'values': '={}!E4:G{}'.format(sheet_name, max_hosts + 3),
+        #'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
+        #'line': { 'width': 8, 'color': Config.colors()['blue']},
+        #'border': { 'color': Config.colors()['blue']},
+    #})
+    chart_sumcvss_summary.set_title({'name': 'Hosts by CVSS', 'overlay': False, 'font': {'name': 'Tahoma'}})
+    chart_sumcvss_summary.set_size({'width': 750, 'height': 350})
+    chart_sumcvss_summary.set_legend({'position': 'left', 'font': {'name': 'Tahoma'}})
+    chart_sumcvss_summary.set_x_axis({'label_position': 'bottom',
+                                      'num_font': {'name': 'Tahoma', 'size': 8}
+                                    })
+    ws_sum.insert_chart("B15", chart_sumcvss_summary)
+
+    # ====================
+    # TABLE OF CONTENTS
+    # ====================
+    sheet_name = "TOC"
+    ws_toc = workbook.add_worksheet(sheet_name)
+    ws_toc.set_tab_color(Config.colors()['blue'])
+
+    ws_toc.set_column("A:A", 3, format_align_center)
+    ws_toc.set_column("B:B", 8, format_align_left)
+    ws_toc.set_column("C:C", 30, format_align_left)
+    ws_toc.set_column("D:D", 15, format_align_right) # critical
+    ws_toc.set_column("E:E", 8, format_align_right) # high
+    ws_toc.set_column("F:F", 8, format_align_right) # medium
+    ws_toc.set_column("G:G", 8, format_align_right) # low
+    ws_toc.set_column("H:H", 8, format_align_right) # none
+    ws_toc.set_column("I:I", 8, format_align_right) # total
+    ws_toc.set_column("J:J", 8, format_align_right) # severity
+    ws_toc.set_column("K:K", 7, format_align_center)
+
+    # --------------------------
+    # HOST SUM SEVERITY SUMMARY
+    # --------------------------
+    ws_toc.merge_range("B2:J2", "Hosts Ranking", format_sheet_title_content)
+    ws_toc.write("B3", "#", format_table_titles)
+    ws_toc.write("C3", "Hostname", format_table_titles)
+    ws_toc.write("D3", "IP", format_table_titles)
+    ws_toc.write("E3", "critical", format_table_titles)
+    ws_toc.write("F3", "high", format_table_titles)
+    ws_toc.write("G3", "medium", format_table_titles)
+    ws_toc.write("H3", "low", format_table_titles)
+    ws_toc.write("I3", "total", format_table_titles)
+    ws_toc.write("J3", "severity", format_table_titles)
+    
+    # ====================
+    # HOST SHEETS
+    # ====================
+    for i, key in enumerate(temp_resulttree, 1):
+ 
+        # this host has any vulnerability whose cvss severity >= min_level?
+        if len(resulttree[key].vuln_list) == 0:
+            continue
+
+        name = "{:03X} - {}".format(i, resulttree[key].ip)
+        ws_host = workbook.add_worksheet(name)
+        ws_host.set_tab_color(Config.cvss_color(resulttree[key].higher_cvss))
+        ws_host.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
+                          string="<< TOC")
+
+        # --------------------
+        # TABLE OF CONTENTS
+        # --------------------
+        ws_toc.write("B{}".format(i + 3), "{:03X}".format(i), format_table_cells)
+        ws_toc.write_url("C{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, 
+                         string=resulttree[key].host_name)
+        ws_toc.write("D{}".format(i+3), resulttree[key].ip, format_align_border_left)
+        ws_toc.write("E{}".format(i+3), resulttree[key].nv['critical'], format_align_border_right)
+        ws_toc.write("F{}".format(i+3), resulttree[key].nv['high'], format_align_border_right)
+        ws_toc.write("G{}".format(i+3), resulttree[key].nv['medium'], format_align_border_right)
+        ws_toc.write("H{}".format(i+3), resulttree[key].nv['low'], format_align_border_right)
+        ws_toc.write("I{}".format(i+3), resulttree[key].nv_total(), format_align_border_right)
+        ws_toc.write("J{}".format(i+3), resulttree[key].higher_cvss, 
+                     format_toc[Config.cvss_level(resulttree[key].higher_cvss)])
+        ws_toc.set_row(i + 3, __row_height(name, 150), None)
+
+        # --------------------
+        # HOST VULN LIST
+        # --------------------
+        ws_host.set_column("A:A", 7, format_align_center)
+        ws_host.set_column("B:B", 12, format_align_center) # cvss - (level)
+        ws_host.set_column("C:C", 22, format_align_center) # name
+        ws_host.set_column("D:D", 22, format_align_center) # oid
+        ws_host.set_column("E:E", 10, format_align_center) # port.port/port.num
+        ws_host.set_column("F:F", 10, format_align_center) # family
+        ws_host.set_column("G:G", 22, format_align_center) # description
+        ws_host.set_column("H:H", 22, format_align_center) # recomendation (solution)
+        ws_host.set_column("I:I", 12, format_align_center) # recomendation type (solution_type)
+        ws_host.set_column("J:J", 7, format_align_center)
+        
+        ws_host.merge_range("B2:I2", resulttree[key].ip + ' - ' + resulttree[key].host_name, format_sheet_title_content)
+        ws_host.write('B3', "CVSS", format_table_titles)
+        ws_host.write('C3', "Name", format_table_titles)
+        ws_host.write('D3', "oid", format_table_titles)
+        ws_host.write('E3', "Port", format_table_titles)
+        ws_host.write('F3', "Family", format_table_titles)
+        ws_host.write('G3', "Description", format_table_titles)
+        ws_host.write('H3', "Recomendation", format_table_titles)
+        ws_host.write('I3', "Type of fix", format_table_titles)
+
+
+        for j, vuln in enumerate(resulttree[key].vuln_list, 4):
+            ws_host.write('B{}'.format(j), "{:.2f} ({})".format(vuln.cvss, vuln.level),
+                          format_toc[vuln.level])
+            ws_host.write('C{}'.format(j), vuln.name, format_align_border_left)
+            ws_host.write('D{}'.format(j), vuln.vuln_id, format_align_border_left)
+            port = vuln.hosts[0][1]
+            if port is None or port.number == 0:
+                portnum = 'general' 
+            else: 
+                portnum = str(port.number)
+            ws_host.write('E{}'.format(j), portnum + '/' + port.protocol, format_align_border_left)
+            ws_host.write('F{}'.format(j), vuln.family, format_align_border_left)
+            ws_host.write('G{}'.format(j), vuln.description.replace('\n', ' '), format_align_border_left)
+            ws_host.write('H{}'.format(j), vuln.solution.replace('\n', ' '), format_align_border_left)
+            ws_host.write('I{}'.format(j), vuln.solution_type, format_align_border_left)
+            max_len = max(len(vuln.name), len(vuln.description), len(vuln.solution))
+            ws_host.set_row(j-1, (int(max_len/30)+1)*15)
+        
+    workbook.close()
+
+
+def export_to_csv_by_host(resulttree, template=None, output_file='openvas_report.csv'):
+    """
+    Export vulnerabilities info in a Comma Separated Values (csv) file
+
+    :param vuln_info: Vulnerability list info
+    :type vuln_info: list(Vulnerability)
+
+    :param template: Not supported in csv-output
+    :type template: NoneType
+
+    :param output_file: Filename of the csv file
+    :type output_file: str
+
+    :raises: TypeError, NotImplementedError
+    """
+
+    import csv
+    
+    if not isinstance(resulttree, ResultTree):
+        raise TypeError("Expected ResultTree, got '{}' instead".format(type(resulttree)))
+    else:
+        for x in resulttree:
+            if not isinstance(x, Host):
+                raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    if not isinstance(output_file, str):
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
+    else:
+        if not output_file:
+            raise ValueError("output_file must have a valid name.")
+    if template is not None:
+        raise NotImplementedError("Use of template is not supported in CSV-output.")
+  
+    sortedresults = resulttree.sortedbysumcvss()
+
+    with open(output_file, 'w') as csvfile:
+        fieldnames = ['hostname', 'ip', 'port', 'protocol',
+                      'vulnerability', 'cvss', 'threat', 'family',
+                      'description', 'detection', 'insight', 'impact', 'affected', 'solution', 'solution_type',
+                      'vuln_id', 'cve', 'references']
+        writer = csv.DictWriter(csvfile, dialect='excel', fieldnames=fieldnames)
+        writer.writeheader()
+
+        for key in sortedresults:
+            for vuln in resulttree[key].vuln_list:
+                rowdata = {
+                    'hostname': resulttree[key].host_name,
+                    'ip': resulttree[key].ip,
+                    'port': vuln.port.number,
+                    'protocol': vuln.port.protocol,
+                    'vulnerability': vuln.name,
+                    'cvss': vuln.cvss,
+                    'threat': vuln.level,
+                    'family': vuln.family,
+                    'description': vuln.description,
+                    'detection': vuln.detect,
+                    'insight': vuln.insight,
+                    'impact': vuln.impact,
+                    'affected': vuln.affected,
+                    'solution': vuln.solution,
+                    'solution_type': vuln.solution_type,
+                    'vuln_id': vuln.vuln_id,
+                    'cve': ' - '.join(vuln.cves),
+                    'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
                 }
                 writer.writerow(rowdata)
