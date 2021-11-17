@@ -30,4 +30,10 @@
 #
 
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
+__maintainer__ = 'Eduardo Ferreira (@dudacgf)'
 __package__ = str("openvasreporting")
+
+## import main here so shell script execution finds the egg
+from .openvasreporting import main, convert
+from .libs.config import Config, Config_YAML
+

@@ -30,6 +30,25 @@ Command line usage
    | Valid values are: c(ritical), h(igh), m(edium), l(low), n(one)
    | Defaults to: none
 
+\-r, -b, --report-type
+   | Optional 
+   | Selects if will list hosts by vulnerability (v) or vulnerabilities by host (h)
+   | Valid values are: v, h
+   | Defaults to: v
+
+\-e, --network-exclude
+   | Optional
+   | path to a file containing a list of ips, ipcidrs or ipaddrs (one per line) that 
+   | will be excluded from the report
+   | Defaults to: no excluded hosts
+
+\-s, --network-include
+   | Optional
+   | path to a file containing a list of ips, ipcidrs or ipaddrs (one per line) that 
+   | will be included in the report
+   | Defaults to: all hosts with appropriate level will be included
+
+   
 \-t, --template
    | Optional, only used with '-f docx'
    | Template document for docx export. Document must contain formatting for styles used in export.
@@ -54,3 +73,5 @@ Command line usage
    export-excel
    export-word
    export-csv
+   export-excel-by-host
+   export-csv-by-host

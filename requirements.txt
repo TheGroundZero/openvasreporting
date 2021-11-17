@@ -1,4 +1,22 @@
-XlsxWriter>=1.1.1
-python-docx>=0.8.7
-matplotlib>=3.0.0
-numpy>=1.15.2
+## you don't need this file to build the package. but for development reasons...
+build>=0.7.0
+cycler>=0.11.0
+kiwisolver>=1.3.2
+lxml>=4.6.4
+matplotlib>=3.4.3
+netaddr>=0.8.0
+numpy>=1.21.4
+packaging>=21.2
+pep517>=0.12.0
+Pillow>=8.4.0
+pip>=21.3.1
+pkg_resources>=0.0.0
+pyparsing>=2.4.7
+python-dateutil>=2.8.2
+python-docx>=0.8.11
+setuptools>=44.1.1
+six>=1.16.0
+tomli>=1.2.2
+wheel>=0.37.0
+XlsxWriter>=3.0.2
+

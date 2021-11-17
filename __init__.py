@@ -29,5 +29,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+#
+# This file exists only so that I can debug using Wings. I don't know why (@dudacgf)
+#
+
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
+__maintainer__ = 'Eduardo Ferreira (@dudacgf)'
 __package__ = str("openvasreporting")
