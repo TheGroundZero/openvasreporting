@@ -6,8 +6,6 @@
 
 # TODO: get rid of the log clutter
 
-import re
-
 from .config import Config
 from .parsed_data import ResultTree, Host, Port, Vulnerability, ParseVulnerability
 
