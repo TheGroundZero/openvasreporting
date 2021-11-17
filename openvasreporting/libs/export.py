@@ -5,16 +5,14 @@
 # Project URL: https://github.com/TheGroundZero/openvasreporting
 
 import re
-import itertools
 
 from collections import Counter
 
 from .config import Config
-from .parsed_data import ResultTree, Host, Vulnerability, Port
+from .parsed_data import ResultTree, Host, Vulnerability
 
 # DEBUG
-import sys
-
+#import sys
 #import logging
 #logging.basicConfig(stream=sys.stderr, level=logging.WARNING,
 #                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -786,8 +784,6 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='
     if template is not None:
         raise NotImplementedError("Use of template is not supported in XSLX-output.")
 
-    sortedhosts = resulttree.sortedbysumcvss()
-    
     # ====================
     # FUNCTIONS
     # ====================
@@ -823,18 +819,12 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='
     format_table_cells = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
                                               'align': 'left', 'valign': 'top',
                                               'border': 1, 'text_wrap': 1})
-    format_table_cells_right = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
-                                              'align': 'right', 'valign': 'top',
-                                              'border': 1, 'text_wrap': 1})
     format_align_center = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
                                                'align': 'center', 'valign': 'top'})
     format_align_left = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
                                                'align': 'left', 'valign': 'top'})
     format_align_right = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
                                                'align': 'right', 'valign': 'top'})
-    format_align_border = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
-                                               'align': 'center', 'valign': 'top',
-                                               'border': 1, 'text_wrap': 1})
     format_align_border_left = workbook.add_format({'font_name': 'Tahoma', 'font_size': 10,
                                                'align': 'left', 'valign': 'top',
                                                'border': 1, 'text_wrap': 1})

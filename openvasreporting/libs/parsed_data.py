@@ -9,8 +9,7 @@
 """This file contains data structures"""
 
 import re
-#import logging
-import sys
+
 from .config import Config
 import netaddr
 
@@ -19,11 +18,15 @@ try:
 except ImportError:
     from xml.etree import ElementTree as Et
 
+#
+# DEBUG
+
+#import logging
+#import sys
 #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
 #                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-# logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
+#logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
 #                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-
 dolog = False
 
 # Port object modifed to include result data field

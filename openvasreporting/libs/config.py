@@ -253,6 +253,10 @@ class Config_YAML(Config):
         
         :raises: TypeError, ValueError
         """
+        
+        # call parent class
+        Config.__init__(self, input_files)
+        
         if not isinstance(input_files, list):
             raise TypeError("Expected list, got '{}' instead".format(type(input_files)))
         else:

@@ -7,19 +7,22 @@
 # TODO: get rid of the log clutter
 
 import re
-import sys
-#import logging
 
 from .config import Config
 from .parsed_data import ResultTree, Host, Port, Vulnerability, ParseVulnerability
 
+#
+# DEBUG
+
+#import sys
+#import logging
 #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
 #                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 # logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
 #                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 dolog = False
 
-__all__ = ["openvas_parser"]
+#__all__ = ["openvas_parser"]
 
 try:
     from xml.etree import cElementTree as Et
