@@ -97,5 +97,5 @@ Command line usage
    export-excel
    export-word
    export-csv
-   export-excel-by-host
-   export-csv-by-host
+   export-excel-host
+   export-csv-host
