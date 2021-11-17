@@ -1,7 +1,7 @@
-Export to Excel by Host
------------------------
+Export to Excel sorted by Host
+------------------------------
 
-By default (or when passing the --format xlsx parameter), the tool will export reports in Excel (xlsx) format sorted by vulnerability. If you add [--report-type host] parameter, it will generate a report sorted by Host.
+By default (or when passing the --format xlsx parameter), the tool will export reports in Excel (xlsx) format sorted by vulnerability. If you add the **--report-type host** parameter, it will generate an Excel report sorted by Host.
 
 This report contains a summary sheet, table of contents, and a sheet per Host containing vulnerability details.
 
@@ -49,4 +49,9 @@ The final report will look similar to this:
    :alt: Report example screenshot - Vulnerability description
    :width: 30%
 
-Vulnerability detail worksheets are sorted according to CVSS score and are colored according to the threat level.
+Host Ranking and TOC is sorted according to the maximum CVSS score of a host followed by number of entries at each threat level.
+
+Host worksheets are sorted by CVSS score followed by vulnerability name.
+
+TOC and Host worksheetds are colored according to threat level.
+
