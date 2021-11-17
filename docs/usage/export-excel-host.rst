@@ -53,5 +53,5 @@ Host Ranking and TOC is sorted according to the maximum CVSS score of a host fol
 
 Host worksheets are sorted by CVSS score followed by vulnerability name.
 
-TOC and Host worksheetds are colored according to threat level.
+All worksheets are colored according to threat level.
 
