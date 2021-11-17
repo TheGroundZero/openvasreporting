@@ -1,36 +1,35 @@
-Export to Excel
----------------
+Export to Excel by Host
+-----------------------
 
-By default (or when passing the --format xlsx parameter), the tool will export reports in Excel (xlsx) format.
+By default (or when passing the --format xlsx parameter), the tool will export reports in Excel (xlsx) format sorted by vulnerability. If you add [--report-type host] parameter, it will generate a report sorted by Host.
 
-This report contains a summary sheet, table of contents, and a sheet per vulnerability containing vulnerability details
-and a list of affected hosts.
+This report contains a summary sheet, table of contents, and a sheet per Host containing vulnerability details.
 
 Examples
 ^^^^^^^^
 
-Create Excel report from 1 OpenVAS XML report using default settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Create Excel report from 1 OpenVAS XML report, sorted by host, using default settings 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml
+   openvasreporting -i openvasreport.xml -T host
 
-Create Excel report from multiple OpenVAS XML report using default settings
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Create Excel report from multiple OpenVAS XML report, sorted by host, using default settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i *.xml
+   openvasreporting -i *.xml -T host
    # OR
-   python3 openvasreporting.py -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...]
+   openvasreporting -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...] -T HOST
 
-Create Excel report from 1 OpenVAS XML report, reporting only severity level high and up
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Create Excel report from 1 OpenVAS XML report, sorted by host, reporting only severity level high and up
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f xlsx -l h
+   openvasreporting -i openvasreport.xml -o openvas_report -f xlsx -l h -T  HOST
 
 
 Result
@@ -38,15 +37,15 @@ Result
 
 The final report will look similar to this:
 
-.. image:: ../_static/img/screenshot-report.png
+.. image:: ../_static/img/screenshot-report-h.png
    :alt: Report example screenshot - Summary
    :width: 30%
 
-.. image:: ../_static/img/screenshot-report1.png
+.. image:: ../_static/img/screenshot-report-h1.png
    :alt: Report example screenshot - Table of Contents
    :width: 30%
 
-.. image:: ../_static/img/screenshot-report2.png
+.. image:: ../_static/img/screenshot-report-h2.png
    :alt: Report example screenshot - Vulnerability description
    :width: 30%
 
