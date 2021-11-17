@@ -14,23 +14,23 @@ Create Excel report from 1 OpenVAS XML report using default settings
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml
+   openvasreporting -i openvasreport.xml
 
 Create Excel report from multiple OpenVAS XML report using default settings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i *.xml
+   openvasreporting -i *.xml
    # OR
-   python3 openvasreporting.py -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...]
+   openvasreporting -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...]
 
 Create Excel report from 1 OpenVAS XML report, reporting only severity level high and up
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f xlsx -l h
+   openvasreporting.py -i openvasreport.xml -o openvas_report -f xlsx -l h
 
 
 Result
