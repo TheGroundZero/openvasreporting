@@ -17,6 +17,10 @@ You can install this package directly from source by cloning the Git repository.
    # Install requirements
    cd openvasreporting
    pip3 install -r requirements.txt
+   pip3 install build --upgrade
+   pip3 install pip --upgrade
+   python -m build .
+   pip3 install dist/Openvas_Reporting[...].whl
 
 Alternatively, you can install the package through the Python package installer 'pip'.
 
