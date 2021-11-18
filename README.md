@@ -98,9 +98,14 @@ This currently has some issues (see #4)
 
 ## Filtering options
 
-### The -n/-N/-r/-R/-e/-E options will read a file with one option per line. Networks accepts CIDRs, IP Ranges or IPs. Regex accept any valid regex expression and will be case insensitive matched against the name of the vulnerability. CVEs are inserted in the CVE-YYYY-nnnnn format.
+The `-n`/`-N`/`-r`/`-R`/`-e`/`-E` options will read a file with one option per line.
+Networks accepts CIDRs, IP Ranges or IPs.
+Regex accept any valid regex expression and will be case insensitive matched against the name of the vulnerability.
+CVEs are inserted in the `CVE-YYYY-nnnnn` format.
 
-### The -c option will read a .yml file with all configurations. If the -c option is used, any other options but input and output filenames are ignored. There is a sample of a configuration file in the docs/ folder
+The `-c` option will read a .yml file with all configurations.
+If the `-c` option is used, any other options but input and output filenames are ignored.
+There is a sample of a configuration file in the `docs/` folder
 
 ## Examples
 
