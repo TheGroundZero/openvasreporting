@@ -80,6 +80,12 @@ class Config(object):
         if cve_included is not None and not isinstance(cve_included, str):
             raise TypeError("Expected str, got '{}' instead".format(type(cve_included)))
 
+        if min_level.lower() in Config.levels().values():
+            min_level = min_level[0]
+        else:
+            raise ValueError("Invalid value for level parameter, \
+                must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
+            
         if min_level.lower() in Config.levels().keys():
             min_level = Config.levels()[min_level.lower()]
         else:
