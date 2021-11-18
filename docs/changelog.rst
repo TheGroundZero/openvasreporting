@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.9  - New Features:
+1.5.0  - New Features:
 
        - Included option (--config-file) to define a .yaml file with all options but input and output filenames.
          if this option is used all other options are ignored. any options not present in this file will be set to default
