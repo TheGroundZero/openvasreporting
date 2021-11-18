@@ -13,10 +13,7 @@ import re
 from .config import Config
 import netaddr
 
-try:
-    from xml.etree import cElementTree as Et
-except ImportError:
-    from xml.etree import ElementTree as Et
+from xml.etree import ElementTree as Et
 
 #
 # DEBUG
