@@ -13,7 +13,7 @@ import re
 from .config import Config
 import netaddr
 
-from xml.etree import ElementTree as Et
+from defusedxml import ElementTree as Et
 
 #
 # DEBUG
@@ -128,7 +128,7 @@ class ParseVulnerability:
     """
     Parses and analyses a Vulnerability XML Entry 
     """
-    def __init__(self, vuln: Et.Element, min_level: str):
+    def __init__(self, vuln, min_level: str):
         """
         Parses an openvas <result> xml Et.Element.
         
@@ -140,8 +140,6 @@ class ParseVulnerability:
         
         returns self instance populated with values from <result> subtags
         """
-        if not isinstance(vuln, Et.Element):
-            raise TypeError("expected Et.Element, got '{}' instead".format(type(Et.Element)))
         if not isinstance(min_level, str):
             raise TypeError("expected str, got '{}' instead".format(type(str)))
 
@@ -279,7 +277,7 @@ class ParseVulnerability:
         if dolog: logging.debug("* vuln_result:\t{}".format(self.vuln_result))  # DEBUG
 
     @classmethod
-    def check_and_parse_result(cls, vuln: Et.Element, config: Config):
+    def check_and_parse_result(cls, vuln, config: Config):
         """
         checks if this vulnerability result element in the openvas xml report
         will be included in the convertion. If so, it instantiates a ParsedVulnerability
@@ -296,8 +294,6 @@ class ParseVulnerability:
         : param: min_level: minimal level for inclusion on the report
         : type: one of {c, h, m, l, n}
         """
-        if not isinstance(vuln, Et.Element):
-            raise TypeError("Expected xml Et.Element, got '{}' instead".format(type(vuln)))
         if not isinstance(config, Config):
             raise TypeError("Expected Config, got '{}' instead".format(type(config)))
             
