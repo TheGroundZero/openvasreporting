@@ -11,11 +11,16 @@ You can install this package directly from source by cloning the Git repository.
    yum -y install python3 python3-pip    # CentOS
    dnf install python3 python3-pip       # Fedora
 
-   # Install requirements
-   pip3 install -r requirements.txt
-
    # Clone repo
-   git clone git@github.com:TheGroundZero/openvas_to_report.git
+   git clone git@github.com:TheGroundZero/openvasreporting.git
+
+   # Install requirements
+   cd openvasreporting
+   pip3 install -r requirements.txt
+   pip3 install build --upgrade
+   pip3 install pip --upgrade
+   python -m build .
+   pip3 install dist/Openvas_Reporting[...].whl
 
 Alternatively, you can install the package through the Python package installer 'pip'.
 

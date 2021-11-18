@@ -22,10 +22,7 @@ dolog = False
 
 #__all__ = ["openvas_parser"]
 
-try:
-    from xml.etree import cElementTree as Et
-except ImportError:
-    from xml.etree import ElementTree as Et
+from defusedxml import ElementTree as Et
 
 def parsers():
         """

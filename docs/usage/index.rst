@@ -7,3 +7,5 @@ Usage
 
    install
    export
+   filters
+   config-file

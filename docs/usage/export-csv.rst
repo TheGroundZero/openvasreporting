@@ -12,23 +12,23 @@ Create CSV report from 1 OpenVAS XML report using default settings
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml -f csv
+   openvasreporting -i openvasreport.xml -f csv
 
 Create CSV report from multiple OpenVAS XML report using default settings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i *.xml -f csv
+   openvasreporting -i *.xml -f csv
    # OR
-   python3 openvasreporting.py -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...] -f csv
+   openvasreporting -i openvasreport.xml -i openvasreport1.xml -i openvasreport2.xml [-i ...] -f csv
 
 Create CSV report from 1 OpenVAS XML report, reporting only severity level high and up
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: bash
 
-   python3 openvasreporting.py -i openvasreport.xml -o openvas_report -f csv -l h
+   openvasreporting -i openvasreport.xml -o openvas_report -f csv -l h
 
 
 Result
