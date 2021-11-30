@@ -3,11 +3,13 @@
 [![GitHub version](https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting.svg)](https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting)
 [![License](https://img.shields.io/github/license/TheGroundZero/openvasreporting.svg)](https://github.com/TheGroundZero/openvasreporting/blob/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/openvas-reporting/badge/?version=latest&style=flat)](https://openvas-reporting.sequr.be)
+[![PyPI - Version](https://img.shields.io/pypi/v/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
+[![PyPI - Format](https://img.shields.io/pypi/format/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)  
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/TheGroundZero/openvasreporting.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/TheGroundZero/openvasreporting/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/TheGroundZero/openvasreporting.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/TheGroundZero/openvasreporting/context:python)
 [![Known Vulnerabilities](https://snyk.io/test/github/TheGroundZero/openvasreporting/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/TheGroundZero/openvasreporting?targetFile=requirements.txt)
 [![codecov](https://codecov.io/gh/TheGroundZero/openvasreporting/branch/master/graph/badge.svg)](https://codecov.io/gh/TheGroundZero/openvasreporting)
 [![Requirements Status](https://requires.io/github/TheGroundZero/openvasreporting/requirements.svg?branch=master)](https://requires.io/github/TheGroundZero/openvasreporting/requirements/?branch=master)
-[![PyPI - Version](https://img.shields.io/pypi/v/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
-[![PyPI - Format](https://img.shields.io/pypi/format/OpenVAS-Reporting.svg)](https://pypi.org/project/OpenVAS-Reporting/)
 
 A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports.
 
@@ -96,9 +98,14 @@ This currently has some issues (see #4)
 
 ## Filtering options
 
-### The -n/-N/-r/-R/-e/-E options will read a file with one option per line. Networks accepts CIDRs, IP Ranges or IPs. Regex accept any valid regex expression and will be case insensitive matched against the name of the vulnerability. CVEs are inserted in the CVE-YYYY-nnnnn format.
+The `-n`/`-N`/`-r`/`-R`/`-e`/`-E` options will read a file with one option per line.
+Networks accepts CIDRs, IP Ranges or IPs.
+Regex accept any valid regex expression and will be case insensitive matched against the name of the vulnerability.
+CVEs are inserted in the `CVE-YYYY-nnnnn` format.
 
-### The -c option will read a .yml file with all configurations. If the -c option is used, any other options but input and output filenames are ignored. There is a sample of a configuration file in the docs/ folder
+The `-c` option will read a .yml file with all configurations.
+If the `-c` option is used, any other options but input and output filenames are ignored.
+There is a sample of a configuration file in the `docs/` folder
 
 ## Examples
 

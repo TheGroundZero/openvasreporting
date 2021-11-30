@@ -1,7 +1,8 @@
 OpenVAS Reporting
 =================
 
-|version| |license| |docs| |vulns| |codecov| |requires| |pypi_version| |pypi_format|
+|version| |license| |docs| |pypi_version| |pypi_format|
+|alerts| |grade| |vulns| |codecov| |requires| 
 
 A tool to convert OpenVAS XML into reports.
 
@@ -103,3 +104,9 @@ TODO list
 .. |vulns| image:: https://snyk.io/test/github/TheGroundZero/openvasreporting/badge.svg?targetFile=requirements.txt
    :alt: Known Vulnerabilities
    :target: https://snyk.io/test/github/TheGroundZero/openvasreporting?targetFile=requirements.txt
+.. |alerts| image:: https://img.shields.io/lgtm/alerts/g/TheGroundZero/openvasreporting.svg?logo=lgtm&logoWidth=18
+   :alt: Total alerts
+   :target: https://lgtm.com/projects/g/TheGroundZero/openvasreporting/alerts/
+.. |grade| image:: https://img.shields.io/lgtm/grade/python/g/TheGroundZero/openvasreporting.svg?logo=lgtm&logoWidth=18
+   :alt: Language Grade: Python
+   :target: https://lgtm.com/projects/g/TheGroundZero/openvasreporting/context:python
