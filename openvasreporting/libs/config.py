@@ -14,7 +14,7 @@ import yaml
 from yaml.loader import SafeLoader
 
 class Config(object):
-    def __init__(self, input_files, output_file="openvas_report", min_level="none", format="xlsx",
+    def __init__(self, input_files, output_file="openvas_report", min_level="n", format="xlsx",
                  report_type="host", template=None, networks_included=None, networks_excluded=None, 
                  regex_included=None, regex_excluded=None, cve_included=None, cve_excluded=None):
         """
