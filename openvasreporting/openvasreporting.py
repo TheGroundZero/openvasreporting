@@ -45,7 +45,7 @@ the regex expressions will be matched against the name of the vulnerability\n"""
                         help="Template file for docx export\n", required=False,
                         default=None)
     parser.add_argument("-T", "--report-type", dest="report_type", help="Report by (v)ulnerability or by (h)ost\n",
-                        required=False, choices=['h', 'host', 'v', 'vulnerability'], default="vulnerability")
+                        required=False, choices=['h', 'host', 'v', 'vulnerability', 's', 'summary'], default="vulnerability")
     parser.add_argument("-n", "--network-include", dest="networks_included", 
                         help="Path to a file containing a list of network cidrs, ip ranges and ips to be included in the report\n",
                         required=False, default=None)

@@ -34,8 +34,9 @@ def parsers():
         """
         return {
             'vulnerability': openvas_parser_by_vuln,
-            'host': openvas_parser_by_host
-}
+            'host': openvas_parser_by_host,
+            'summary': openvas_parser_by_vuln
+        }
 
 def openvas_parser_by_vuln(config: Config):
     """
