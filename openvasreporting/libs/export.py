@@ -33,7 +33,8 @@ def implemented_exporters():
         'vulnerability-docx': export_to_word_by_vuln,
         'vulnerability-csv': export_to_csv_by_vuln,
         'host-xlsx': export_to_excel_by_host,
-        'host-csv': export_to_csv_by_host
+        'host-csv': export_to_csv_by_host,
+        'summary-csv': export_summary_to_csv
     }
 
 def _get_collections(vuln_info):
@@ -1127,3 +1128,54 @@ def export_to_csv_by_host(resulttree, template=None, output_file='openvas_report
                     'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
                 }
                 writer.writerow(rowdata)
+
+def export_summary_to_csv(
+        vuln_info,
+        template=None,
+        output_file='openvas_summary_report.csv'
+    ):
+    """
+    Export summary info in a Comma Separated Values (csv) file
+
+    :param vuln_info: Vulnerability list info
+    :type vuln_info: list(Vulnerability)
+
+    :param template: Not supported in csv-output
+    :type template: NoneType
+
+    :param output_file: Filename of the csv file
+    :type output_file: str
+
+    :raises: TypeError, NotImplementedError
+    """
+
+    import csv
+
+    if not isinstance(vuln_info, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(vuln_info)))
+    else:
+        for x in vuln_info:
+            if not isinstance(x, Vulnerability):
+                raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    if not isinstance(output_file, str):
+        raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
+    else:
+        if not output_file:
+            raise ValueError("output_file must have a valid name.")
+    if template is not None:
+        raise NotImplementedError("Use of template is not supported in CSV-output.")
+
+    vuln_info, vuln_levels, vuln_host_by_level, _ = _get_collections(vuln_info)
+
+    with open(output_file, 'w') as csvfile:
+        fieldnames = ['level', 'count', 'host_count']
+        writer = csv.DictWriter(csvfile, dialect='excel', fieldnames=fieldnames)
+        writer.writeheader()
+
+        for i, level in enumerate(Config.levels().values(), 4):
+            rowdata = {
+                'level': level,
+                'count': vuln_levels[level],
+                'host_count': vuln_host_by_level[level]
+            }
+            writer.writerow(rowdata)

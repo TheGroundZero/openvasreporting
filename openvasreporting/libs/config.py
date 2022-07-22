@@ -102,6 +102,8 @@ class Config(object):
             self.report_type = 'vulnerability'
         elif report_type == 'h' or report_type == 'host':
             self.report_type = 'host'
+        elif report_type == 's' or report_type == 'summary':
+            self.report_type = 'summary'
         else:
            raise ValueError("Expected host or vulnerability for report-type parameter but got '{}' instead.".format(report_type))
         
@@ -303,8 +305,8 @@ class Config_YAML(Config):
             self.format = 'xlsx'
             
         if 'reporttype' in yamldict:
-            if not yamldict['reporttype'] in ['vulnerability', 'host']:
-                raise ValueError("Invalid value for report type parameter, must be one of: vulnerability, host")
+            if not yamldict['reporttype'] in ['vulnerability', 'host', 'summary']:
+                raise ValueError("Invalid value for report type parameter, must be one of: vulnerability, host, summary")
             self.report_type = yamldict['reporttype']
         else:
             self.report_type = 'vulnerability'
