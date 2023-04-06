@@ -10,75 +10,135 @@ from .libs.config import Config, Config_YAML
 from .libs.parser import parsers
 from .libs.export import implemented_exporters
 
+
 def main():
 
-    PROG_DESCRIPTION='''OpenVAS report Converter\n
+    PROG_DESCRIPTION = """OpenVAS report Converter\n
 Parses one ore more OpenVAS xml report and creates a xlsx, docx or csv with the results
-'''
-    CONFIG_FILE_HELP="""path to a .yml file containing all options but INPUT_FILES and OUTPUT_FILE.
+"""
+    CONFIG_FILE_HELP = """path to a .yml file containing all options but INPUT_FILES and OUTPUT_FILE.
 if present, all the following options will be ignored and defaults applied 
 when not present in this file. a sample of this file can be found in the doc folder\n"""
-    REGEX_INCLUDE_HELP="""Path to a file containing a list of regex expressions to include in the report
+    REGEX_INCLUDE_HELP = """Path to a file containing a list of regex expressions to include in the report
 the regex expressions will be matched against the name of the vulnerability\n"""
-    REGEX_EXCLUDE_HELP="""Path to a file containing a list of regex expressions to exclude from the report
+    REGEX_EXCLUDE_HELP = """Path to a file containing a list of regex expressions to exclude from the report
 the regex expressions will be matched against the name of the vulnerability\n"""
-
+    HOST_INCLUDE_HELP = """Path to a file containing a list of hostname.domain to be included in the report. 
+If you want to include hosts without hostname, add 'N/A' is your list\n"""
+    HOST_EXCLUDE_HELP = """Path to a file containing a list of hostname.domain to be exclude in the report. 
+If you want to exclude hosts without hostname, add 'N/A' is your list\n"""
 
     parser = argparse.ArgumentParser(
         prog="openvasreporting",  # TODO figure out why I need this in my code for -h to show correct name
         description=PROG_DESCRIPTION,
         allow_abbrev=True,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports\n", 
-                        required=True)
-    parser.add_argument("-o", "--output", dest="output_file", help="Output file, no extension\n", 
-                        required=False, default="openvas_report")
-    parser.add_argument("-c", "--config-file", dest="config_file",help=CONFIG_FILE_HELP, 
-                        required=False, default=None)
-    parser.add_argument("-l", "--level", dest="min_lvl", 
-                        help="Minimal level (c, h, m, l, n)\n", 
-                        required=False, choices=['c', 'h', 'm', 'l', 'n'], default='n')
-    parser.add_argument("-f", "--format", dest="format", help="Output format (xlsx)\n", 
-                        required=False, choices=["xlsx", "docx", "csv"], default="xlsx")
-    parser.add_argument("-t", "--template", dest="template", 
-                        help="Template file for docx export\n", required=False,
-                        default=None)
-    parser.add_argument("-T", "--report-type", dest="report_type", help="Report by (v)ulnerability or by (h)ost\n",
-                        required=False, choices=['h', 'host', 'v', 'vulnerability', 's', 'summary'], default="vulnerability")
-    parser.add_argument("-n", "--network-include", dest="networks_included", 
-                        help="Path to a file containing a list of network cidrs, ip ranges and ips to be included in the report\n",
-                        required=False, default=None)
-    parser.add_argument("-N", "--network-exclude", dest="networks_excluded", 
-                        help="Path to a file containing a list of network cidrs, ip ranges and ips to be excluded from the report\n",
-                        required=False, default=None)
-    parser.add_argument("-r", "--regex_include", dest="regex_included", help=REGEX_INCLUDE_HELP,
-                        required=False, default=None)
-    parser.add_argument("-R", "--regex_exclude", dest="regex_excluded", help=REGEX_EXCLUDE_HELP,
-                        required=False, default=None)
-    parser.add_argument("-e", "--cve-include", dest="cve_included", 
-                        help="Path to a file containing a list of cve numbers to include in the report\n",
-                        required=False, default=None)
-    parser.add_argument("-E", "--cve-exclude", dest="cve_excluded",
-                        help="Path to a file containing a list of cve numbers to exclude from the report\n",
-                        required=False, default=None)
+    parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports\n", required=True)
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output_file",
+        help="Output file, no extension\n",
+        required=False,
+        default="openvas_report",
+    )
+    parser.add_argument("-c", "--config-file", dest="config_file", help=CONFIG_FILE_HELP, required=False, default=None)
+    parser.add_argument(
+        "-l",
+        "--level",
+        dest="min_lvl",
+        help="Minimal level (c, h, m, l, n)\n",
+        required=False,
+        choices=["c", "h", "m", "l", "n"],
+        default="n",
+    )
+    parser.add_argument(
+        "-f",
+        "--format",
+        dest="format",
+        help="Output format (xlsx)\n",
+        required=False,
+        choices=["xlsx", "docx", "csv"],
+        default="xlsx",
+    )
+    parser.add_argument(
+        "-t", "--template", dest="template", help="Template file for docx export\n", required=False, default=None
+    )
+    parser.add_argument(
+        "-T",
+        "--report-type",
+        dest="report_type",
+        help="Report by (v)ulnerability or by (h)ost\n",
+        required=False,
+        choices=["h", "host", "v", "vulnerability"],
+        default="vulnerability",
+    )
+    parser.add_argument(
+        "-n",
+        "--network-include",
+        dest="networks_included",
+        help="Path to a file containing a list of network cidrs, ip ranges and ips to be included in the report\n",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "-N",
+        "--network-exclude",
+        dest="networks_excluded",
+        help="Path to a file containing a list of network cidrs, ip ranges and ips to be excluded from the report\n",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "-h", "--host-include", dest="hosts_included", help=HOST_INCLUDE_HELP, required=False, default=None
+    )
+    parser.add_argument(
+        "-H", "--host-exclude", dest="hosts_excluded", help=HOST_EXCLUDE_HELP, required=False, default=None
+    )
+    parser.add_argument(
+        "-r", "--regex_include", dest="regex_included", help=REGEX_INCLUDE_HELP, required=False, default=None
+    )
+    parser.add_argument(
+        "-R", "--regex_exclude", dest="regex_excluded", help=REGEX_EXCLUDE_HELP, required=False, default=None
+    )
+    parser.add_argument(
+        "-e",
+        "--cve-include",
+        dest="cve_included",
+        help="Path to a file containing a list of cve numbers to include in the report\n",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "-E",
+        "--cve-exclude",
+        dest="cve_excluded",
+        help="Path to a file containing a list of cve numbers to exclude from the report\n",
+        required=False,
+        default=None,
+    )
     args = parser.parse_args()
 
     if not args.config_file is None:
         config = Config_YAML(args.input_files, args.config_file, args.output_file)
     else:
-        config = Config(args.input_files, 
-                        args.output_file, 
-                        args.min_lvl, 
-                        args.format, 
-                        args.report_type, 
-                        args.template,
-                        args.networks_included,
-                        args.networks_excluded,
-                        args.regex_included,
-                        args.regex_excluded,
-                        args.cve_included,
-                        args.cve_excluded)
+        config = Config(
+            args.input_files,
+            args.output_file,
+            args.min_lvl,
+            args.format,
+            args.report_type,
+            args.template,
+            args.networks_included,
+            args.networks_excluded,
+            args.hosts_included,
+            args.hosts_excluded,
+            args.regex_included,
+            args.regex_excluded,
+            args.cve_included,
+            args.cve_excluded,
+        )
 
     convert(config)
 
@@ -93,13 +153,15 @@ def convert(config):
     :raises: TypeError, ValueError, IOError, NotImplementedError
     """
     if not isinstance(config, Config):
-        raise TypeError("Expected Config, got '{}' instead".format(type(config)))
+        raise TypeError(f"Expected Config, got '{type(config)}' instead")
 
-    if config.report_type + '-' + config.format not in implemented_exporters().keys():
-        raise NotImplementedError("The report by '{}' in format '{}' is not implemented yet.".format(
-                                  config.report_type, config.format))
-        
+    if config.report_type + "-" + config.format not in implemented_exporters().keys():
+        raise NotImplementedError(
+            f"The report by '{config.report_type}' in format '{config.format}' is not implemented yet."
+        )
+
     openvas_info = parsers()[config.report_type](config)
 
-    implemented_exporters()[config.report_type + '-' + config.format](openvas_info, config.template, config.output_file)
-
+    implemented_exporters()[config.report_type + "-" + config.format](
+        openvas_info, config.template, config.output_file
+    )

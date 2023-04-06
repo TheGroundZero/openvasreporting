@@ -1,4 +1,4 @@
-# OpenVAS Reporting:  
+# OpenVAS Reporting
 
 [![GitHub version](https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting.svg)](https://badge.fury.io/gh/TheGroundZero%2Fopenvasreporting)
 [![License](https://img.shields.io/github/license/TheGroundZero/openvasreporting.svg)](https://github.com/TheGroundZero/openvasreporting/blob/master/LICENSE)
@@ -27,13 +27,11 @@ I reorganised some of the files, removed some functionality and added some extra
 
 At this moment in time, the script only output .xlsx documents in one format, this may (not) change in the future.
 
-
 ## Requirements
 
- - [Python](https://www.python.org/) version 3
- - [XlsxWriter](https://xlsxwriter.readthedocs.io/)
- - [Python-docx](https://python-docx.readthedocs.io)
-
+- [Python](https://www.python.org/) version 3
+- [XlsxWriter](https://xlsxwriter.readthedocs.io/)
+- [Python-docx](https://python-docx.readthedocs.io)
 
 ## Installation
 
@@ -50,7 +48,6 @@ At this moment in time, the script only output .xlsx documents in one format, th
     python -m build
     # Install module
     pip3 install dist/OpenVAS_Reporting-X.x.x-py3-xxxx-xxx.whl
-    
 
 Alternatively, you can install the package through the Python package installer 'pip'.  
 This currently has some issues (see #4)
@@ -75,7 +72,7 @@ This currently has some issues (see #4)
 | Short param | Long param        | Description          | Required | Default value                              |
 | :---------: | :---------------: | :------------------: | :------: | :----------------------------------------- |
 | -i          | --input           | Input file(s)        | YES      | n/a                                        |
-| -o          | --output          | Output filename      | No       | openvas\_report                             |
+| -o          | --output          | Output filename      | No       | openvas\_report                            |
 | -c          | --config-file     | .yml configuration   | No       | None                                       |
 | -f          | --format          | Output format        | No       | xlsx                                       |
 | -l          | --level           | Minimal level        | No       | n                                          |
@@ -86,6 +83,10 @@ This currently has some issues (see #4)
 | -n          | --network-include | file with networks   | No       | None                                       |
 |             |                   | to include           |          |                                            |
 | -N          | --network-exclude | file with networks   | No       | None                                       |
+|             |                   | to exclude           |          |                                            |
+| -h          | --host-include    | file with hostname   | No       | None                                       |
+|             |                   | to include           |          |                                            |
+| -H          | --host-exclude    | file with hostname   | No       | None                                       |
 |             |                   | to exclude           |          |                                            |
 | -r          | --regex-include   | file with regex to   | No       | None                                       |
 |             |                   | to include from name |          |                                            |
@@ -98,8 +99,11 @@ This currently has some issues (see #4)
 
 ## Filtering options
 
-The `-n`/`-N`/`-r`/`-R`/`-e`/`-E` options will read a file with one option per line.
+The `-n`/`-N`/`-h`/`-H`/`-r`/`-R`/`-e`/`-E` options will read a file with one option per line.
 Networks accepts CIDRs, IP Ranges or IPs.
+Hosts : The hosts is under hostname.domain configuration. That usecase is usefull in case of host under DHCP,
+without specific VLAN, where you want to exclude or include some of them. But you need to consider not all devices
+have a hostname. If you want to exclude or include device without hostname add 'N/A' in the current host list to apply.
 Regex accept any valid regex expression and will be case insensitive matched against the name of the vulnerability.
 CVEs are inserted in the `CVE-YYYY-nnnnn` format.
 
@@ -138,7 +142,7 @@ Worksheets are sorted according to CVSS score and are colored according to the v
 
 Some of the ideas I still have for future functionality:
 
- - list vulnerabilities per host ==DONE==
- - filter by host (scope/exclude) as in OpenVAS2Report ==DONE==
- - select threat levels individually (e.g. none and low; but not med, high and crit)
- - import other formats (not only XML), e.g. CSV as suggested in [this issue](https://github.com/TheGroundZero/openvasreporting_server/issues/3)
+- list vulnerabilities per host ==DONE==
+- filter by host (scope/exclude) as in OpenVAS2Report ==DONE==
+- select threat levels individually (e.g. none and low; but not med, high and crit)
+- import other formats (not only XML), e.g. CSV as suggested in [this issue](https://github.com/TheGroundZero/openvasreporting_server/issues/3)
