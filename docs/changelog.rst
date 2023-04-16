@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.6.0  - New Features:
+
+       - Included option (--host-include) to define a file with a list of host.domain (hostname) that will be included from the report.
+
+       - Included option (--host-exclude) to define a file with a list of host.domain (hostname) that will be excluded from the report.
+
+       - In the config-file, the keyworks 'hostnames' as been add with children keyworks includes/excludes to set included and excluded host.domain from the report.
+
+       -Refeactor:
+
+       - Few PEP8 refactoring along some files as been made. But few remains to do.
+
+
 1.5.0  - New Features:
 
        - Included option (--config-file) to define a .yaml file with all options but input and output filenames.

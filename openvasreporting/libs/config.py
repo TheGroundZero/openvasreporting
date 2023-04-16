@@ -358,11 +358,11 @@ class Config_YAML(Config):
 
         if "hostnames" in yamldict:
             if "includes" in yamldict["hostnames"]:
-                self.hosts_included = self.include_networks(yamldict["hostnames"]["includes"])
+                self.hosts_included = yamldict["hostnames"]["includes"]
             else:
                 self.hosts_included = None
             if "excludes" in yamldict["hostnames"]:
-                self.hosts_excluded = self.include_networks(yamldict["hostnames"]["excludes"])
+                self.hosts_excluded = yamldict["hostnames"]["excludes"]
             else:
                 self.hosts_excluded = None
         else:

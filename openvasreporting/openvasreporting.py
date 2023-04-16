@@ -12,7 +12,6 @@ from .libs.export import implemented_exporters
 
 
 def main():
-
     PROG_DESCRIPTION = """OpenVAS report Converter\n
 Parses one ore more OpenVAS xml report and creates a xlsx, docx or csv with the results
 """

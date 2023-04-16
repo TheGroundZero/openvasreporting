@@ -84,9 +84,9 @@ This currently has some issues (see #4)
 |             |                   | to include           |          |                                            |
 | -N          | --network-exclude | file with networks   | No       | None                                       |
 |             |                   | to exclude           |          |                                            |
-| -h          | --host-include    | file with hostname   | No       | None                                       |
+| -h          | --host-include    | file with hostnames  | No       | None                                       |
 |             |                   | to include           |          |                                            |
-| -H          | --host-exclude    | file with hostname   | No       | None                                       |
+| -H          | --host-exclude    | file with hostnames  | No       | None                                       |
 |             |                   | to exclude           |          |                                            |
 | -r          | --regex-include   | file with regex to   | No       | None                                       |
 |             |                   | to include from name |          |                                            |
