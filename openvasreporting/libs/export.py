@@ -776,7 +776,7 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='
     else:
         for key in resulttree.keys():
             if not isinstance(resulttree[key], Host):
-                raise TypeError("Expected Host, got '{}' instead".format(type(x)))
+                raise TypeError("Expected Host, got '{}' instead".format(type(resulttree(key))))
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -948,9 +948,8 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='
     chart_sumcvss_summary.set_title({'name': 'Hosts by CVSS', 'overlay': False, 'font': {'name': 'Tahoma'}})
     chart_sumcvss_summary.set_size({'width': 750, 'height': 350})
     chart_sumcvss_summary.set_legend({'position': 'left', 'font': {'name': 'Tahoma'}})
-    chart_sumcvss_summary.set_x_axis({'label_position': 'bottom',
-                                      'num_font': {'name': 'Tahoma', 'size': 8}
-                                    })
+    chart_sumcvss_summary.set_x_axis({'label_position': 'bottom'})
+    chart_sumcvss_summary.set_x_axis({'num_font': {'name': 'Tahoma', 'size': 8}})
     ws_sum.insert_chart("B15", chart_sumcvss_summary)
 
     # ====================
