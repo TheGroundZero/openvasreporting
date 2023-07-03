@@ -3,6 +3,8 @@ Using Filters
 
 You can filter the vulnerabilities that will be presented in you report using one of the filtering options. You can filter:
 - networks cidrs, ip ranges and any individual ip using the options **-n/--network-include** and **-N/--network-exclude**;
+- hostnames based on hostname.domain by using the options **-h/--host-include** and **-H/--hosts-exclude**. 
+  Don't put .domain if none. To exclude or include devices without hostname, add 'N/A' to the appropriate list;
 - regex expressions that will be matched against the vulnerability names using the options **-r/--regex-include** and **-R/--regex-exclude** - The matches will be case insensitive;
 - CVEs numbers in the format CVEYYYY-nnn... using the options **-e/--cve-include** and **-E/--cve-exclude**;
 When passing the --format csv parameter, the tool will export reports in Comma Separated Values (CSV) format.
@@ -35,6 +37,34 @@ Contents of *branch_1_ipaliases.txt* could be:
    172.16.168.234
    172.16.168.236-239
    172.16.168.15
+
+
+Create xlsx report from multiple OpenVAS XML Report filtering by host
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+.. code-block:: bash
+
+   openvasreporting -i *.xml -h ./hosts_includes.txt
+
+Contents of *hosts_includes.txt* could be:
+
+.. code-block:: txt
+
+   server1.mylocaldomain
+   server2.mylocaldomain
+
+
+.. code-block:: bash
+
+   openvasreporting -i *.xml -H ./hosts_excludes.txt
+
+Contents of *hosts_excludes.txt* could be:
+
+.. code-block:: txt
+
+   myhomelaptop
+   desktop1.mylocaldomain
+   N/A
 
 Create xlsx report, sorted by host, filtering by regex
 """"""""""""""""""""""""""""""""""""""""""""""""""""""

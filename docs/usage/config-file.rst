@@ -28,6 +28,15 @@ Sample Configuration File:
        - 172.16.168.234
        - 172.16.168.236-172.16.168.239
        - 172.20.16.120
+
+   hostnames:
+     includes:
+      - server1.mylocaldomain
+      - server2.mylocaldomain
+
+     excludes:
+      - myhomelaptop
+      - desktop1.mylocaldomain
    
    regex:
      excludes:
