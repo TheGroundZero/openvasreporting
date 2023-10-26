@@ -914,37 +914,29 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file='
     # CHART
     # --------------------
     chart_sumcvss_summary = workbook.add_chart({'type': 'column'})
+
     chart_sumcvss_summary.add_series({
         'name': 'critical',
         'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
         'values': '={}!E4:E{}'.format(sheet_name, max_hosts + 3),
-        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
         'fill': { 'width': 8, 'color': Config.colors()['critical']},
         'border': { 'color': Config.colors()['blue']},
     })
     chart_sumcvss_summary.add_series({
         'name': 'high',
+        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
         'values': '={}!F4:F{}'.format(sheet_name, max_hosts + 3),
-        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
         'fill': { 'width': 8, 'color': Config.colors()['high']},
         'border': { 'color': Config.colors()['blue']},
     })
     chart_sumcvss_summary.add_series({
         'name': 'medium',
+        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
         'values': '={}!G4:G{}'.format(sheet_name, max_hosts + 3),
-        'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
         'fill': { 'width': 8, 'color': Config.colors()['medium']},
         'border': { 'color': Config.colors()['blue']},
     })
-    
-    #chart_sumcvss_summary.add_series({
-        #'name': 'Hosts Ranking',
-        #'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
-        #'values': '={}!E4:G{}'.format(sheet_name, max_hosts + 3),
-        #'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma', 'size': 8}},
-        #'line': { 'width': 8, 'color': Config.colors()['blue']},
-        #'border': { 'color': Config.colors()['blue']},
-    #})
+
     chart_sumcvss_summary.set_title({'name': 'Hosts by CVSS', 'overlay': False, 'font': {'name': 'Tahoma'}})
     chart_sumcvss_summary.set_size({'width': 750, 'height': 350})
     chart_sumcvss_summary.set_legend({'position': 'left', 'font': {'name': 'Tahoma'}})
