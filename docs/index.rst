@@ -85,7 +85,7 @@ TODO list
    :alt: Code Coverage
    :target: https://codecov.io/gh/TheGroundZero/openvasreporting
 .. |docs| image:: https://readthedocs.org/projects/openvas-reporting/badge/?version=latest&style=flat
-   :target: https://openvas-reporting.stijncrevits.be
+   :target: https://openvas-reporting.sequr.be/en/latest/
    :alt: Documentation
 .. |license| image:: https://img.shields.io/github/license/TheGroundZero/openvasreporting.svg
    :alt: GitHub
