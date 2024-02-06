@@ -17,6 +17,15 @@ A tool to convert [OpenVAS](http://www.openvas.org/) XML into reports.
 
 *Read the full documentation at [https://openvas-reporting.sequr.be](https://openvas-reporting.sequr.be)*
 
+# LOOKING FOR MAINTAINERS
+
+**THIS PROJECT IS NO LONGER ACTIVELY MAINTAINED!**
+
+**PULL REQUESTS FOR MINOR CHANGES MAY STILL BE ACCEPTED.  
+CHANGES IN OPENVAS MAY (and likely will) BREAK THIS TOOL. I WILL NOT PROVIDE SUPPORT FOR THAT.**
+
+---
+
 I forked [OpenVAS2Report](https://github.com/cr0hn/openvas_to_report) since it didn't manage to convert all reports I threw at it
 and because I wanted to learn how to use Python for working with XML and creating Excel files.  
 Also, OpenVAS mixes their own threat levels with the [CVSS](https://www.first.org/cvss/) scoring, the latter of which I prefer to use in my reports.
