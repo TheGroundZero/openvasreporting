@@ -1,5 +1,6 @@
 tests/
 .idea/
+*.xlsx
 
 # Code coverage
 .coveragerc

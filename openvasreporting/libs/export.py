@@ -60,12 +60,12 @@ def _get_collections(vuln_info):
     vuln_hostcount_by_level =[[] for _ in range(5)]
     level_choices = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3, 'none': 4}
 
-    for i, vuln in enumerate(vuln_info, 1):
+    for _, vuln in enumerate(vuln_info, 1):
         vuln_levels[vuln.level.lower()] += 1
         # add host names to list so we count unquie hosts per level
         level_index = level_choices.get(vuln.level.lower())
 
-        for i, (host, port) in enumerate(vuln.hosts, 1):    
+        for _, (host, _) in enumerate(vuln.hosts, 1):    
             if host.ip not in vuln_hostcount_by_level[level_index]:
                 vuln_hostcount_by_level[level_index].append(host.ip)       
 
@@ -73,7 +73,7 @@ def _get_collections(vuln_info):
 
     # now count hosts per level and return
     for level in Config.levels().values():
-        vuln_host_by_level[level] = len((vuln_hostcount_by_level[level_choices.get(level.lower())]))
+        vuln_host_by_level[level] = len([*set(vuln_hostcount_by_level[level_choices.get(level.lower())])]) # Put host in a set to avoid doublon
 
     return vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
 
@@ -178,24 +178,28 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file='openvas_repor
     ws_sum.set_column("B:B", 25, format_align_center)
     ws_sum.set_column("C:C", 24, format_align_center)
     ws_sum.set_column("D:D", 20, format_align_center)
-    ws_sum.set_column("E:E", 7, format_align_center)
+    ws_sum.set_column("E:E", 20, format_align_center)
+    ws_sum.set_column("F:F", 7, format_align_center)
 
     # --------------------
     # VULN SUMMARY
     # --------------------
-    ws_sum.merge_range("B2:D2", "VULNERABILITY SUMMARY", format_sheet_title_content)
-    ws_sum.write("B3", "Threat Level", format_table_titles)
-    ws_sum.write("C3", "Vulnerabilities", format_table_titles)
-    ws_sum.write("D3", "Affected hosts", format_table_titles)
+    ws_sum.merge_range("B2:E2", "VULNERABILITY SUMMARY", format_sheet_title_content)
+    ws_sum.write("B3", "Threat", format_table_titles)
+    ws_sum.write("C3", "Unique Vulns", format_table_titles)
+    ws_sum.write("D3", "Hosts affected", format_table_titles)
+    ws_sum.write("E3", "Discovered", format_table_titles)
 
     for i, level in enumerate(Config.levels().values(), 4):
         ws_sum.write("B{}".format(i), level.capitalize(), format_sheet_title_content)
         ws_sum.write("C{}".format(i), vuln_levels[level], format_align_border)
         ws_sum.write("D{}".format(i), vuln_host_by_level[level], format_align_border)
+        ws_sum.write("E{}".format(i), vuln_levels[level] * vuln_host_by_level[level], format_align_border)
 
     ws_sum.write("B9", "Total", format_table_titles)
     ws_sum.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
     ws_sum.write_formula("D9", "=SUM($D$4:$D$8)", format_table_titles)
+    ws_sum.write_formula("E9", "=SUM($E$4:$E$8)", format_table_titles)
 
     # --------------------
     # CHART
@@ -217,7 +221,7 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file='openvas_repor
     chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False, 'name_font': {'name': 'Tahoma'}})
     chart_vulns_summary.set_size({'width': 500, 'height': 300})
     chart_vulns_summary.set_legend({'position': 'right', 'font': {'name': 'Tahoma'}})
-    ws_sum.insert_chart("F2", chart_vulns_summary)
+    ws_sum.insert_chart("G2", chart_vulns_summary)
 
     # --------------------
     # VULN BY FAMILY
@@ -249,7 +253,7 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file='openvas_repor
                                      'name_font': {'name': 'Tahoma'}})
     chart_vulns_by_family.set_size({'width': 500, 'height': 500})
     chart_vulns_by_family.set_legend({'position': 'bottom', 'font': {'name': 'Tahoma'}})
-    ws_sum.insert_chart("F19", chart_vulns_by_family)
+    ws_sum.insert_chart("G19", chart_vulns_by_family)
 
     # ====================
     # TABLE OF CONTENTS
