@@ -13,8 +13,7 @@ import re
 from .config import Config
 import netaddr
 
-from defusedxml import ElementTree as Et
-
+import logging
 #
 # DEBUG
 
