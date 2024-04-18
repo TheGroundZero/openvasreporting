@@ -504,13 +504,13 @@ class Vulnerability(object):
         :raises: TypeError, ValueError
         """
         # Get info
-        cves: list[str] = kwargs.get("cves", list()) or list()
-        cvss:     float = kwargs.get("cvss", -1.0) or -1.0
-        level:      str = kwargs.get("level", "None") or "None"
-        tags:      dict = kwargs.get("tags", dict()) or dict()
-        references: str = kwargs.get("references", "Unknown") or "Unknown"
-        family:     str = kwargs.get("family", "Unknown") or "Unknown"
-        result:     str = kwargs.get("description", "Unknown") or "Unknown"
+        cves:list[str] = kwargs.get("cves", list()) or list()
+        cvss:float = kwargs.get("cvss", -1.0) or -1.0
+        level:str = kwargs.get("level", "None") or "None"
+        tags:dict = kwargs.get("tags", dict()) or dict()
+        references:str = kwargs.get("references", "Unknown") or "Unknown"
+        family:str = kwargs.get("family", "Unknown") or "Unknown"
+        result:str = kwargs.get("description", "Unknown") or "Unknown"
 
         if not isinstance(vuln_id, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(vuln_id)))
@@ -585,24 +585,23 @@ class Vulnerability(object):
             raise TypeError("Expected Vulnerability, got '{}' instead".format(type(other)))
 
         if (
-                other.vuln_id       != self.vuln_id       or
-                other.name          != self.name          or
-                other.cves          != self.cves          or
-                other.cvss          != self.cvss          or
-                other.level         != self.level         or
-                other.description   != self.description   or
-                other.detect        != self.detect        or
-                other.version       != self.version       or
-                other.insight       != self.insight       or
-                other.impact        != self.impact        or
-                other.affected      != self.affected      or
-                other.solution      != self.solution      or
+                other.vuln_id != self.vuln_id or
+                other.name != self.name or
+                other.cves != self.cves or
+                other.cvss != self.cvss or
+                other.level != self.level or
+                other.description != self.description or
+                other.detect != self.detect or
+                other.version != self.version or
+                other.insight != self.insight or
+                other.impact != self.impact or
+                other.affected != self.affected or
+                other.solution != self.solution or
                 other.solution_type != self.solution_type or
-                other.references    != self.references    or
-                other.threat        != self.threat        or
-                other.family        != self.family        or
-                other.result        != self.result
-        ):
+                other.references != self.references or
+                other.threat != self.threat or
+                other.family != self.family or
+                other.result != self.result ):
             return False
 
         for host, port in self.hosts:
