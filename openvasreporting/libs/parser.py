@@ -6,6 +6,7 @@
 
 # TODO: get rid of the log clutter
 
+import logging
 from .config import Config
 from .parsed_data import ResultTree, Host, Port, Vulnerability, ParseVulnerability
 
@@ -62,7 +63,7 @@ def openvas_parser_by_vuln(config: Config):
                     not all(True for x in ("extension", "format_id", "content_type") if x in first_line):
                 raise IOError("Invalid report format")
 
-    vulnerabilities = {}
+    vulnerabilities:dict[str, Vulnerability] = {}
 
     for f_file in config.input_files:
         root = Et.parse(f_file).getroot()
@@ -88,7 +89,7 @@ def openvas_parser_by_vuln(config: Config):
                 # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result)
             except ValueError:
-                port = None
+                port = Port("", "", "")
 
             try:
                 vuln_store = vulnerabilities[parsed_vuln.vuln_id]

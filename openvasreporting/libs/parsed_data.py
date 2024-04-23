@@ -9,6 +9,7 @@
 """This file contains data structures"""
 
 import re
+from typing import Union
 
 from .config import Config
 import netaddr
@@ -29,7 +30,7 @@ dolog = False
 class Port(object):
     """Port information"""
 
-    def __init__(self, number, protocol="tcp", result=""):
+    def __init__(self, number:int, protocol:str="tcp", result:str=""):
         """
         :param number: port number
         :type number: int
@@ -60,7 +61,7 @@ class Port(object):
 
     # Modified to include result in structure
     @staticmethod
-    def string2port(info,result):
+    def string2port(info:str, result:str):
         """
         Extract port number, protocol and description from an string.
         return a port class with seperate port, protocol and result
@@ -101,8 +102,8 @@ class Port(object):
         if not isinstance(result, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(result)))
 
-        regex_nr = re.search("([\d]+)(/)([\w]+)", info)
-        regex_general = re.search("(general)(/)([\w]+)", info)
+        regex_nr = re.search("([\d]+)(/)([\w]+)", info) # type: ignore
+        regex_general = re.search("(general)(/)([\w]+)", info) # type: ignore
 
         if regex_nr and len(regex_nr.groups()) == 3:
             number = int(regex_nr.group(1))
@@ -115,7 +116,7 @@ class Port(object):
 
         return Port(number, protocol, result)
 
-    def __eq__(self, other):
+    def __eq__(self, other:'Port'):
         return (
                 isinstance(other, Port) and
                 other.number == self.number and
@@ -147,7 +148,7 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_NAME
-        self.vuln_name = nvt_tmp.find("./name").text
+        self.vuln_name:str = nvt_tmp.find("./name").text
     
         if dolog: logging.debug(
             "--------------------------------------------------------------------------------")
@@ -155,6 +156,20 @@ class ParseVulnerability:
         if dolog: logging.debug(
             "--------------------------------------------------------------------------------")
     
+
+        # --------------------
+        #
+        # VULN_VERSION
+        self.vuln_version = ""
+        desc:str = vuln.find("./description").text
+        if desc is None:
+            desc = ""
+        match = re.search(r'Installed version: ((\d|.)+)', desc)
+        if match is not None :
+            self.vuln_version = match.group(1)
+            
+        if dolog: logging.debug("* vuln_version:\t{}".format(self.vuln_version))  # DEBUG
+
         # --------------------
         #
         # VULN_ID
@@ -191,8 +206,8 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_HOST
-        self.vuln_host = vuln.find("./host").text
-        self.vuln_host_name = vuln.find("./host/hostname").text
+        self.vuln_host:str = vuln.find("./host").text
+        self.vuln_host_name:str = vuln.find("./host/hostname").text
         if self.vuln_host_name is None:
             self.vuln_host_name = "N/A"
         if dolog: logging.debug("* hostname:\t{}".format(self.vuln_host_name))  # DEBUG
@@ -215,7 +230,7 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_THREAT
-        self.vuln_threat = vuln.find("./threat").text
+        self.vuln_threat:str = vuln.find("./threat").text
         if self.vuln_threat is None:
             self.vuln_threat = Config.levels()["n"]
         else:
@@ -226,7 +241,7 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_FAMILY
-        self.vuln_family = nvt_tmp.find("./family").text
+        self.vuln_family:str = nvt_tmp.find("./family").text
     
         if dolog: logging.debug("* vuln_family:\t{}".format(self.vuln_family))  # DEBUG
     
@@ -234,8 +249,8 @@ class ParseVulnerability:
         #
         # VULN_CVES
         #vuln_cves = nvt_tmp.findall("./refs/ref")
-        self.vuln_cves = []
-        self.ref_list = []
+        self.vuln_cves:list[str] = []
+        self.ref_list:list[str] = []
         for reference in nvt_tmp.findall('./refs/ref'):
             if reference.attrib.get('type') == 'cve':
                 self.vuln_cves.append(reference.attrib.get('id'))
@@ -264,14 +279,14 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_DESCRIPTION
-        self.vuln_result = vuln.find("./description")
-        if self.vuln_result is None or vuln.find("./description").text is None:
+        tmpVulnResult = vuln.find("./description")
+        if tmpVulnResult is None or vuln.find("./description").text is None:
             self.vuln_result = ""
         else:
-            self.vuln_result = self.vuln_result.text
+            self.vuln_result = tmpVulnResult.text
     
         # Replace double newlines by a single newline
-        self.vuln_result = self.vuln_result.replace("(\r\n)+", "\n")
+        self.vuln_result:str = self.vuln_result.replace("(\r\n)+", "\n")
     
         if dolog: logging.debug("* vuln_result:\t{}".format(self.vuln_result))  # DEBUG
 
@@ -298,13 +313,13 @@ class ParseVulnerability:
             
         
         # nvt has oid?
-        vuln_id = vuln.find('./nvt').get('oid')
+        vuln_id:str = vuln.find('./nvt').get('oid')
         if not vuln_id or vuln_id == "0":
             return None
 
         # is ip included and/or excluded?
         if config.networks_excluded is not None or config.networks_included is not None:
-            host_ip = vuln.find('./host').text
+            host_ip:str = vuln.find('./host').text
             host_ip_addr = netaddr.IPAddress(host_ip)
         
         if config.networks_excluded is not None:
@@ -322,7 +337,7 @@ class ParseVulnerability:
             
         # check regex expressions inclusion and exclusion
         if config.regex_excluded is not None or config.regex_included is not None:
-            vuln_name = vuln.find('./name').text
+            vuln_name:str = vuln.find('./name').text
         
         # does any of regex_excluded matches this vulnerability name?
         if config.regex_excluded is not None:
@@ -341,7 +356,7 @@ class ParseVulnerability:
 
         # check cve include or exclude
         if config.cve_excluded is not None or config.cve_included is not None:
-            cve_list = []
+            cve_list:list[str] = []
             for r in vuln.findall("./nvt/refs/ref[@type='cve']"):
                 cve_list.append(r.attrib.get('id'))
 
@@ -361,7 +376,7 @@ class ParseVulnerability:
                 return None
                     
         # vuln severity >= min_level?
-        vuln_cvss = vuln.find('./severity').text
+        vuln_cvss:float = vuln.find('./severity').text
         if vuln_cvss is None:
             vuln_cvss = 0.0
         vuln_cvss = float(vuln_cvss)
@@ -373,7 +388,7 @@ class ParseVulnerability:
 class Host(object):
     """Host information"""
 
-    def __init__(self, ip, host_name=""):
+    def __init__(self, ip:str, host_name:str=""):
         """
         :param ip: Host IP
         :type ip: basestring
@@ -411,7 +426,7 @@ class Host(object):
         raises TypeError
         """
         if not isinstance(parsed_vuln, ParseVulnerability):
-            raise TypeError("Expected ParseVulnerability, got '{}' instead".format(type(v)))
+            raise TypeError("Expected ParseVulnerability, got '{}' instead".format(type(parsed_vuln)))
 
         # check if a vulnerability with the same vuln_id (nvt-oid) already exists in the vuln_list
         for v in self.vuln_list:
@@ -420,6 +435,7 @@ class Host(object):
             
         v = Vulnerability(parsed_vuln.vuln_id,
                           name=parsed_vuln.vuln_name,
+                          version=parsed_vuln.vuln_version,
                           threat=parsed_vuln.vuln_threat,
                           tags=parsed_vuln.vuln_tags,
                           cvss=parsed_vuln.vuln_cvss,
@@ -431,8 +447,8 @@ class Host(object):
             # added results to port function as will ne unique per port on each host.
             port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result)
         except ValueError:
-            port = None
-        v.add_vuln_host(self, port)        
+            port = Port("", "", "")
+        v.add_vuln_host(self, port)
         self.vuln_list.append(v)
         self.num_vulns += 1
         self.nv[v.level] += 1
@@ -443,18 +459,17 @@ class Host(object):
     def nv_total(self):
         return self.nv['critical'] + self.nv['high'] + self.nv['medium'] + self.nv['low']
                    
-    def __eq__(self, other):
+    def __eq__(self, other:'Host'):
         return (
                 isinstance(other, Host) and
                 other.ip == self.ip and
                 other.host_name == self.host_name
         )
 
-
 class Vulnerability(object):
     """Vulnerability information"""
 
-    def __init__(self, vuln_id, name, threat, **kwargs):
+    def __init__(self, vuln_id:str, name:str, threat:str, **kwargs):
         """
         :param vuln_id: OpenVAS plugin id
         :type vuln_id: basestring
@@ -489,13 +504,13 @@ class Vulnerability(object):
         :raises: TypeError, ValueError
         """
         # Get info
-        cves = kwargs.get("cves", list()) or list()
-        cvss = kwargs.get("cvss", -1.0) or -1.0
-        level = kwargs.get("level", "None") or "None"
-        tags = kwargs.get("tags", dict()) or dict()
-        references = kwargs.get("references", "Uknown") or "Unknown"
-        family = kwargs.get("family", "Unknown") or "Unknown"
-        result = kwargs.get("description", "Unknown") or "Unknown"
+        cves: list[str] = kwargs.get("cves", list()) or list()
+        cvss: float = kwargs.get("cvss", -1.0) or -1.0
+        level: str = kwargs.get("level", "None") or "None"
+        tags: dict = kwargs.get("tags", dict()) or dict()
+        references: str = kwargs.get("references", "Unknown") or "Unknown"
+        family: str = kwargs.get("family", "Unknown") or "Unknown"
+        result: str = kwargs.get("description", "Unknown") or "Unknown"
 
         if not isinstance(vuln_id, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(vuln_id)))
@@ -522,32 +537,29 @@ class Vulnerability(object):
             raise TypeError("Expected dict, got '{}' instead".format(type(tags)))
         if not isinstance(references, str):
             raise TypeError("Expected string, got '{}' instead".format(type(references)))
-        else:
-            for x in references:
-                if not isinstance(x, str):
-                    raise TypeError("Expected basestring, got '{}' instead".format(type(x)))
-
+        
+        
         self.vuln_id = vuln_id
         self.name = name
         self.cves = cves
         self.cvss = float(cvss)
         self.level = level
-        self.description = tags.get('summary', '')
-        self.detect = tags.get('vuldetect', '')
-        self.insight = tags.get('insight', '')
-        self.impact = tags.get('impact', '')
-        self.affected = tags.get('affected', '')
-        self.solution = tags.get('solution', '')
-        self.solution_type = tags.get('solution_type', '')
+        self.description:str = tags.get('summary', '')
+        self.detect:str = tags.get('vuldetect', '')
+        self.insight:str = tags.get('insight', '')
+        self.version:str = kwargs.get("version") or ''
+        self.impact:str = tags.get('impact', '')
+        self.affected:str = tags.get('affected', '')
+        self.solution:str = tags.get('solution', '')
+        self.solution_type:str = tags.get('solution_type', '')
         self.references = references
         self.threat = threat
         self.family = family
         self.result = result
-
         # Hosts
-        self.hosts = []
+        self.hosts:list[tuple[Host, Port]] = []
 
-    def add_vuln_host(self, host, port):
+    def add_vuln_host(self, host:Host, port:Port):
         """
         Add a host and a port associated to this vulnerability
 
@@ -568,7 +580,7 @@ class Vulnerability(object):
         if (host, port) not in self.hosts:
             self.hosts.append((host, port))
 
-    def __eq__(self, other):
+    def __eq__(self, other:'Vulnerability'):
         if not isinstance(other, Vulnerability):
             raise TypeError("Expected Vulnerability, got '{}' instead".format(type(other)))
 
@@ -580,6 +592,7 @@ class Vulnerability(object):
                 other.level != self.level or
                 other.description != self.description or
                 other.detect != self.detect or
+                other.version != self.version or
                 other.insight != self.insight or
                 other.impact != self.impact or
                 other.affected != self.affected or
@@ -588,8 +601,8 @@ class Vulnerability(object):
                 other.references != self.references or
                 other.threat != self.threat or
                 other.family != self.family or
-                other.result != self.result
-        ):
+                other.result != self.result 
+            ):
             return False
 
         for host, port in self.hosts:
@@ -660,3 +673,4 @@ class ResultTree(dict):
 
 
     
+

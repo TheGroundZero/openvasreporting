@@ -1,41 +1,19 @@
 Changelog
 =========
 
-1.5.0  - New Features:
+1.6.0  - New Features:
 
-       - Included option (--config-file) to define a .yaml file with all options but input and output filenames.
-         if this option is used all other options are ignored. any options not present in this file will be set to default
-
-       - Included option (--report-type) to define the type of report and created two new types of reports:
-         - a report summarizing the hosts with the highest number of vulnerabilities and sum of all its cvss severities and including a tab for each host listing each vulnerability
-         - a csv report ordered by host with all vulnerabilities (same fields as the by vulnerability type)
-           (I don't believe it's worth creating a .docx version of this report, so I'm not creating it)
-
-       - Included option (--network-exclude) to define a file with a list of ips or ipcidrs or range of ips (one by line) that will be excluded from the report
-
-       - Included option (--network-include) to define a file with a list of ips or ipcidrs or range of ips (one by line) that will be included in the report
-
-       - Included option (--regex-include) to define a file with a list of regex expressions to include in the report
-         the regex expressions will be matched against the name of the vulnerability
-
-       - Included option (--regex-exclude) to define a file with a list of regex expressions to exclude in the report
-         the regex expressions will be matched against the name of the vulnerability
-
-       - Included option (--cve-include) to define a file with a list of CVE numbers to include in the report
-
-       - Included option (--cve-exclude) to define a file with a list of CVE numbers to exclude from the report
+       - Add Vulnerability version to report
 
        -Fixes:
 
-       - Major code refactor to include the new reports and the new options
+       - Refactor code to help future developpement
 
-       - Fix module packaging and shell script executions now run ok (import 'main' in top source __init__.py so the egg may be found) 
+       - Class, function and variable are now typed
 
-       - Converted module packaging to python3.6+ packaging using setup.cfg e pyproject.toml
+       - Remove useless part of the script that where not used
 
-       - Removed package top dir setup.py and requirements.txt files that are not used anymore
-
-       - Updated README.md to reflect those changes
+1.5.0  - Added args options to personnalize IP and CVE to keep/ignore
 
 1.4.2  - Fixed "ValueError: Unknown format code 'f' for object of type 'str'"
 

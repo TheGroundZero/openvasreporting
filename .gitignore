@@ -1,6 +1,16 @@
 tests/
 .idea/
+
+# Output File
 *.xlsx
+*.xml
+*.docx
+
+# Vscode settings
+.vscode/
+
+# Mac cache
+*.DS_Store
 
 # Code coverage
 .coveragerc
