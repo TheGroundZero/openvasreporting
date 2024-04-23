@@ -30,7 +30,7 @@ dolog = False
 class Port(object):
     """Port information"""
 
-    def __init__(self, number, protocol="tcp", result=""):
+    def __init__(self, number:int, protocol:str="tcp", result:str=""):
         """
         :param number: port number
         :type number: int
@@ -61,7 +61,7 @@ class Port(object):
 
     # Modified to include result in structure
     @staticmethod
-    def string2port(info,result):
+    def string2port(info:str, result:str):
         """
         Extract port number, protocol and description from an string.
         return a port class with seperate port, protocol and result
@@ -116,7 +116,7 @@ class Port(object):
 
         return Port(number, protocol, result)
 
-    def __eq__(self, other):
+    def __eq__(self, other:'Port'):
         return (
                 isinstance(other, Port) and
                 other.number == self.number and
@@ -459,7 +459,7 @@ class Host(object):
     def nv_total(self):
         return self.nv['critical'] + self.nv['high'] + self.nv['medium'] + self.nv['low']
                    
-    def __eq__(self, other):
+    def __eq__(self, other:'Host'):
         return (
                 isinstance(other, Host) and
                 other.ip == self.ip and
@@ -469,7 +469,7 @@ class Host(object):
 class Vulnerability(object):
     """Vulnerability information"""
 
-    def __init__(self, vuln_id:str, name:str, threat, **kwargs):
+    def __init__(self, vuln_id:str, name:str, threat:str, **kwargs):
         """
         :param vuln_id: OpenVAS plugin id
         :type vuln_id: basestring
@@ -504,13 +504,13 @@ class Vulnerability(object):
         :raises: TypeError, ValueError
         """
         # Get info
-        cves:list[str] = kwargs.get("cves", list()) or list()
-        cvss:float = kwargs.get("cvss", -1.0) or -1.0
-        level:str = kwargs.get("level", "None") or "None"
-        tags:dict = kwargs.get("tags", dict()) or dict()
-        references:str = kwargs.get("references", "Unknown") or "Unknown"
-        family:str = kwargs.get("family", "Unknown") or "Unknown"
-        result:str = kwargs.get("description", "Unknown") or "Unknown"
+        cves: list[str] = kwargs.get("cves", list()) or list()
+        cvss: float = kwargs.get("cvss", -1.0) or -1.0
+        level: str = kwargs.get("level", "None") or "None"
+        tags: dict = kwargs.get("tags", dict()) or dict()
+        references: str = kwargs.get("references", "Unknown") or "Unknown"
+        family: str = kwargs.get("family", "Unknown") or "Unknown"
+        result: str = kwargs.get("description", "Unknown") or "Unknown"
 
         if not isinstance(vuln_id, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(vuln_id)))
@@ -580,7 +580,7 @@ class Vulnerability(object):
         if (host, port) not in self.hosts:
             self.hosts.append((host, port))
 
-    def __eq__(self, other):
+    def __eq__(self, other:'Vulnerability'):
         if not isinstance(other, Vulnerability):
             raise TypeError("Expected Vulnerability, got '{}' instead".format(type(other)))
 
@@ -601,7 +601,8 @@ class Vulnerability(object):
                 other.references != self.references or
                 other.threat != self.threat or
                 other.family != self.family or
-                other.result != self.result ):
+                other.result != self.result 
+            ):
             return False
 
         for host, port in self.hosts:
@@ -672,3 +673,4 @@ class ResultTree(dict):
 
 
     
+
