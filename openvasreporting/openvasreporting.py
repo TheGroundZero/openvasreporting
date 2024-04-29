@@ -5,6 +5,9 @@
 # Project URL: https://github.com/TheGroundZero/openvasreporting
 
 import argparse
+from typing import Union
+
+from openvasreporting.libs.parsed_data import ResultTree, Vulnerability
 
 from .libs.config import Config, Config_YAML
 from .libs.parser import parsers
@@ -62,6 +65,9 @@ the regex expressions will be matched against the name of the vulnerability\n"""
     parser.add_argument("-E", "--cve-exclude", dest="cve_excluded",
                         help="Path to a file containing a list of cve numbers to exclude from the report\n",
                         required=False, default=None)
+    parser.add_argument("-D", "--danger-exclude", dest="danger_excluded",
+                        help="List of letter of threat to exclude\n",
+                        required=False, default="")
     args = parser.parse_args()
 
     if not args.config_file is None:
@@ -78,12 +84,13 @@ the regex expressions will be matched against the name of the vulnerability\n"""
                         args.regex_included,
                         args.regex_excluded,
                         args.cve_included,
-                        args.cve_excluded)
+                        args.cve_excluded,
+                        args.danger_excluded)
 
     convert(config)
 
 
-def convert(config):
+def convert(config:Config):
     """
     Convert the OpenVAS XML to requested format
 
@@ -98,8 +105,35 @@ def convert(config):
     if config.report_type + '-' + config.format not in implemented_exporters().keys():
         raise NotImplementedError("The report by '{}' in format '{}' is not implemented yet.".format(
                                   config.report_type, config.format))
-        
-    openvas_info = parsers()[config.report_type](config)
+    
+    threat_dict = Config.levels()
+    config_allowed = list(threat_dict.values())
 
-    implemented_exporters()[config.report_type + '-' + config.format](openvas_info, config.template, config.output_file)
+    # Added a filtrer to not raise an error if a wrong threat type is detected
+    for threat in config.threat_excluded:
+        if td := threat_dict.get(threat, None):
+            config_allowed.remove(td)
+
+    config.threat_included = config_allowed
+        
+    tmp_openvas_info:Union[list[Vulnerability], ResultTree] = parsers()[config.report_type](config)
+    
+    # --- Filter All Vulns here to avoid having to do it 3 times --- #
+
+    if isinstance(tmp_openvas_info, ResultTree):
+        ...
+
+    else:
+        ...
+        
+
+        # Remove excluded vuln
+        # openvas_info = list(filter(lambda x: Config.cvss_level(x.cvss) in config_allowed, tmp_openvas_info))
+
+    openvas_info = tmp_openvas_info
+    
+    if len(openvas_info) == 0:
+        raise ValueError(f"No vulnerability was found with the following parameters {config.threat_excluded =}")
+    
+    implemented_exporters()[config.report_type + '-' + config.format](openvas_info, threat_type_list=config_allowed, template=config.template, output_file=config.output_file)
 

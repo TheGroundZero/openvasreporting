@@ -7,7 +7,7 @@
 from .openvasreporting import main
 
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
-__maintainer__ = 'Eduardo Ferreira (@dudacgf)'
+__maintainer__ = 'LaCapitainerie'
 
 if __name__ == '__main__':
     if __package__ is None:

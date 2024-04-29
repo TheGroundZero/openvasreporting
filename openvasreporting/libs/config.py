@@ -14,9 +14,10 @@ import yaml
 from yaml.loader import SafeLoader
 
 class Config(object):
-    def __init__(self, input_files, output_file="openvas_report", min_level="n", format="xlsx",
-                 report_type="host", template=None, networks_included=None, networks_excluded=None, 
-                 regex_included=None, regex_excluded=None, cve_included=None, cve_excluded=None):
+    def __init__(self, input_files, output_file:str="openvas_report", min_level:str="n", format:str="xlsx",
+                 report_type:str="host", template=None, networks_included=None, networks_excluded=None, 
+                 regex_included=None, regex_excluded=None, cve_included=None, cve_excluded=None,
+                 threat_excluded=""):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -48,6 +49,13 @@ class Config(object):
         :param regex_included: path to file with a list of regex expressions 
              to be included when matched against a vulnerability description 
 
+        :param threat_included: list of threat to include (1st letter of each)
+        :type threat_included: str
+
+        :param threat_excluded: list of threat to exclude (1st letter of each)
+        :type threat_excluded: str
+
+        
         :raises: TypeError, ValueError
         """
         if not isinstance(input_files, list):
@@ -79,6 +87,8 @@ class Config(object):
             raise TypeError("Expected str, got '{}' instead".format(type(cve_excluded)))
         if cve_included is not None and not isinstance(cve_included, str):
             raise TypeError("Expected str, got '{}' instead".format(type(cve_included)))
+        if threat_excluded is not None and not isinstance(threat_excluded, str):
+            raise TypeError("Expected str, got '{}' instead".format(type(threat_excluded)))
 
         if min_level.lower() in Config.levels().keys():
             min_level = Config.levels()[min_level.lower()]
@@ -146,6 +156,10 @@ class Config(object):
                self.cve_excluded = f.read().splitlines()
         else:
             self.cve_excluded = None
+
+        self.threat_excluded = [*threat_excluded]
+        self.threat_included = list(self.levels().values())
+        
 
     @staticmethod
     def colors():
@@ -217,14 +231,14 @@ class Config(object):
                 try:
                     ip_range = netaddr.IPRange(_start_ip, _end_ip)
                     outlines.append(ip_range)
-                except AddrFormatError:
-                    raise AddrFormatError("Expected valid ip range, got '{}'-'{}' instead".format(_start_ip, _end_ip))
+                except netaddr.AddrFormatError:
+                    raise netaddr.AddrFormatError("Expected valid ip range, got '{}'-'{}' instead".format(_start_ip, _end_ip))
             else:            # ip or network cdir?
                 try:
                     network = netaddr.IPNetwork(ip)
                     outlines.append(network)
-                except AddrFormatError:
-                    raise AddrFormatError("Expected valid ip address or network cidr, got '{}' instead.".format(ip))
+                except netaddr.AddrFormatError:
+                    raise netaddr.AddrFormatError("Expected valid ip address or network cidr, got '{}' instead.".format(ip))
 
         return outlines
 
@@ -242,7 +256,7 @@ class Config(object):
         return outlines
 
 class Config_YAML(Config):
-    def __init__(self, input_files, config_file, output_file="openvas_report"):
+    def __init__(self, input_files:list[str], config_file:str, output_file:str="openvas_report"):
         """
         :param input_files: input file path
         :type input_files: list(str)
@@ -269,7 +283,7 @@ class Config_YAML(Config):
         if not isinstance(output_file, str):
             raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
         if not isinstance(config_file, str):
-            raise TypeError("Expected str, got '{}' instead".format(type(min_level)))
+            raise TypeError("Expected str, got '{}' instead".format(type(config_file)))
 
         ifiles = []
         for file in input_files:
@@ -281,7 +295,7 @@ class Config_YAML(Config):
             with open(config_file, 'r') as f:
                 yamldict = yaml.load(f, Loader=SafeLoader)
         except FileNotFoundError:
-            raise FileNotFoundError("Could Not find '{}'.".format(config_file));
+            raise FileNotFoundError("Could Not find '{}'.".format(config_file))
         
         # set options flags from yml or defaults
         if 'level' in yamldict:
@@ -290,7 +304,7 @@ class Config_YAML(Config):
                                   must be one of: critical, high, medium, low, none")
             self.min_level = yamldict['level']
         else:
-            self.min_level = 'none';
+            self.min_level = 'none'
             
         if 'template' in yamldict:
             self.template = yamldict['template']

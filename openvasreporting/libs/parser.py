@@ -29,7 +29,7 @@ def parsers():
         """
         Enum-like instance containing references to correct parser function
     
-        > parsers()[key](param[s])
+        > parsers()[key] (param[s])
     
         :return: Pointer to parser function
         """
@@ -89,20 +89,19 @@ def openvas_parser_by_vuln(config: Config):
                 # added results to port function as will ne unique per port on each host.
                 port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result)
             except ValueError:
-                port = Port("", "", "")
+                port = Port(0, "", "")
 
-            try:
-                vuln_store = vulnerabilities[parsed_vuln.vuln_id]
-            except KeyError:
-                vuln_store = Vulnerability(parsed_vuln.vuln_id,
-                                           name=parsed_vuln.vuln_name,
-                                           threat=parsed_vuln.vuln_threat,
-                                           tags=parsed_vuln.vuln_tags,
-                                           cvss=parsed_vuln.vuln_cvss,
-                                           cves=parsed_vuln.vuln_cves,
-                                           references=parsed_vuln.vuln_references,
-                                           family=parsed_vuln.vuln_family,
-                                           level=parsed_vuln.vuln_level)
+            vuln_store = Vulnerability(
+                parsed_vuln.vuln_id,
+                name=parsed_vuln.vuln_name,
+                threat=parsed_vuln.vuln_threat,
+                tags=parsed_vuln.vuln_tags,
+                cvss=parsed_vuln.vuln_cvss,
+                cves=parsed_vuln.vuln_cves,
+                references=parsed_vuln.vuln_references,
+                family=parsed_vuln.vuln_family,
+                level=parsed_vuln.vuln_level
+            )
 
             vuln_store.add_vuln_host(host, port)
             vulnerabilities[parsed_vuln.vuln_id] = vuln_store
@@ -147,9 +146,13 @@ def openvas_parser_by_host(config: Config):
         for vuln in root.findall(".//results/result"):
 
             parsed_vuln = ParseVulnerability.check_and_parse_result(vuln, config)
-
             if parsed_vuln is None:
                 continue
+
+            if Config.cvss_level(parsed_vuln.vuln_cvss) not in config.threat_included:
+                continue
+            
+            print(parsed_vuln.vuln_cvss)
 
             resulttree.addresult(parsed_vuln)
 

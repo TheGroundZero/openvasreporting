@@ -447,7 +447,7 @@ class Host(object):
             # added results to port function as will ne unique per port on each host.
             port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result)
         except ValueError:
-            port = Port("", "", "")
+            port = Port(0, "", "")
         v.add_vuln_host(self, port)
         self.vuln_list.append(v)
         self.num_vulns += 1
@@ -457,7 +457,7 @@ class Host(object):
             self.higher_cvss = v.cvss
     
     def nv_total(self):
-        return self.nv['critical'] + self.nv['high'] + self.nv['medium'] + self.nv['low']
+        return sum(self.nv.values())
                    
     def __eq__(self, other:'Host'):
         return (
@@ -643,6 +643,7 @@ class ResultTree(dict):
         temp_dict = {} 
         for key in self:
             temp_dict[key] = (self[key].higher_cvss, self[key].sum_cvss)
+            
         s = list({key: v1 for key, v1 in sorted(temp_dict.items(), key=lambda x: (x[1], x[0]), reverse = True)}.keys())
         return s
 

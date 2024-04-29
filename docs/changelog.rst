@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.0  - New Features:
+1.7.0  - New Features:
 
        - Add Vulnerability version to report
 

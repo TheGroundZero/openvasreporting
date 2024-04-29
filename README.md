@@ -104,6 +104,8 @@ This currently has some issues (see #4)
 |             |                   | to include from name |          |                                            |
 | -E          | --cve-exclude     | file with CVEs to    | No       | None                                       |
 |             |                   | to exclude from name |          |                                            |
+| -D          | --danger-exclude  | First letter of      | No       | None                                       |
+|             |                   | threats to exclude   |          |                                            |
 
 ## Filtering options
 

@@ -35,5 +35,5 @@
 #
 
 __author__ = 'TheGroundZero (https://github.com/TheGroundZero)'
-__maintainer__ = 'Eduardo Ferreira (@dudacgf)'
+__maintainer__ = 'LaCapitainerie'
 __package__ = str("openvasreporting")

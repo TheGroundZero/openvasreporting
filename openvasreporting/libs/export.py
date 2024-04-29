@@ -79,12 +79,19 @@ def _get_collections(vuln_info:list[Vulnerability]) -> tuple[list[Vulnerability]
     return vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family
 
 
-def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_report.xlsx'):
+def export_to_excel_by_vuln(vuln_info:list[Vulnerability], threat_type_list:list[str], template=None, output_file:str='openvas_report.xlsx'):
     """
     Export vulnerabilities info in an Excel file.
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
+
     :param template: Not supported in xlsx-output
     :type template: NoneType
 
@@ -102,6 +109,14 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
         for x in vuln_info:
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+            
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -191,16 +206,18 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
     ws_sum.write("D3", "Hosts affected", format_table_titles)
     ws_sum.write("E3", "Discovered", format_table_titles)
 
-    for i, level in enumerate(Config.levels().values(), 4):
+    threat_type_number = len(threat_type_list)
+    end_table = 3+threat_type_number
+    for i, level in enumerate(threat_type_list, 4):
         ws_sum.write("B{}".format(i), level.capitalize(), format_sheet_title_content)
         ws_sum.write("C{}".format(i), vuln_levels[level], format_align_border)
         ws_sum.write("D{}".format(i), vuln_host_by_level[level], format_align_border)
         ws_sum.write("E{}".format(i), vuln_levels[level] * vuln_host_by_level[level], format_align_border)
 
-    ws_sum.write("B9", "Total", format_table_titles)
-    ws_sum.write_formula("C9", "=SUM($C$4:$C$8)", format_table_titles)
-    ws_sum.write_formula("D9", "=SUM($D$4:$D$8)", format_table_titles)
-    ws_sum.write_formula("E9", "=SUM($E$4:$E$8)", format_table_titles)
+    ws_sum.write(f"B{end_table+1}", "Total", format_table_titles)
+    ws_sum.write_formula(f"C{end_table+1}", f"=SUM($C$4:$C${end_table})", format_table_titles)
+    ws_sum.write_formula(f"D{end_table+1}", f"=SUM($D$4:$D${end_table})", format_table_titles)
+    ws_sum.write_formula(f"E{end_table+1}", f"=SUM($E$4:$E${end_table})", format_table_titles)
 
     # --------------------
     # CHART
@@ -208,15 +225,11 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
     chart_vulns_summary = workbook.add_chart({'type': 'pie'})
     chart_vulns_summary.add_series({ # type: ignore
         'name': 'vulnerability summary by affected hosts',
-        'categories': '={}!B4:B8'.format(sheet_name),
-        'values': '={}!D4:D8'.format(sheet_name),
+        'categories': '={}!B4:B{}'.format(sheet_name, end_table),
+        'values': '={}!D4:D{}'.format(sheet_name, end_table),
         'data_labels': {'value': True, 'position': 'outside_end', 'leader_lines': True, 'font': {'name': 'Tahoma'}},
         'points': [
-            {'fill': {'color': Config.colors()['critical']}},
-            {'fill': {'color': Config.colors()['high']}},
-            {'fill': {'color': Config.colors()['medium']}},
-            {'fill': {'color': Config.colors()['low']}},
-            {'fill': {'color': Config.colors()['none']}},
+            {'fill': {'color': Config.colors()[each]}} for each in threat_type_list
         ],
     })
     chart_vulns_summary.set_title({'name': 'Vulnerability summary', 'overlay': False, 'name_font': {'name': 'Tahoma'}}) # type: ignore
@@ -390,12 +403,15 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
     workbook.close()
 
 
-def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_file:str='openvas_report.docx'):
+def export_to_word_by_vuln(vuln_info:list[Vulnerability], threat_type_list:list[str], template=None, output_file:str='openvas_report.docx'):
     """
     Export vulnerabilities info in a Word file.
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
 
     :param output_file: Filename of the Excel file
     :type output_file: str
@@ -423,6 +439,14 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
         for x in vuln_info:
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+            
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -513,7 +537,7 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
     hdr_cells[2].paragraphs[0].add_run('Affected hosts').bold = True
 
     # Provide data to table and charts
-    for level in Config.levels().values():
+    for level in threat_type_list:
         row_cells = table_summary.add_row().cells
         row_cells[0].text = level.capitalize()
         row_cells[1].text = str(vuln_levels[level])
@@ -708,12 +732,15 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
     document.save(output_file)
 
 
-def export_to_csv_by_vuln(vuln_info, template=None, output_file:str='openvas_report.csv'):
+def export_to_csv_by_vuln(vuln_info:list[Vulnerability], threat_type_list:list[str], template=None, output_file:str='openvas_report.csv'):
     """
     Export vulnerabilities info in a Comma Separated Values (csv) file
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
 
     :param template: Not supported in csv-output
     :type template: NoneType
@@ -732,6 +759,14 @@ def export_to_csv_by_vuln(vuln_info, template=None, output_file:str='openvas_rep
         for x in vuln_info:
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+            
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -775,12 +810,16 @@ def export_to_csv_by_vuln(vuln_info, template=None, output_file:str='openvas_rep
                 writer.writerow(rowdata)
 
 
-def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:str='openvas_report.xlsx'):
+def export_to_excel_by_host(resulttree: ResultTree, threat_type_list:list[str], template=None, output_file:str='openvas_report.xlsx'):
     """
     Export vulnerabilities info in an Excel file.
 
     :param resulttree: Vulnerability list info
     :type resulttree: resulttree
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
+
     :param template: Not supported in xlsx-output
     :type template: NoneType
 
@@ -798,6 +837,14 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
         for key in resulttree.keys():
             if not isinstance(resulttree[key], Host):
                 raise TypeError("Expected Host, got '{}' instead".format(type(resulttree[key])))
+            
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -886,14 +933,16 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
     ws_sum.set_column("A:A", 3, format_align_center)
     ws_sum.set_column("B:B", 8, format_align_left)
     ws_sum.set_column("C:C", 30, format_align_left)
-    ws_sum.set_column("D:D", 15, format_align_right) # critical
-    ws_sum.set_column("E:E", 8, format_align_right) # high
-    ws_sum.set_column("F:F", 8, format_align_right) # medium
-    ws_sum.set_column("G:G", 8, format_align_right) # low
-    ws_sum.set_column("H:H", 8, format_align_right) # none
-    ws_sum.set_column("I:I", 8, format_align_right) # total
-    ws_sum.set_column("J:J", 8, format_align_right) # severity
-    ws_sum.set_column("K:K", 7, format_align_center)
+    ws_sum.set_column("D:D", 15, format_align_right)
+    for pos, _ in enumerate(threat_type_list, 69):
+        column = chr(pos)
+        ws_sum.set_column("{}:{}".format(column, column), 8, format_align_right)
+
+    threat_len_end = 69 + len(threat_type_list)
+    ws_sum.set_column("{}:{}".format(chr(threat_len_end), chr(threat_len_end)), 8, format_align_right) # total
+    ws_sum.set_column("{}:{}".format(chr(threat_len_end + 1), chr(threat_len_end + 1)), 7, format_align_center) # severity
+
+    print(threat_type_list)
 
     # ---------------------
     # MAX 10 HOSTS 
@@ -906,16 +955,17 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
     # --------------------------
     # HOST SUM SEVERITY SUMMARY
     # --------------------------
-    ws_sum.merge_range("B2:J2", "Hosts Ranking", format_sheet_title_content) # type: ignore
+    ws_sum.merge_range("B2:{}2".format(chr(threat_len_end + 1)), "Hosts Ranking", format_sheet_title_content) # type: ignore
     ws_sum.write("B3", "#", format_table_titles)
     ws_sum.write("C3", "Hostname", format_table_titles)
     ws_sum.write("D3", "IP", format_table_titles)
-    ws_sum.write("E3", "critical", format_table_titles)
-    ws_sum.write("F3", "high", format_table_titles)
-    ws_sum.write("G3", "medium", format_table_titles)
-    ws_sum.write("H3", "low", format_table_titles)
-    ws_sum.write("I3", "total", format_table_titles)
-    ws_sum.write("J3", "severity", format_table_titles)
+
+    for pos, threat in enumerate(threat_type_list, 69):
+        column = chr(pos)
+        ws_sum.write("{}3".format(column), threat, format_table_titles)
+
+    ws_sum.write("{}3".format(chr(threat_len_end)), "total", format_table_titles) # total
+    ws_sum.write("{}3".format(chr(threat_len_end + 1)), "severity", format_table_titles) # severity
     
     temp_resulttree = resulttree.sorted_keys_by_rank()
     
@@ -923,12 +973,12 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
         ws_sum.write("B{}".format(i), i-3, format_table_left_item)
         ws_sum.write("C{}".format(i), resulttree[key].host_name, format_table_left_item)
         ws_sum.write("D{}".format(i), resulttree[key].ip, format_table_left_item)
-        ws_sum.write("E{}".format(i), resulttree[key].nv['critical'], format_align_border_right)
-        ws_sum.write("F{}".format(i), resulttree[key].nv['high'], format_align_border_right)
-        ws_sum.write("G{}".format(i), resulttree[key].nv['medium'], format_align_border_right)
-        ws_sum.write("H{}".format(i), resulttree[key].nv['low'], format_align_border_right)
-        ws_sum.write("I{}".format(i), resulttree[key].nv_total(), format_align_border_right)
-        ws_sum.write("J{}".format(i), resulttree[key].higher_cvss, 
+
+        for pos, threat in enumerate(threat_type_list, 69):
+            ws_sum.write("{}{}".format(chr(pos), i), resulttree[key].nv[threat], format_align_border_right)
+
+        ws_sum.write("{}{}".format(chr(threat_len_end), i), resulttree[key].nv_total(), format_align_border_right)
+        ws_sum.write("{}{}".format(chr(threat_len_end + 1), i), resulttree[key].higher_cvss, 
                      format_toc.get(tmp if (tmp := Config.cvss_level(resulttree[key].higher_cvss)) else ""))
 
     # --------------------
@@ -938,28 +988,16 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
 
     if not chart_sumcvss_summary:
         raise ValueError(chart_sumcvss_summary)
+    
+    for pos, threat in enumerate(threat_type_list, 69):
+        chart_sumcvss_summary.add_series({
+            'name': threat,
+            'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
+            'values': '={}!{}4:{}{}'.format(sheet_name, chr(pos), chr(pos), max_hosts + 3),
+            'fill': { 'width': 8, 'color': Config.colors()[threat]},
+            'border': { 'color': Config.colors()['blue']},
+        })
 
-    chart_sumcvss_summary.add_series({
-        'name': 'critical',
-        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
-        'values': '={}!E4:E{}'.format(sheet_name, max_hosts + 3),
-        'fill': { 'width': 8, 'color': Config.colors()['critical']},
-        'border': { 'color': Config.colors()['blue']},
-    })
-    chart_sumcvss_summary.add_series({
-        'name': 'high',
-        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
-        'values': '={}!F4:F{}'.format(sheet_name, max_hosts + 3),
-        'fill': { 'width': 8, 'color': Config.colors()['high']},
-        'border': { 'color': Config.colors()['blue']},
-    })
-    chart_sumcvss_summary.add_series({
-        'name': 'medium',
-        'categories': '={}!D4:D{}'.format(sheet_name, max_hosts + 3),
-        'values': '={}!G4:G{}'.format(sheet_name, max_hosts + 3),
-        'fill': { 'width': 8, 'color': Config.colors()['medium']},
-        'border': { 'color': Config.colors()['blue']},
-    })
 
     chart_sumcvss_summary.set_title({'name': 'Hosts by CVSS', 'overlay': False, 'font': {'name': 'Tahoma'}})
     chart_sumcvss_summary.set_size({'width': 750, 'height': 350})
@@ -978,28 +1016,30 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
     ws_toc.set_column("A:A", 3, format_align_center)
     ws_toc.set_column("B:B", 8, format_align_left)
     ws_toc.set_column("C:C", 30, format_align_left)
-    ws_toc.set_column("D:D", 15, format_align_right) # critical
-    ws_toc.set_column("E:E", 8, format_align_right) # high
-    ws_toc.set_column("F:F", 8, format_align_right) # medium
-    ws_toc.set_column("G:G", 8, format_align_right) # low
-    ws_toc.set_column("H:H", 8, format_align_right) # none
-    ws_toc.set_column("I:I", 8, format_align_right) # total
-    ws_toc.set_column("J:J", 8, format_align_right) # severity
-    ws_toc.set_column("K:K", 7, format_align_center)
+    ws_toc.set_column("D:D", 15, format_align_right)
+
+    for pos, _ in enumerate(threat_type_list, 69):
+        column = chr(pos)
+        ws_toc.set_column("{}:{}".format(column, column), 8, format_align_right)
+
+    threat_len_end = 69 + len(threat_type_list)
+    ws_toc.set_column("{}:{}".format(chr(threat_len_end), chr(threat_len_end)), 8, format_align_right) # total
+    ws_toc.set_column("{}:{}".format(chr(threat_len_end + 1), chr(threat_len_end + 1)), 7, format_align_center) # severity
 
     # --------------------------
     # HOST SUM SEVERITY SUMMARY
     # --------------------------
-    ws_toc.merge_range("B2:J2", "Hosts Ranking", format_sheet_title_content) # type: ignore
+    ws_toc.merge_range("B2:{}2".format(chr(threat_len_end + 1)), "Hosts Ranking", format_sheet_title_content) # type: ignore
     ws_toc.write("B3", "#", format_table_titles)
     ws_toc.write("C3", "Hostname", format_table_titles)
     ws_toc.write("D3", "IP", format_table_titles)
-    ws_toc.write("E3", "critical", format_table_titles)
-    ws_toc.write("F3", "high", format_table_titles)
-    ws_toc.write("G3", "medium", format_table_titles)
-    ws_toc.write("H3", "low", format_table_titles)
-    ws_toc.write("I3", "total", format_table_titles)
-    ws_toc.write("J3", "severity", format_table_titles)
+
+    for pos, threat in enumerate(threat_type_list, 69):
+        column = chr(pos)
+        ws_toc.write("{}3".format(column), threat, format_table_titles)
+
+    ws_toc.write("{}3".format(chr(threat_len_end)), "total", format_table_titles) # total
+    ws_toc.write("{}3".format(chr(threat_len_end + 1)), "severity", format_table_titles) # severity
     
     # ====================
     # HOST SHEETS
@@ -1020,15 +1060,16 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
         # TABLE OF CONTENTS
         # --------------------
         ws_toc.write("B{}".format(i + 3), "{:03X}".format(i), format_table_cells)
-        ws_toc.write_url("C{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells, 
+        ws_toc.write_url("C{}".format(i + 3), "internal:'{}'!A1".format(name), format_table_cells,
                          string=resulttree[key].host_name)
         ws_toc.write("D{}".format(i+3), resulttree[key].ip, format_align_border_left)
-        ws_toc.write("E{}".format(i+3), resulttree[key].nv['critical'], format_align_border_right)
-        ws_toc.write("F{}".format(i+3), resulttree[key].nv['high'], format_align_border_right)
-        ws_toc.write("G{}".format(i+3), resulttree[key].nv['medium'], format_align_border_right)
-        ws_toc.write("H{}".format(i+3), resulttree[key].nv['low'], format_align_border_right)
-        ws_toc.write("I{}".format(i+3), resulttree[key].nv_total(), format_align_border_right)
-        ws_toc.write("J{}".format(i+3), resulttree[key].higher_cvss, 
+
+        for pos, threat in enumerate(threat_type_list, 69):
+            column = chr(pos)
+            ws_toc.write("{}{}".format(column, i+3), resulttree[key].nv[threat], format_align_border_right)
+
+        ws_toc.write("{}{}".format(chr(threat_len_end), i+3), resulttree[key].nv_total(), format_align_border_right)
+        ws_toc.write("{}{}".format(chr(threat_len_end + 1), i+3), resulttree[key].higher_cvss, 
                      format_toc.get(tmp if (tmp := Config.cvss_level(resulttree[key].higher_cvss)) else ""))
         ws_toc.set_row(i + 3, __row_height(name, 150), None)
 
@@ -1081,12 +1122,15 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
     workbook.close()
 
 
-def export_to_csv_by_host(resulttree, template=None, output_file:str='openvas_report.csv'):
+def export_to_csv_by_host(resulttree: ResultTree, threat_type_list:list[str], template=None, output_file:str='openvas_report.csv'):
     """
     Export vulnerabilities info in a Comma Separated Values (csv) file
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
 
     :param template: Not supported in csv-output
     :type template: NoneType
@@ -1105,6 +1149,14 @@ def export_to_csv_by_host(resulttree, template=None, output_file:str='openvas_re
         for x in resulttree.values():
             if not isinstance(x, Host):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
@@ -1125,40 +1177,40 @@ def export_to_csv_by_host(resulttree, template=None, output_file:str='openvas_re
 
         for key in sortedresults:
             for vuln in resulttree[key].vuln_list:
-                rowdata = {
-                    'hostname': resulttree[key].host_name,
-                    'ip': resulttree[key].ip,
-                    'port': vuln.hosts[0][1].number,
-                    'protocol': vuln.hosts[0][1].protocol,
-                    'vulnerability': vuln.name,
-                    'cvss': vuln.cvss,
-                    'threat': vuln.level,
-                    'family': vuln.family,
-                    'description': vuln.description,
-                    'detection': vuln.detect,
-                    'version': vuln.version,
-                    'insight': vuln.insight,
-                    'impact': vuln.impact,
-                    'affected': vuln.affected,
-                    'solution': vuln.solution,
-                    'solution_type': vuln.solution_type,
-                    'vuln_id': vuln.vuln_id,
-                    'cve': ' - '.join(vuln.cves),
-                    'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
-                }
-                writer.writerow(rowdata)
+                if Config.cvss_level(vuln.cvss) in threat_type_list:
+                    rowdata = {
+                        'hostname': resulttree[key].host_name,
+                        'ip': resulttree[key].ip,
+                        'port': vuln.hosts[0][1].number,
+                        'protocol': vuln.hosts[0][1].protocol,
+                        'vulnerability': vuln.name,
+                        'cvss': vuln.cvss,
+                        'threat': vuln.level,
+                        'family': vuln.family,
+                        'description': vuln.description,
+                        'detection': vuln.detect,
+                        'version': vuln.version,
+                        'insight': vuln.insight,
+                        'impact': vuln.impact,
+                        'affected': vuln.affected,
+                        'solution': vuln.solution,
+                        'solution_type': vuln.solution_type,
+                        'vuln_id': vuln.vuln_id,
+                        'cve': ' - '.join(vuln.cves),
+                        'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
+                    }
+                    writer.writerow(rowdata)
 
 
-def export_summary_to_csv(
-        vuln_info,
-        template=None,
-        output_file='openvas_summary_report.csv'
-    ):
+def export_summary_to_csv(vuln_info:list[Vulnerability], threat_type_list:list[str], template=None, output_file:str='openvas_summary_report.csv'):
     """
     Export summary info in a Comma Separated Values (csv) file
 
     :param vuln_info: Vulnerability list info
     :type vuln_info: list(Vulnerability)
+
+    :param threat_type_list: Type of Threat present
+    :type threat_type_list: list(str)
 
     :param template: Not supported in csv-output
     :type template: NoneType
@@ -1177,11 +1229,20 @@ def export_summary_to_csv(
         for x in vuln_info:
             if not isinstance(x, Vulnerability):
                 raise TypeError("Expected Vulnerability, got '{}' instead".format(type(x)))
+    
+    if not isinstance(threat_type_list, list):
+        raise TypeError("Expected list, got '{}' instead".format(type(threat_type_list)))
+    else:
+        for x in threat_type_list:
+            if not isinstance(x, str):
+                raise TypeError("Expected str, got '{}' instead".format(type(x)))
+            
     if not isinstance(output_file, str):
         raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
     else:
         if not output_file:
             raise ValueError("output_file must have a valid name.")
+        
     if template is not None:
         raise NotImplementedError("Use of template is not supported in CSV-output.")
 
