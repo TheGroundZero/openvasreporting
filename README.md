@@ -152,4 +152,4 @@ Some of the ideas I still have for future functionality:
  - list vulnerabilities per host ==DONE==
  - filter by host (scope/exclude) as in OpenVAS2Report ==DONE==
  - select threat levels individually (e.g. none and low; but not med, high and crit) ==DONE==
- - import other formats (not only XML), e.g. CSV as suggested in [this issue](https://github.com/TheGroundZero/openvasreporting_server/issues/3)
+ - import other formats (not only XML), e.g. CSV as suggested in [this issue](https://github.com/TheGroundZero/openvasreporting_server/issues/3) ==DONE==
