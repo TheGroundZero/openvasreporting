@@ -7,6 +7,7 @@ Changelog
        - Add Option to choose threat level
 - Fixes:
        - Small bugfixes and code refactoring
+       - Added Unit tests
 
 1.6.0
 
