@@ -9,6 +9,7 @@ Changelog
   - Refactor code to help future developpement
   - Class, function and variable are now typed
   - Remove useless part of the script that where not used
+  - Bump minimum Python to version 3.12
 
 1.5.0
 

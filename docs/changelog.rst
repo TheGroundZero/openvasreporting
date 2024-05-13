@@ -1,17 +1,15 @@
 Changelog
 =========
 
-1.6.0  - New Features:
+1.6.0
+       - New Features:
+         - Add Vulnerability version to report
 
-       - Add Vulnerability version to report
-
-       -Fixes:
-
-       - Refactor code to help future developpement
-
-       - Class, function and variable are now typed
-
-       - Remove useless part of the script that where not used
+       - Fixes:
+         - Refactor code to help future developpement
+         - Class, function and variable are now typed
+         - Remove useless part of the script that where not used
+         - Bump minimum Python version to 3.12
 
 1.5.0  - Added args options to personnalize IP and CVE to keep/ignore
 
