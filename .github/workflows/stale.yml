@@ -30,4 +30,4 @@ jobs:
         close-issue-message: 'This issue has been stale for too long. It has been closed.'
         close-pr-message: 'This Pull Request has been stale for too long. It has been closed.'
         remove-stale-when-updated: true
-        exempt-issue-labels: bug, help-needed
+        exempt-issue-labels: bug, 'help wanted'
