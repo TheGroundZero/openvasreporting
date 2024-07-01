@@ -30,21 +30,3 @@ jobs:
           python -m build .
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
-
-
-
-jobs:
-  build:
-    name: Build project
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-@@
--19,9 +20,16 @@ jobs:
-        pip install build setuptools wheel twine
-        pip install -r requirements.txt
-    - name: Build and publish
-      run: |
-        python -m build .
-        twine upload --verbose dist/*
