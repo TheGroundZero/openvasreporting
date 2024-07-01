@@ -2,3 +2,61 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "openvasreporting"
+dependencies = [
+    "xlsxwriter>=1.0.0",
+    "python-docx>=0.8.7",
+    "matplotlib>=2.2.2",
+    "netaddr>=0.8.0"
+]
+requires-python = ">= 3.12"
+authors = [
+  {name = "TheGroundZero", email = "2406013+TheGroundZero@users.noreply.github.com"}
+]
+maintainers = [
+  {name = "BEduardo Ferreira (@dudacgf)"}
+]
+description = "A tool to convert OpenVAS XML into reports."
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+keywords = ["OpenVAS", "OpenVAS-reports", "Excel", "xlsxwriter", "xlsx", "reporting", "reports", "report"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Framework :: Sphinx",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Other Audience",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Topic :: Documentation :: Sphinx",
+    "Topic :: Internet :: Log Analysis",
+    "Topic :: Security"
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/TheGroundZero/openvasreporting"
+Documentation = "https://openvas-reporting.sequr.be"
+Issues = "https://github.com/TheGroundZero/openvasreporting/issues/"
+Changelog = "https://github.com/TheGroundZero/openvasreporting/blob/main/CHANGELOG"
+
+[project.scripts]
+openvasreporting = "openvasreporting:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+openvasreporting = ["src/openvas-template.docx"]
+
+[tool.setuptools.packages.find]
+include = ["openvasreporting", "openvasreporting.libs"]

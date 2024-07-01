@@ -20,7 +20,7 @@ jobs:
       
       - name: Build release distributions
         run: |
-          python -m pip install build setuptools
+          python -m pip install --upgrade pip build setuptools
           python -m build
 
       - name: Upload distributions
