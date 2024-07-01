@@ -5,11 +5,46 @@ on:
     types: [created]
 
 jobs:
-  pypi-publish:
-    name: upload release to PyPI
+  build:
+    name: Build and upload to PyPI
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+    defaults:
+      run:
+        shell: python
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build setuptools wheel twine
+          pip install -r requirements.txt
+      - name: Build and publish
+        run: |
+          python -m build .
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+
+
+
+jobs:
+  build:
+    name: Build project
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+@@
+-19,9 +20,16 @@ jobs:
+        pip install build setuptools wheel twine
+        pip install -r requirements.txt
+    - name: Build and publish
+      run: |
+        python -m build .
+        twine upload --verbose dist/*
