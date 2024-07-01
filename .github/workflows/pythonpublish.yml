@@ -5,7 +5,8 @@ on:
     types: [created]
 
 jobs:
-  deploy:
+  build:
+    name: Build project
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -19,9 +20,16 @@ jobs:
         pip install build setuptools wheel twine
         pip install -r requirements.txt
     - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USER }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
       run: |
         python -m build .
-        twine upload --verbose dist/*
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/OpenVAS-Reporting/
+    permissions:
+      id-token: write
+    steps:
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
