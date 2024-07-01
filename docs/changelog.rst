@@ -1,6 +1,8 @@
 Changelog
 =========
 
+1.6.1  - Fix PyPi upload
+
 1.6.0
        - New Features:
          - Add Vulnerability version to report

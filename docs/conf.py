@@ -27,7 +27,7 @@ author = 'TheGroundZero (@DezeStijn)'
 # The short X.Y version
 version = '1.6'
 # The full version, including alpha/beta/rc tags
-release = '1.6.0'
+release = '1.6.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -88,7 +88,7 @@ html_theme_options = {
     'touch_icon': 'img/OpenVASreporting.png',
     'logo_name': False,
     'github_user': 'TheGroundZero',
-    'github_repo': 'openvas_to_report',
+    'github_repo': 'openvasreporting',
     'github_button': True,
     'sidebar_collapse': False,
     'show_relbars': True,
