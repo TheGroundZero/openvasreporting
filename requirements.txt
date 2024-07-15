@@ -20,3 +20,4 @@ tomli>=1.2.2
 wheel>=0.37.0
 XlsxWriter>=3.0.2
 fonttools>=4.43.0 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned to avoid CVE-2024-5569
