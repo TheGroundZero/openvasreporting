@@ -1,6 +1,6 @@
 ## you don't need this file to build the package. but for development reasons...
 build>=0.7.0
-cycler>=0.11.0
+cycler>=0.12.1
 kiwisolver>=1.3
 defusedxml>=0.7.1
 matplotlib>=3.4.3
