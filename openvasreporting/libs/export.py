@@ -10,13 +10,26 @@ from collections import Counter
 from typing import Callable
 
 from .config import Config
+from .export_html import export_to_html
 from .parsed_data import ResultTree, Host, Vulnerability
 
-# DEBUG
-#import sys
-#import logging
-#logging.basicConfig(stream=sys.stderr, level=logging.WARNING,
-#                     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+INVALID_SHEET_CHARS = re.compile(r"[\[\]\\'\"&@#():*?/]")
+
+
+def _sheet_name(index: int, label: str) -> str:
+    """Excel-safe, unique worksheet name (max 31 chars, no []:*?/\\ characters)."""
+    label = INVALID_SHEET_CHARS.sub(".", label)
+    if len(label) > 26:
+        label = "{}..{}".format(label[:14], label[-10:])
+    return "{:03X} {}".format(index, label)
+
+
+def _ports_label(vuln: Vulnerability) -> str:
+    """'443/tcp, 8443/tcp' style label of every port recorded for a vulnerability."""
+    return ", ".join(
+        "{}/{}".format(port.number if port.number else "general", port.protocol)
+        if port.protocol in ("tcp", "udp", "icmp") or port.number else port.protocol
+        for _, port in vuln.hosts)
 
 
 def implemented_exporters() -> dict[str, Callable]:
@@ -35,7 +48,8 @@ def implemented_exporters() -> dict[str, Callable]:
         'vulnerability-csv': export_to_csv_by_vuln,
         'host-xlsx': export_to_excel_by_host,
         'host-csv': export_to_csv_by_host,
-        'summary-csv': export_summary_to_csv
+        'summary-csv': export_summary_to_csv,
+        'vulnerability-html': export_to_html,
     }
 
 def _get_collections(vuln_info:list[Vulnerability]) -> tuple[list[Vulnerability], Counter[str], Counter[str], Counter[str]]:
@@ -280,16 +294,9 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
     # VULN SHEETS
     # ====================
     for i, vuln in enumerate(vuln_info, 1):
-        name = re.sub(r"[\[\]\\\'\"&@#():*?/]", "", vuln.name)
-        if len(name) > 27:
-            name = "{}..{}".format(name[0:15], name[-10:])
-        name = "{:03X}_{}".format(i, name)
+        name = _sheet_name(i, vuln.name)
         ws_vuln = workbook.add_worksheet(name)
         ws_vuln.set_tab_color(Config.colors()[vuln.level.lower()])
-
-        vuln.version = ""
-        if(match := re.search(r'Installed version: ((\d|.)+)', vuln.hosts[0][1].result)):
-            vuln.version = match.group(1)
 
         # --------------------
         # TABLE OF CONTENTS
@@ -302,7 +309,7 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
                      format_table_cells)
         ws_vuln.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
                           string="<< TOC")
-        ws_toc.set_row(i + 3, __row_height(name, 150), None)
+        ws_toc.set_row(i + 2, __row_height(vuln.name, 70), None)
 
         # --------------------
         # VULN INFO
@@ -362,7 +369,7 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
 
         ws_vuln.write('B12', "References", format_table_titles)
         ws_vuln.merge_range("C12:G12", " {}".format(vuln.references), format_table_cells) # type: ignore
-        ws_vuln.set_row(10, __row_height(vuln.references, content_width), None)
+        ws_vuln.set_row(11, __row_height(vuln.references, content_width), None)
 
         ws_vuln.write('C14', "IP", format_table_titles)
         ws_vuln.write('D14', "Host name", format_table_titles)
@@ -379,15 +386,70 @@ def export_to_excel_by_vuln(vuln_info, template=None, output_file:str='openvas_r
             ws_vuln.write("C{}".format(j), host.ip)
             ws_vuln.write("D{}".format(j), host.host_name if host.host_name else "-")
 
-            if port:
-                ws_vuln.write("E{}".format(j), "" if port.number == 0 else port.number)
-                ws_vuln.write("F{}".format(j), port.protocol)
-                ws_vuln.write("G{}".format(j), port.result, format_table_cells)
-                ws_vuln.set_row(j, __row_height(port.result, content_width), None)
-            else:
-                ws_vuln.write("E{}".format(j), "No port info")
+            ws_vuln.write("E{}".format(j), "" if port.number == 0 else port.number)
+            ws_vuln.write("F{}".format(j), port.protocol)
+            ws_vuln.write("G{}".format(j), port.result, format_table_cells)
+            ws_vuln.set_row(j - 1, __row_height(port.result, content_width), None)
 
     workbook.close()
+
+
+def _level_chart_png(labels: list[str], vulns: list[int], hosts: list[int], colors: list[str]):
+    """Grouped bar chart (vulnerabilities / affected hosts per level) as an in-memory PNG.
+
+    Uses matplotlib's object API: no pyplot global state, no backend switch for library callers.
+    """
+    import io
+
+    import numpy as np
+    from matplotlib.figure import Figure
+
+    fig = Figure()
+    ax = fig.subplots()
+    pos = np.arange(len(labels))
+    width = 0.35
+    bars_vuln = ax.bar(pos - width / 2, vulns, width, align='center', label='Vulnerabilities',
+                       color=colors, edgecolor='black')
+    bars_aff = ax.bar(pos + width / 2, hosts, width, align='center', label='Affected hosts',
+                      color=colors, edgecolor='black', hatch='//')
+    ax.set_title('Vulnerability summary by risk level')
+    ax.set_xticks(pos)
+    ax.set_xticklabels(labels)
+    for side in ('left', 'right', 'top'):
+        ax.spines[side].set_visible(False)
+    ax.spines['bottom'].set_position('zero')
+    ax.tick_params(top=False, bottom=True, left=False, right=False, labelleft=False, labelbottom=True)
+    fig.subplots_adjust(left=0.0, right=1.0)
+    for bar in [*bars_vuln, *bars_aff]:
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3, str(int(bar.get_height())),
+                ha='center', color='black', fontsize=9)
+    ax.legend()
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    return buffer
+
+
+def _family_chart_png(vuln_by_family: Counter):
+    """Pie chart of vulnerabilities per family as an in-memory PNG, None when there is nothing to draw."""
+    import io
+
+    from matplotlib.figure import Figure
+
+    values = list(vuln_by_family.values())
+    if not values or sum(values) == 0:
+        return None
+    fig = Figure()
+    ax = fig.subplots()
+    _, _, autotexts = ax.pie(values, labels=list(vuln_by_family.keys()), autopct='')
+    ax.set_title('Vulnerability by family')
+    for txt, value in zip(autotexts, values, strict=True):
+        txt.set_text('{}'.format(value))
+    ax.axis('equal')
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png', bbox_inches='tight')  # bbox_inches keeps labels from being cut
+    buffer.seek(0)
+    return buffer
 
 
 def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_file:str='openvas_report.docx'):
@@ -406,10 +468,7 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
     :raises: TypeError
     """
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import tempfile
-    import os
+    from importlib.resources import as_file, files
 
     from docx import Document
     from docx.oxml.shared import qn, OxmlElement
@@ -431,21 +490,18 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
     if template is not None:
         if not isinstance(template, str):
             raise TypeError("Expected str, got '{}' instead".format(type(template)))
-    else:
-        # == HAMMER PROGRAMMING (beat it into submission) ==
-        # I had to use pkg_resources because I couldn't find this template any other way. 
-        import pkg_resources
-        template = pkg_resources.resource_filename('openvasreporting', 'src/openvas-template.docx')
-    
-    #mpl_logger = logging.getLogger('matplotlib')
-    #mpl_logger.setLevel(logging.NOTSET)
-    
+
+
     vuln_info, vuln_levels, vuln_host_by_level, vuln_by_family = _get_collections(vuln_info)
 
     # ====================
     # DOCUMENT PROPERTIES
     # ====================
-    document = Document(template)
+    if template is None:
+        with as_file(files('openvasreporting') / 'src' / 'openvas-template.docx') as default_template:
+            document = Document(str(default_template))
+    else:
+        document = Document(template)
 
     doc_prop = document.core_properties
     doc_prop.title = "OpenVAS Report"
@@ -526,71 +582,19 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
     # --------------------
     # CHART
     # --------------------
-    fd, path = tempfile.mkstemp(suffix='.png')
-
     par_chart = document.add_paragraph()
     run_chart = par_chart.add_run()
-
-    plt.figure()
-
-    pos = np.arange(len(labels_sum))
-    width = 0.35
-
-    bars_vuln = plt.bar(pos - width / 2, vuln_sum, width, align='center', label='Vulnerabilities',
-                        color=colors_sum, edgecolor='black')
-    bars_aff = plt.bar(pos + width / 2, aff_sum, width, align='center', label='Affected hosts',
-                       color=colors_sum, edgecolor='black', hatch='//')
-    plt.title('Vulnerability summary by risk level')
-    plt.subplot().set_xticks(pos)
-    plt.subplot().set_xticklabels(labels_sum)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['bottom'].set_position('zero')
-    plt.tick_params(top=False, bottom=True, left=False, right=False,
-                    labelleft=False, labelbottom=True)
-    plt.subplots_adjust(left=0.0, right=1.0)
-
-    def __label_bars(barcontainer):
-        for bar in barcontainer:
-            height = bar.get_height()
-            plt.gca().text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3, str(int(height)),
-                           ha='center', color='black', fontsize=9)
-
-    __label_bars(bars_vuln)
-    __label_bars(bars_aff)
-
-    plt.legend()
-
-    plt.savefig(path)
-
-    # plt.show()  # DEBUG
-
-    run_chart.add_picture(path, width=Cm(8.0))
-
-    plt.figure()
-
-    values = list(vuln_by_family.values())
-    _, _, autotexts = plt.pie(values, labels=vuln_by_family.keys(), autopct='') # type: ignore
-    plt.title('Vulnerability by family')
-    for i, txt in enumerate(autotexts):
-        txt.set_text('{}'.format(values[i]))
-    plt.axis('equal')
-
-    plt.savefig(path, bbox_inches='tight')  # bbox_inches fixes labels being cut, however only on save not on show
-
-    # plt.show()  # DEBUG
-
-    run_chart.add_picture(path, width=Cm(8.0))
-    os.close(fd)
-    os.remove(path)
+    run_chart.add_picture(_level_chart_png(labels_sum, vuln_sum, aff_sum, colors_sum), width=Cm(8.0))
+    family_chart = _family_chart_png(vuln_by_family)
+    if family_chart is not None:
+        run_chart.add_picture(family_chart, width=Cm(8.0))
 
     # ====================
     # VULN PAGES
     # ====================
     cur_level = ""
 
-    for i, vuln in enumerate(vuln_info, 1):
+    for vuln in vuln_info:
         # --------------------
         # GENERAL
         # --------------------
@@ -642,10 +646,6 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
 
         cvss = str(vuln.cvss) if vuln.cvss != -1.0 else "No CVSS"
 
-        vuln.version = ""
-        if(match := re.search(r'Installed version: ((\d|.)+)', vuln.hosts[0][1].result)):
-            vuln.version = match.group(1)
-
         txt_cells = table_vuln.columns[2].cells
         txt_cells[0].text = vuln.description
         txt_cells[1].text = vuln.impact
@@ -673,10 +673,6 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
 
         col_cells = table_hosts.columns[2].cells
         for col_cell in col_cells:
-            col_cell.width = Cm(3.2)
-
-        col_cells = table_hosts.columns[2].cells
-        for col_cell in col_cells:
             col_cell.width = Cm(1.6)
 
         col_cells = table_hosts.columns[3].cells
@@ -698,12 +694,9 @@ def export_to_word_by_vuln(vuln_info:list[Vulnerability], template:str, output_f
             cells = table_hosts.rows[j].cells
             cells[0].text = host.ip
             cells[1].text = host.host_name if host.host_name else "-"
-            if port and port is not None:
-                cells[2].text = "-" if port.number == 0 else str(port.number)
-                cells[3].text = port.protocol
-                cells[4].text = port.result
-            else:
-                cells[2].text = "No port info"
+            cells[2].text = "-" if port.number == 0 else str(port.number)
+            cells[3].text = port.protocol
+            cells[4].text = port.result
 
     document.save(output_file)
 
@@ -742,7 +735,7 @@ def export_to_csv_by_vuln(vuln_info, template=None, output_file:str='openvas_rep
 
     vuln_info, _, _, _ = _get_collections(vuln_info)
 
-    with open(output_file, 'w') as csvfile:
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['hostname', 'ip', 'port', 'protocol',
                       'vulnerability', 'cvss', 'threat', 'family',
                       'description', 'detection', 'insight', 'impact', 'affected', 'solution', 'solution_type',
@@ -770,7 +763,7 @@ def export_to_csv_by_vuln(vuln_info, template=None, output_file:str='openvas_rep
                     'solution_type': vuln.solution_type,
                     'vuln_id': vuln.vuln_id,
                     'cve': ' - '.join(vuln.cves),
-                    'references': ' - '.join(vuln.references)
+                    'references': vuln.references
                 }
                 writer.writerow(rowdata)
 
@@ -1010,7 +1003,7 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
         if len(resulttree[key].vuln_list) == 0:
             continue
 
-        name = "{:03X} - {}".format(i, resulttree[key].ip)
+        name = _sheet_name(i, resulttree[key].ip)
         ws_host = workbook.add_worksheet(name)
         ws_host.set_tab_color(Config.cvss_color(resulttree[key].higher_cvss))
         ws_host.write_url("A1", "internal:'{}'!A{}".format(ws_toc.get_name(), i + 3), format_align_center,
@@ -1030,7 +1023,7 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
         ws_toc.write("I{}".format(i+3), resulttree[key].nv_total(), format_align_border_right)
         ws_toc.write("J{}".format(i+3), resulttree[key].higher_cvss, 
                      format_toc.get(tmp if (tmp := Config.cvss_level(resulttree[key].higher_cvss)) else ""))
-        ws_toc.set_row(i + 3, __row_height(name, 150), None)
+        ws_toc.set_row(i + 2, __row_height(name, 150), None)
 
         # --------------------
         # HOST VULN LIST
@@ -1065,12 +1058,7 @@ def export_to_excel_by_host(resulttree: ResultTree, template=None, output_file:s
             ws_host.write('C{}'.format(j), vuln.name, format_align_border_left)
             ws_host.write('D{}'.format(j), vuln.version, format_align_border_left)
             ws_host.write('E{}'.format(j), vuln.vuln_id, format_align_border_left)
-            port = vuln.hosts[0][1]
-            if port is None or port.number == 0:
-                portnum = 'general' 
-            else: 
-                portnum = str(port.number)
-            ws_host.write('F{}'.format(j), portnum + '/' + port.protocol, format_align_border_left)
+            ws_host.write('F{}'.format(j), _ports_label(vuln), format_align_border_left)
             ws_host.write('G{}'.format(j), vuln.family, format_align_border_left)
             ws_host.write('H{}'.format(j), vuln.description.replace('\n', ' '), format_align_border_left)
             ws_host.write('I{}'.format(j), vuln.solution.replace('\n', ' '), format_align_border_left)
@@ -1115,7 +1103,7 @@ def export_to_csv_by_host(resulttree, template=None, output_file:str='openvas_re
   
     sortedresults = resulttree.sortedbysumcvss()
 
-    with open(output_file, 'w') as csvfile:
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['hostname', 'ip', 'port', 'protocol',
                       'vulnerability', 'cvss', 'threat', 'family',
                       'description', 'detection', 'version', 'insight', 'impact', 'affected', 'solution', 'solution_type',
@@ -1125,28 +1113,29 @@ def export_to_csv_by_host(resulttree, template=None, output_file:str='openvas_re
 
         for key in sortedresults:
             for vuln in resulttree[key].vuln_list:
-                rowdata = {
-                    'hostname': resulttree[key].host_name,
-                    'ip': resulttree[key].ip,
-                    'port': vuln.hosts[0][1].number,
-                    'protocol': vuln.hosts[0][1].protocol,
-                    'vulnerability': vuln.name,
-                    'cvss': vuln.cvss,
-                    'threat': vuln.level,
-                    'family': vuln.family,
-                    'description': vuln.description,
-                    'detection': vuln.detect,
-                    'version': vuln.version,
-                    'insight': vuln.insight,
-                    'impact': vuln.impact,
-                    'affected': vuln.affected,
-                    'solution': vuln.solution,
-                    'solution_type': vuln.solution_type,
-                    'vuln_id': vuln.vuln_id,
-                    'cve': ' - '.join(vuln.cves),
-                    'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
-                }
-                writer.writerow(rowdata)
+                for _, port in vuln.hosts:
+                    rowdata = {
+                        'hostname': resulttree[key].host_name,
+                        'ip': resulttree[key].ip,
+                        'port': port.number,
+                        'protocol': port.protocol,
+                        'vulnerability': vuln.name,
+                        'cvss': vuln.cvss,
+                        'threat': vuln.level,
+                        'family': vuln.family,
+                        'description': vuln.description,
+                        'detection': vuln.detect,
+                        'version': vuln.version,
+                        'insight': vuln.insight,
+                        'impact': vuln.impact,
+                        'affected': vuln.affected,
+                        'solution': vuln.solution,
+                        'solution_type': vuln.solution_type,
+                        'vuln_id': vuln.vuln_id,
+                        'cve': ' - '.join(vuln.cves),
+                        'references': ' - '.join(vuln.references) if isinstance(vuln.references, list) else vuln.references
+                    }
+                    writer.writerow(rowdata)
 
 
 def export_summary_to_csv(
@@ -1187,7 +1176,7 @@ def export_summary_to_csv(
 
     vuln_info, vuln_levels, vuln_host_by_level, _ = _get_collections(vuln_info)
 
-    with open(output_file, 'w') as csvfile:
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['level', 'count', 'host_count']
         writer = csv.DictWriter(csvfile, dialect='excel', fieldnames=fieldnames)
         writer.writeheader()

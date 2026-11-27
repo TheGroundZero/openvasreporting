@@ -1,0 +1,298 @@
+{#- ==========================================================================
+    OpenVAS Reporting - HTML report template (Jinja2, autoescaped).
+
+    Author and title are set on the lines below.
+    A custom copy can be used with:  -f html -t path/to/report.html.j2
+    (templates are rendered in a Jinja2 sandbox with autoescaping.)
+    ========================================================================== -#}
+{% set author = "TheGroundZero" %}
+{% set author_url = "https://github.com/TheGroundZero/openvasreporting" %}
+{% set title = "OpenVAS Report" %}
+{% set task_names = scan_info | map(attribute="task") | select | unique | join(", ") %}
+{% macro badge(level, cvss) %}<span class="badge lvl-{{ level }}">{{ "%.1f" | format(cvss) }}</span>{% endmacro %}
+{% macro when(value) %}{{ value | replace("T", " ") | replace("Z", " UTC") if value else "-" }}{% endmacro %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'sha256-{{ script_hash }}'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>{{ title }}{% if task_names %} - {{ task_names }}{% endif %}</title>
+<style>
+:root {
+  --ink: #1d2433; --muted: #5d6677; --line: #dfe3ea; --bg: #f4f6f9; --card: #fff; --brand: {{ colors.blue }};
+{% for name, value in colors.items() %}
+  --{{ name }}: {{ value }};
+{% endfor %}
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; font: 14px/1.5 "Segoe UI", Roboto, "Helvetica Neue", Arial, "Liberation Sans", sans-serif; color: var(--ink); background: var(--bg); }
+a { color: var(--brand); }
+header.top { background: var(--card); border-bottom: 1px solid var(--line); padding: 16px 24px 0; }
+.brand { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.brand img { height: 56px; width: auto; }
+.brand h1 { margin: 0; font-size: 22px; color: var(--brand); }
+.brand .sub { color: var(--muted); font-size: 13px; }
+nav.tabs { display: flex; gap: 4px; margin-top: 14px; }
+nav.tabs button { font: inherit; border: 1px solid var(--line); border-bottom: 0; background: var(--bg); padding: 8px 16px; border-radius: 6px 6px 0 0; cursor: pointer; color: var(--muted); }
+nav.tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: inset 0 3px 0 var(--brand); }
+html:not(.js) nav.tabs { display: none; }
+main { padding: 20px 24px 40px; max-width: 1400px; margin: 0 auto; }
+section.tab { margin-bottom: 32px; }
+html.js section.tab { display: none; }
+html.js section.tab.active { display: block; }
+h2 { font-size: 18px; margin: 0 0 12px; color: var(--brand); }
+h3 { font-size: 15px; margin: 20px 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 16px; }
+.meta { width: 100%; border-collapse: collapse; font-size: 13px; }
+.meta th { text-align: left; color: var(--muted); font-weight: 500; padding: 2px 12px 2px 0; white-space: nowrap; }
+.tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 16px; }
+.tile { border-radius: 8px; padding: 12px 14px; color: #fff; }
+.tile .n { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.tile .l { text-transform: uppercase; font-size: 12px; letter-spacing: .05em; opacity: .9; }
+.tile .h { font-size: 12px; opacity: .9; }
+.lvl-critical { background: var(--critical); color: #fff; } .lvl-high { background: var(--high); color: #fff; }
+.lvl-medium { background: var(--medium); color: #1d2433; } .lvl-low { background: var(--low); color: #fff; }
+.lvl-none { background: var(--none); color: #fff; }
+.donut-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.donut { width: 170px; height: 170px; }
+.legend { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+.legend li { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+.dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data th { text-align: left; background: var(--brand); color: #fff; font-weight: 600; padding: 6px 8px; }
+table.data td { border-bottom: 1px solid var(--line); padding: 6px 8px; vertical-align: top; }
+table.data td.num, table.data th.num { text-align: right; }
+.bars { display: grid; grid-template-columns: minmax(120px, 34%) 1fr 40px; gap: 6px 10px; align-items: center; font-size: 13px; }
+.bar { height: 14px; background: var(--brand); border-radius: 3px; min-width: 2px; }
+.badge { display: inline-block; min-width: 38px; text-align: center; border-radius: 4px; padding: 1px 6px; font-weight: 700; font-size: 12px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.toolbar input { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; min-width: 260px; flex: 1; max-width: 420px; }
+html:not(.js) .toolbar { display: none; }
+.chip { font: inherit; font-size: 12px; border: 2px solid transparent; border-radius: 14px; padding: 3px 12px; cursor: pointer; opacity: .35; text-transform: capitalize; }
+.chip[aria-pressed="true"] { opacity: 1; }
+.split { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 16px; align-items: start; }
+.vlist { background: var(--card); border: 1px solid var(--line); border-radius: 8px; max-height: calc(100vh - 220px); overflow: auto; position: sticky; top: 12px; }
+.vitem { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.vitem:hover { background: var(--bg); }
+.vitem.active { background: #e8eef8; box-shadow: inset 3px 0 0 var(--brand); }
+.vitem .count { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
+html.js article.vuln { display: none; }
+html.js article.vuln.active { display: block; }
+article.vuln { margin-bottom: 16px; }
+article.vuln header { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+article.vuln header h3 { margin: 0; font-size: 17px; }
+dl.fields { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; margin: 0 0 12px; }
+dl.fields dt { color: var(--muted); font-weight: 600; }
+dl.fields dd { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+pre.result { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; background: var(--bg); padding: 6px 8px; border-radius: 4px; max-height: 260px; overflow: auto; }
+article.host { margin-bottom: 10px; padding: 0; }
+article.host summary { display: flex; gap: 12px; align-items: center; padding: 10px 14px; cursor: pointer; flex-wrap: wrap; }
+article.host summary .ip { font-weight: 700; font-family: ui-monospace, monospace; }
+article.host .counts { margin-left: auto; display: flex; gap: 4px; }
+article.host .counts span { font-size: 12px; border-radius: 4px; padding: 0 6px; }
+article.host table { margin: 0 0 4px; table-layout: fixed; }
+article.host col.c-cvss { width: 80px; } article.host col.c-port { width: 200px; } article.host col.c-fix { width: 130px; }
+article.host td { overflow-wrap: anywhere; }
+article.host.flash { box-shadow: 0 0 0 3px var(--brand); transition: box-shadow .3s; }
+a.host-link { font-family: ui-monospace, monospace; white-space: nowrap; }
+.empty { color: var(--muted); font-style: italic; }
+footer { color: var(--muted); font-size: 12px; text-align: center; padding: 16px; }
+@media (max-width: 800px) { .split { grid-template-columns: 1fr; } .vlist { position: static; max-height: 300px; } dl.fields { grid-template-columns: 1fr; } }
+@media print {
+  #vulnerabilities, #hosts, nav.tabs, .toolbar { display: none !important; }
+  #summary { display: block !important; }
+  body { background: #fff; } .card { break-inside: avoid; } .tile, .lvl-critical, .lvl-high, .lvl-medium, .lvl-low, .lvl-none, .bar, table.data th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <img src="data:image/png;base64,{{ logo_b64 }}" alt="OpenVAS Reporting logo">
+    <div>
+      <h1>{{ title }}{% if task_names %} &middot; {{ task_names }}{% endif %}</h1>
+      <div class="sub">By <a href="{{ author_url }}" rel="noopener noreferrer">{{ author }}</a> &middot; Generated on {{ generated_at }}</div>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="summary">Summary</button>
+    <button type="button" role="tab" data-tab="vulnerabilities">By vulnerability ({{ vulnerabilities | length }})</button>
+    <button type="button" role="tab" data-tab="hosts">By host ({{ hosts | length }})</button>
+  </nav>
+</header>
+<main>
+
+<section id="summary" class="tab">
+  <h2>Summary</h2>
+  <div class="tiles">
+{% for l in levels %}
+    <div class="tile lvl-{{ l.level }}" data-level="{{ l.level }}" data-vulns="{{ l.vulns }}" data-hosts="{{ l.hosts }}">
+      <div class="l">{{ l.level }}</div>
+      <div class="n">{{ l.vulns }}</div>
+      <div class="h">{{ l.hosts }} host{{ "s" if l.hosts != 1 }} affected</div>
+    </div>
+{% endfor %}
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Scan</h3>
+      <table class="meta">
+        <tr><th>Hosts with findings</th><td>{{ hosts | length }}</td></tr>
+        <tr><th>Unique vulnerabilities</th><td>{{ vulnerabilities | length }}</td></tr>
+{% for s in scan_info %}
+        <tr><th>Report</th><td>{{ s.file }}{% if s.task %} &middot; task <strong>{{ s.task }}</strong>{% endif %}</td></tr>
+        <tr><th>Scan period</th><td>{{ when(s.start) }} &rarr; {{ when(s.end) }}</td></tr>
+{% endfor %}
+      </table>
+    </div>
+    <div class="card">
+      <h3>Vulnerabilities by severity</h3>
+{% set total = levels | sum(attribute="vulns") %}
+      <div class="donut-wrap">
+        <svg class="donut" viewBox="0 0 42 42" role="img" aria-label="Vulnerabilities by severity">
+          <circle cx="21" cy="21" r="15.915" fill="none" stroke="#e6e9ef" stroke-width="6"/>
+{% if total %}
+{% set ns = namespace(offset=0) %}
+{% for l in levels if l.vulns %}
+{% set pct = l.vulns * 100 / total %}
+          <circle cx="21" cy="21" r="15.915" fill="none" stroke="{{ l.color }}" stroke-width="6" stroke-dasharray="{{ '%.3f' | format(pct) }} {{ '%.3f' | format(100 - pct) }}" stroke-dashoffset="{{ '%.3f' | format(25 - ns.offset) }}"/>
+{% set ns.offset = ns.offset + pct %}
+{% endfor %}
+{% endif %}
+          <text x="21" y="22" text-anchor="middle" font-size="7" font-weight="700" fill="#1d2433">{{ total }}</text>
+          <text x="21" y="27.5" text-anchor="middle" font-size="3" fill="#5d6677">vulnerabilities</text>
+        </svg>
+        <ul class="legend">
+{% for l in levels %}
+          <li><span class="dot" style="background: {{ l.color }}"></span>{{ l.level | capitalize }}: {{ l.vulns }}</li>
+{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Most exposed hosts (top {{ top_hosts | length }})</h3>
+{% if top_hosts %}
+      <table class="data">
+        <tr><th>#</th><th>Host</th><th class="num">Crit.</th><th class="num">High</th><th class="num">Med.</th><th class="num">Low</th><th class="num">Max CVSS</th></tr>
+{% for h in top_hosts %}
+        <tr data-host-rank="{{ loop.index }}" data-ip="{{ h.ip }}">
+          <td>{{ loop.index }}</td>
+          <td><a class="host-link" href="#{{ h.anchor }}">{{ h.ip }}</a>{% if h.hostname %}<br><small>{{ h.hostname }}</small>{% endif %}</td>
+          <td class="num">{{ h.counts.critical }}</td><td class="num">{{ h.counts.high }}</td>
+          <td class="num">{{ h.counts.medium }}</td><td class="num">{{ h.counts.low }}</td>
+          <td class="num">{{ badge(h.level, h.max_cvss) }}</td>
+        </tr>
+{% endfor %}
+      </table>
+{% else %}
+      <p class="empty">No host with findings.</p>
+{% endif %}
+    </div>
+    <div class="card">
+      <h3>Vulnerabilities by family</h3>
+{% if families %}
+      <div class="bars">
+{% for name, count in families %}
+        <div>{{ name }}</div><div><div class="bar" style="width: {{ '%.1f' | format(count * 100 / family_max) }}%"></div></div><div>{{ count }}</div>
+{% endfor %}
+      </div>
+{% else %}
+      <p class="empty">No vulnerabilities.</p>
+{% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="vulnerabilities" class="tab">
+  <h2>By vulnerability</h2>
+{% if vulnerabilities %}
+  <div class="toolbar">
+    <input id="vuln-search" type="search" placeholder="Search name, CVE, OID, IP, family..." aria-label="Search vulnerabilities">
+{# log level findings ('none') start hidden, unless they are all there is #}
+{% set only_logs = (levels | rejectattr("level", "equalto", "none") | sum(attribute="vulns")) == 0 %}
+{% for l in levels if l.vulns %}
+    <button type="button" class="chip lvl-{{ l.level }}" data-level="{{ l.level }}" aria-pressed="{{ 'false' if l.level == 'none' and not only_logs else 'true' }}">{{ l.level }} ({{ l.vulns }})</button>
+{% endfor %}
+  </div>
+  <div class="split">
+    <nav class="vlist" aria-label="Vulnerabilities">
+{% for v in vulnerabilities %}
+      <a class="vitem" href="#{{ v.anchor }}" data-level="{{ v.level }}" data-search="{{ [v.name, v.oid, v.family, v.cves | map(attribute='text') | join(' '), v.affected | map(attribute='ip') | join(' '), v.affected | map(attribute='hostname') | join(' ')] | join(' ') | lower }}">{{ badge(v.level, v.cvss) }}<span>{{ v.name }}</span><span class="count">{{ v.affected | map(attribute="ip") | unique | list | length }} host(s)</span></a>
+{% endfor %}
+    </nav>
+    <div class="vdetail">
+{% for v in vulnerabilities %}
+      <article class="vuln card" id="{{ v.anchor }}" data-oid="{{ v.oid }}" data-cvss="{{ v.cvss }}">
+        <header>{{ badge(v.level, v.cvss) }}<h3>{{ v.name }}</h3></header>
+        <dl class="fields">
+          <dt>Severity</dt><dd>{{ v.level | capitalize }} (CVSS {{ "%.1f" | format(v.cvss) }})</dd>
+{% if v.description %}<dt>Summary</dt><dd>{{ v.description }}</dd>{% endif %}
+{% if v.impact %}<dt>Impact</dt><dd>{{ v.impact }}</dd>{% endif %}
+{% if v.solution %}<dt>Solution</dt><dd>{{ v.solution }}{% if v.solution_type %} <em>({{ v.solution_type }})</em>{% endif %}</dd>{% endif %}
+{% if v.affected_products %}<dt>Affected</dt><dd>{{ v.affected_products }}</dd>{% endif %}
+{% if v.insight %}<dt>Insight</dt><dd>{{ v.insight }}</dd>{% endif %}
+{% if v.detection %}<dt>Detection</dt><dd>{{ v.detection }}</dd>{% endif %}
+          <dt>CVEs</dt><dd>{% for c in v.cves %}{% if c.url %}<a href="{{ c.url }}" rel="noopener noreferrer">{{ c.text }}</a>{% else %}{{ c.text }}{% endif %}{{ ", " if not loop.last }}{% else %}None{% endfor %}</dd>
+          <dt>Family</dt><dd>{{ v.family }}</dd>
+          <dt>OID</dt><dd>{{ v.oid }}</dd>
+{% if v.references %}
+          <dt>References</dt><dd>{% for r in v.references %}{% if r.url %}<a href="{{ r.url }}" rel="noopener noreferrer">{{ r.text }}</a>{% else %}{{ r.text }}{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}</dd>
+{% endif %}
+        </dl>
+{% set has_version = v.affected | selectattr("version") | list | length > 0 %}
+        <h3>Affected hosts ({{ v.affected | length }})</h3>
+        <table class="data">
+          <tr><th>IP</th><th>Host name</th><th>Port</th>{% if has_version %}<th>Installed version</th>{% endif %}<th>Result</th></tr>
+{% for a in v.affected %}
+          <tr data-affected><td><a class="host-link" href="#{{ host_anchors[a.ip] }}">{{ a.ip }}</a>{% if a.cvss != v.cvss %} {{ badge(a.level, a.cvss) }}{% endif %}</td><td>{{ a.hostname or "-" }}</td><td>{{ a.port ~ "/" ~ a.protocol if a.port else a.protocol }}</td>{% if has_version %}<td class="version">{{ a.version }}</td>{% endif %}<td><pre class="result">{{ a.result }}</pre></td></tr>
+{% endfor %}
+        </table>
+      </article>
+{% endfor %}
+    </div>
+  </div>
+{% else %}
+  <p class="empty">No vulnerabilities match the selected filters.</p>
+{% endif %}
+</section>
+
+<section id="hosts" class="tab">
+  <h2>By host</h2>
+{% if hosts %}
+  <div class="toolbar">
+    <input id="host-search" type="search" placeholder="Search IP or host name..." aria-label="Search hosts">
+  </div>
+{% for h in hosts %}
+  <article class="host card" id="{{ h.anchor }}" data-ip="{{ h.ip }}" data-level="{{ h.level }}" data-search="{{ (h.ip ~ ' ' ~ h.hostname) | lower }}">
+    <details{% if loop.index <= 3 %} open{% endif %}>
+      <summary>{{ badge(h.level, h.max_cvss) }}<span class="ip">{{ h.ip }}</span><span>{{ h.hostname }}</span>
+        <span class="counts">{% for lvl in ["critical", "high", "medium", "low"] if h.counts[lvl] %}<span class="lvl-{{ lvl }}" title="{{ lvl }}">{{ h.counts[lvl] }}</span>{% endfor %}</span>
+      </summary>
+      <table class="data">
+        <colgroup><col class="c-cvss"><col><col class="c-port"><col class="c-fix"></colgroup>
+        <tr><th>CVSS</th><th>Vulnerability</th><th>Port(s)</th><th>Fix type</th></tr>
+{% for f in h.findings %}
+        <tr><td>{{ badge(f.level, f.cvss) }}</td><td><a href="#{{ f.vuln.anchor }}">{{ f.vuln.name }}</a></td><td>{{ f.ports }}</td><td>{{ f.vuln.solution_type or "-" }}</td></tr>
+{% endfor %}
+      </table>
+    </details>
+  </article>
+{% endfor %}
+{% else %}
+  <p class="empty">No hosts with findings.</p>
+{% endif %}
+</section>
+
+</main>
+<footer>Generated on {{ generated_at }} by <a href="{{ author_url }}" rel="noopener noreferrer">openvasreporting</a> &middot; {{ author }}</footer>
+<script>{{ script | safe }}</script>
+</body>
+</html>

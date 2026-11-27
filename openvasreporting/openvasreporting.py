@@ -5,15 +5,16 @@
 # Project URL: https://github.com/TheGroundZero/openvasreporting
 
 import argparse
+import sys
 
-from .libs.config import Config, Config_YAML
+from .libs.config import SUPPORTED_FORMATS, Config, Config_YAML
 from .libs.parser import parsers
 from .libs.export import implemented_exporters
 
 def main():
 
     PROG_DESCRIPTION='''OpenVAS report Converter\n
-Parses one ore more OpenVAS xml report and creates a xlsx, docx or csv with the results
+Parses one ore more OpenVAS xml report and creates a xlsx, docx, csv or html with the results
 '''
     CONFIG_FILE_HELP="""path to a .yml file containing all options but INPUT_FILES and OUTPUT_FILE.
 if present, all the following options will be ignored and defaults applied 
@@ -30,7 +31,7 @@ the regex expressions will be matched against the name of the vulnerability\n"""
         allow_abbrev=True,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("-i", "--input", nargs="*", dest="input_files", help="OpenVAS XML reports\n", 
+    parser.add_argument("-i", "--input", nargs="+", dest="input_files", help="OpenVAS XML reports\n",
                         required=True)
     parser.add_argument("-o", "--output", dest="output_file", help="Output file, no extension\n", 
                         required=False, default="openvas_report")
@@ -39,8 +40,8 @@ the regex expressions will be matched against the name of the vulnerability\n"""
     parser.add_argument("-l", "--level", dest="min_lvl", 
                         help="Minimal level (c, h, m, l, n)\n", 
                         required=False, choices=['c', 'h', 'm', 'l', 'n'], default='n')
-    parser.add_argument("-f", "--format", dest="format", help="Output format (xlsx)\n", 
-                        required=False, choices=["xlsx", "docx", "csv"], default="xlsx")
+    parser.add_argument("-f", "--format", dest="format", help="Output format\n",
+                        required=False, choices=list(SUPPORTED_FORMATS), default="xlsx")
     parser.add_argument("-t", "--template", dest="template", 
                         help="Template file for docx export\n", required=False,
                         default=None)
@@ -64,7 +65,17 @@ the regex expressions will be matched against the name of the vulnerability\n"""
                         required=False, default=None)
     args = parser.parse_args()
 
-    if not args.config_file is None:
+    try:
+        config = _build_config(args)
+        convert(config)
+    except (OSError, ValueError, NotImplementedError) as e:
+        print("openvasreporting: error: {}".format(e), file=sys.stderr)
+        sys.exit(1)
+
+
+def _build_config(args) -> Config:
+    """Build the configuration from the command line arguments or the YAML file."""
+    if args.config_file is not None:
         config = Config_YAML(args.input_files, args.config_file, args.output_file)
     else:
         config = Config(args.input_files, 
@@ -79,8 +90,7 @@ the regex expressions will be matched against the name of the vulnerability\n"""
                         args.regex_excluded,
                         args.cve_included,
                         args.cve_excluded)
-
-    convert(config)
+    return config
 
 
 def convert(config):
@@ -95,11 +105,19 @@ def convert(config):
     if not isinstance(config, Config):
         raise TypeError("Expected Config, got '{}' instead".format(type(config)))
 
-    if config.report_type + '-' + config.format not in implemented_exporters().keys():
+    # the html report always contains both the vulnerability and the host views
+    report_type = 'vulnerability' if config.format == 'html' else config.report_type
+    exporter_key = report_type + '-' + config.format
+    if exporter_key not in implemented_exporters():
         raise NotImplementedError("The report by '{}' in format '{}' is not implemented yet.".format(
                                   config.report_type, config.format))
-        
-    openvas_info = parsers()[config.report_type](config)
 
-    implemented_exporters()[config.report_type + '-' + config.format](openvas_info, config.template, config.output_file)
+    scan_info: list = []
+    openvas_info = parsers()[report_type](config, scan_info)
+
+    exporter = implemented_exporters()[exporter_key]
+    if config.format == 'html':
+        exporter(openvas_info, config.template, config.output_file, scan_info=scan_info)
+    else:
+        exporter(openvas_info, config.template, config.output_file)
 

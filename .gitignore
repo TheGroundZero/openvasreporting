@@ -1,4 +1,4 @@
-tests/
+# tests/ (tracked since 2026-11)
 .idea/
 
 # Output File
@@ -124,3 +124,6 @@ venv.bak/
 # wings projects
 *.wpr
 
+
+# test fixtures are real XML reports
+!tests/fixtures/*.xml
