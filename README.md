@@ -31,7 +31,7 @@ Looking for a fix and providing an actual fix through a pull request would have 
 so I chose to fork the repo and try my own thing.  
 I reorganised some of the files, removed some functionality and added some extra, and rewrote some functions.
 
-At this moment in time, the script only output .xlsx documents in one format, this may (not) change in the future.
+The script outputs .xlsx, .docx, .csv and self-contained .html reports.
 
 
 ## Requirements
@@ -39,6 +39,7 @@ At this moment in time, the script only output .xlsx documents in one format, th
  - [Python](https://www.python.org/) version 3
  - [XlsxWriter](https://xlsxwriter.readthedocs.io/)
  - [Python-docx](https://python-docx.readthedocs.io)
+ - [Jinja2](https://jinja.palletsprojects.com) (HTML report)
 
 
 ## Installation
@@ -129,6 +130,13 @@ There is a sample of a configuration file in the `docs/` folder
 ### Create Word report from multiple OpenVAS reports, reporting only threat level high and up, use custom template
 
     python3 -m openvasreporting -i *.xml -o docxreport -f docx -l h -t "/home/user/myOpenvasTemplate.docx"
+
+### Create an HTML report (summary + by vulnerability + by host, in a single offline file)
+
+    python3 -m openvasreporting -i *.xml -o htmlreport -f html
+
+A custom copy of the template (`openvasreporting/src/html/report.html.j2`) can be passed with `-t`,
+see [the documentation](docs/usage/export-html.rst).
 
 ## Result
 

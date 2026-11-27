@@ -123,6 +123,12 @@ def test_yaml_regex_includes_only(tmp_path):
     assert names == {"SSH Weak Encryption Algorithms Supported"}
 
 
+def test_yaml_accepts_html_format(tmp_path):
+    cfg = tmp_path / "c.yml"
+    cfg.write_text("format: html\n")
+    assert Config_YAML([str(EDGE_REPORT)], str(cfg), str(tmp_path / "r")).format == "html"
+
+
 # 8. input validation
 def test_non_openvas_xml_is_rejected_cleanly(tmp_path):
     bad = tmp_path / "bad.xml"
@@ -247,5 +253,5 @@ def test_pyproject_metadata_is_well_formed():
     for key in ("authors", "description", "readme", "license", "classifiers", "dynamic"):
         assert key in project, key
     extras = project["optional-dependencies"]
-    assert set(extras) == {"test"}
+    assert set(extras) == {"test", "browser"}
     assert all(isinstance(v, list) for v in extras.values())

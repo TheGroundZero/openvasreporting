@@ -1,6 +1,7 @@
 """Regression tests for the defects found by the adversarial review of the branch."""
 
 import csv
+import re
 import zipfile
 
 from conftest import result_xml, run_cli, write_report
@@ -14,11 +15,40 @@ def _csv(path):
         return list(csv.DictReader(f))
 
 
+def _html(tmp_path, *inputs, extra=()):
+    res = run_cli("-i", *inputs, "-o", str(tmp_path / "r"), "-f", "html", *extra)
+    assert res.returncode == 0, res.stderr
+    return (tmp_path / "r.html").read_text(encoding="utf-8")
+
+
+# same OID, different severity per host / per input file (overrides, several reports)
+def test_html_host_severity_is_per_host(tmp_path):
+    a = write_report(tmp_path / "a.xml", result_xml("1.1", "Same", "10.0.0.1", "80/tcp", "7.5"))
+    b = write_report(tmp_path / "b.xml", result_xml("1.1", "Same", "10.0.0.9", "80/tcp", "9.5"))
+    html = _html(tmp_path, a, b)
+    assert re.search(r'data-ip="10.0.0.9" data-level="critical"', html)
+    assert re.search(r'data-ip="10.0.0.1" data-level="high"', html)
+    # the vulnerability is as severe as its worst occurrence
+    assert re.search(r'data-level="critical" data-vulns="1"', html)
+
+
 def test_vuln_cvss_is_max_over_results(tmp_path):
     a = write_report(tmp_path / "a.xml", result_xml("1.1", "Same", "10.0.0.1", "80/tcp", "7.5"),
                      result_xml("1.1", "Same", "10.0.0.9", "80/tcp", "9.5"))
     (vuln,) = openvas_parser_by_vuln(Config([a], format="csv", report_type="v"))
     assert vuln.cvss == 9.5 and vuln.level == "critical"
+
+
+# installed version is per host, and read from its own line only
+def test_html_version_is_shown_per_host(tmp_path):
+    a = write_report(tmp_path / "a.xml",
+                     result_xml("1.1", "V", "10.0.0.1", "443/tcp", "5.0", "Installed version: 3.0.1"),
+                     result_xml("1.1", "V", "10.0.0.2", "443/tcp", "5.0", "Installed version: 3.0.2"))
+    html = _html(tmp_path, a)
+    rows = re.findall(r"<tr data-affected>.*?</tr>", html, re.DOTALL)
+    assert any("10.0.0.1" in r and '<td class="version">3.0.1</td>' in r for r in rows)
+    assert any("10.0.0.2" in r and '<td class="version">3.0.2</td>' in r for r in rows)
+    assert "Installed version</dt>" not in html  # no single vulnerability-wide version
 
 
 def test_installed_version_stays_on_its_line(tmp_path):
@@ -64,6 +94,40 @@ def test_input_option_requires_a_file(tmp_path):
     res = run_cli("-i", "-o", str(tmp_path / "r"), "-f", "csv")
     assert res.returncode == 2
     assert not (tmp_path / "r.csv").exists()
+
+
+# reference ids are kept whole
+def test_reference_urls_with_commas(tmp_path):
+    a = write_report(tmp_path / "a.xml", result_xml("1.1", "R", "10.0.0.2", "443/tcp", "5.0",
+                                                    refs='<ref type="url" id="https://example.com/a,b"/>'))
+    html = _html(tmp_path, a)
+    assert 'href="https://example.com/a,b"' in html
+
+
+# log only reports must not hide every vulnerability by default
+def test_log_only_report_shows_its_findings(tmp_path):
+    a = write_report(tmp_path / "a.xml", result_xml("1.1", "OS detection", "10.0.0.2", "general/tcp", "0.0"))
+    html = _html(tmp_path, a)
+    assert re.search(r'class="chip lvl-none" data-level="none" aria-pressed="true"', html)
+
+
+def test_log_level_filter_off_by_default_when_real_findings_exist(tmp_path):
+    a = write_report(tmp_path / "a.xml", result_xml("1.1", "OS detection", "10.0.0.2", "general/tcp", "0.0"),
+                     result_xml("1.2", "Weak", "10.0.0.2", "22/tcp", "5.0"))
+    html = _html(tmp_path, a)
+    assert re.search(r'data-level="none" aria-pressed="false"', html)
+
+
+# a CRLF checkout of report.js (Git for Windows) must still match its CSP hash
+def test_csp_hash_is_computed_on_normalised_newlines():
+    import base64
+    import hashlib
+
+    from openvasreporting.libs.export_html import _script_and_hash
+
+    script, digest = _script_and_hash(b"var a = 1;\r\nvar b = 2;\r\n")
+    assert script == "var a = 1;\nvar b = 2;\n"
+    assert digest == base64.b64encode(hashlib.sha256(script.encode()).digest()).decode()
 
 
 # parser / config robustness
@@ -115,3 +179,5 @@ def test_issue_49_every_port_of_a_host_is_reported(tmp_path):
     assert run_cli("-i", a, "-o", str(tmp_path / "x"), "-f", "xlsx", "-T", "h").returncode == 0
     with zipfile.ZipFile(tmp_path / "x.xlsx") as z:
         assert z.read("xl/sharedStrings.xml").decode().count("/tcp") == 541
+    html = _html(tmp_path, a)
+    assert len(re.findall(r"<tr data-affected>", html)) == 541

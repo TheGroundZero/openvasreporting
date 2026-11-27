@@ -3,6 +3,9 @@ Changelog
 
 Unreleased
 
+- New Features
+  - HTML export (`-f html`): single self-contained file with a printable summary,
+    a searchable "by vulnerability" view and a "by host" view (IPs link from one view to the other)
 - Fixes
   - Declare missing dependencies (pyyaml, defusedxml, numpy) - a clean pip install could not start
   - docx export without template failed on setuptools >= 81 (pkg_resources removed)
@@ -27,8 +30,12 @@ Unreleased
   - Host reports lost all but one port of a vulnerability found on many ports (issue #49)
 - Security
   - XML input with a DTD is refused (memory exhaustion through attribute defaults)
+  - HTML: templates rendered in a Jinja2 sandbox (jinja2 >= 3.1.6), only the packaged script and
+    logo are embedded, output written atomically (symlinks are replaced, not followed),
+    bidirectional control characters from scan data are made visible
 - Tests
-  - Integration test suite (`pytest`), run by GitHub Actions on pushes and pull requests
+  - Integration test suite (`pytest`), run by GitHub Actions on pushes and pull requests,
+    including browser tests for the HTML report (`playwright`)
 
 1.6.1
 

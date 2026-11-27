@@ -14,7 +14,7 @@ from .libs.export import implemented_exporters
 def main():
 
     PROG_DESCRIPTION='''OpenVAS report Converter\n
-Parses one ore more OpenVAS xml report and creates a xlsx, docx or csv with the results
+Parses one ore more OpenVAS xml report and creates a xlsx, docx, csv or html with the results
 '''
     CONFIG_FILE_HELP="""path to a .yml file containing all options but INPUT_FILES and OUTPUT_FILE.
 if present, all the following options will be ignored and defaults applied 
@@ -105,13 +105,19 @@ def convert(config):
     if not isinstance(config, Config):
         raise TypeError("Expected Config, got '{}' instead".format(type(config)))
 
-    report_type = config.report_type
+    # the html report always contains both the vulnerability and the host views
+    report_type = 'vulnerability' if config.format == 'html' else config.report_type
     exporter_key = report_type + '-' + config.format
     if exporter_key not in implemented_exporters():
         raise NotImplementedError("The report by '{}' in format '{}' is not implemented yet.".format(
                                   config.report_type, config.format))
 
-    openvas_info = parsers()[report_type](config)
+    scan_info: list = []
+    openvas_info = parsers()[report_type](config, scan_info)
 
-    implemented_exporters()[exporter_key](openvas_info, config.template, config.output_file)
+    exporter = implemented_exporters()[exporter_key]
+    if config.format == 'html':
+        exporter(openvas_info, config.template, config.output_file, scan_info=scan_info)
+    else:
+        exporter(openvas_info, config.template, config.output_file)
 

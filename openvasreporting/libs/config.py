@@ -15,7 +15,7 @@ import yaml
 from netaddr import AddrFormatError
 from yaml.loader import SafeLoader
 
-SUPPORTED_FORMATS = ('xlsx', 'docx', 'csv')
+SUPPORTED_FORMATS = ('xlsx', 'docx', 'csv', 'html')
 
 
 def expand_input_files(patterns: list[str]) -> list[str]:

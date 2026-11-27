@@ -27,7 +27,7 @@ Command line usage
 \-f, --format
    | Optional
    | Type of output file.
-   | Valid values are: xlsx, docx, csv
+   | Valid values are: xlsx, docx, csv, html
    | Defaults to: xlsx
 
 \-l, --level
@@ -37,14 +37,16 @@ Command line usage
    | Defaults to: none
 
 \-t, --template
-   | Optional, only used with '-f docx'
-   | Template document for docx export. Document must contain formatting for styles used in export.
-   | Valid values are: path to a docx file
-   | Defaults to: openvasreporting/src/openvas-template.docx
+   | Optional, only used with '-f docx' and '-f html'
+   | docx: template document; it must contain formatting for styles used in export.
+   | html: Jinja2 template (see :doc:`export-html`).
+   | Valid values are: path to a docx file, or to a .html.j2 file
+   | Defaults to: openvasreporting/src/openvas-template.docx, openvasreporting/src/html/report.html.j2
 
 \-T, --report-type
    | Optional 
    | Selects if will list hosts by vulnerability (v) or vulnerabilities by host (h)
+   | Ignored for html: the html report always contains both views
    | Valid values are: v, h, vulnerabiity, host
    | Defaults to: vulnerability
 
@@ -99,3 +101,4 @@ Command line usage
    export-csv
    export-excel-host
    export-csv-host
+   export-html

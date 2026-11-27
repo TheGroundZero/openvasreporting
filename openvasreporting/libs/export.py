@@ -10,6 +10,7 @@ from collections import Counter
 from typing import Callable
 
 from .config import Config
+from .export_html import export_to_html
 from .parsed_data import ResultTree, Host, Vulnerability
 
 INVALID_SHEET_CHARS = re.compile(r"[\[\]\\'\"&@#():*?/]")
@@ -48,6 +49,7 @@ def implemented_exporters() -> dict[str, Callable]:
         'host-xlsx': export_to_excel_by_host,
         'host-csv': export_to_csv_by_host,
         'summary-csv': export_summary_to_csv,
+        'vulnerability-html': export_to_html,
     }
 
 def _get_collections(vuln_info:list[Vulnerability]) -> tuple[list[Vulnerability], Counter[str], Counter[str], Counter[str]]:
