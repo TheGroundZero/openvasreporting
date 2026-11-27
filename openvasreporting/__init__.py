@@ -37,3 +37,5 @@ __package__ = str("openvasreporting")
 from .openvasreporting import main, convert
 from .libs.config import Config, Config_YAML
 
+
+__all__ = ["main", "convert", "Config", "Config_YAML"]

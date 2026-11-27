@@ -4,33 +4,55 @@
 # Project name: OpenVAS Reporting: A tool to convert OpenVAS XML reports into Excel files.
 # Project URL: https://github.com/TheGroundZero/openvasreporting
 
-# TODO: Get rid of all the log messages
-
 """This file contains data structures"""
 
 import re
-from typing import Union
 
-from .config import Config
 import netaddr
 
-import logging
-#
-# DEBUG
+from .config import Config
 
-#import logging
-#import sys
-#logging.basicConfig(stream=sys.stderr, level=logging.DEBUG,
-#                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-#logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
-#                    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-dolog = False
+
+def _text(element, path: str, default: str = "") -> str:
+    """Text of the sub element at `path`, or `default` when missing or empty."""
+    found = element.find(path)
+    if found is None or found.text is None:
+        return default
+    return found.text
+
+
+def _parse_tags(raw: str) -> dict[str, str]:
+    """Parse an OpenVAS 'key=value|key=value' tags string, tolerating bare keys."""
+    text = re.sub(r"(\r\n)+", "\r\n", raw)
+    text = re.sub(r"\n+", "\n", text)
+    text = re.sub(r"[^\S\r\n]+", " ", text)
+    tags: dict[str, str] = {}
+    for tag in text.split("|"):
+        key, _, value = tag.partition("=")
+        if key.strip():
+            tags[key.strip()] = value
+    return tags
+
+
+INSTALLED_VERSION_RE = re.compile(r"Installed version:[ \t]*([^\r\n]*)")
+
+
+def installed_version(text: str) -> str:
+    """'Installed version:' value of a result text (rest of that line), or ''."""
+    match = INSTALLED_VERSION_RE.search(text or "")
+    return match.group(1).strip() if match else ""
+
+
+def level_of(cvss: float) -> str:
+    """Severity level name of a CVSS score ('none' for 0 and below)."""
+    return Config.cvss_level(cvss) or "none"
+
 
 # Port object modifed to include result data field
 class Port(object):
     """Port information"""
 
-    def __init__(self, number:int, protocol:str="tcp", result:str=""):
+    def __init__(self, number:int, protocol:str="tcp", result:str="", cvss: float | None = None):
         """
         :param number: port number
         :type number: int
@@ -40,6 +62,9 @@ class Port(object):
 
         :param result: port result
         :type result: str
+
+        :param cvss: severity of the result on this port (None when unknown)
+        :type cvss: float
 
         :raises: TypeError, ValueError
         """
@@ -58,13 +83,16 @@ class Port(object):
         self.number = number
         self.protocol = protocol
         self.result = result
+        self.cvss = cvss
 
     # Modified to include result in structure
     @staticmethod
-    def string2port(info:str, result:str):
+    def string2port(info:str, result:str, cvss: float | None = None):
         """
         Extract port number, protocol and description from an string.
-        return a port class with seperate port, protocol and result
+        return a port class with seperate port, protocol and result.
+        Strings without a port number (e.g. 'package') give number 0 and the
+        string itself as protocol.
 
         ..note:
             Raises value error if information can't be processed.
@@ -94,7 +122,7 @@ class Port(object):
         :return: Port instance
         :rtype: Port
 
-        :raises: ValueError
+        :raises: TypeError
         """
         if not isinstance(info, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(info)))
@@ -102,19 +130,15 @@ class Port(object):
         if not isinstance(result, str):
             raise TypeError("Expected basestring, got '{}' instead".format(type(result)))
 
-        regex_nr = re.search("([\d]+)(/)([\w]+)", info) # type: ignore
-        regex_general = re.search("(general)(/)([\w]+)", info) # type: ignore
+        regex_nr = re.search(r"(\d+)/(\w+)", info)
+        regex_general = re.search(r"general/([\w-]+)", info)
 
-        if regex_nr and len(regex_nr.groups()) == 3:
-            number = int(regex_nr.group(1))
-            protocol = regex_nr.group(3)
-        elif regex_general and len(regex_general.groups()) == 3:
-            number = 0
-            protocol = regex_general.group(3)
-        else:
-            raise ValueError("Can't parse port input string")
-
-        return Port(number, protocol, result)
+        if regex_nr:
+            return Port(int(regex_nr.group(1)), regex_nr.group(2), result, cvss)
+        if regex_general:
+            return Port(0, regex_general.group(1), result, cvss)
+        # non network "ports" such as 'package': keep the label as protocol, no number
+        return Port(0, info.strip() or "unknown", result, cvss)
 
     def __eq__(self, other:'Port'):
         return (
@@ -148,102 +172,62 @@ class ParseVulnerability:
         # --------------------
         #
         # VULN_NAME
-        self.vuln_name:str = nvt_tmp.find("./name").text
+        self.vuln_name: str = _text(nvt_tmp, "./name") or _text(vuln, "./name", "Unknown")
     
-        if dolog: logging.debug(
-            "--------------------------------------------------------------------------------")
-        if dolog: logging.debug("- {}".format(self.vuln_name))  # DEBUG
-        if dolog: logging.debug(
-            "--------------------------------------------------------------------------------")
     
 
         # --------------------
         #
         # VULN_VERSION
-        self.vuln_version = ""
-        desc:str = vuln.find("./description").text
-        if desc is None:
-            desc = ""
-        match = re.search(r'Installed version: ((\d|.)+)', desc)
-        if match is not None :
-            self.vuln_version = match.group(1)
+        desc: str = _text(vuln, "./description")
+        self.vuln_version = installed_version(desc)
             
-        if dolog: logging.debug("* vuln_version:\t{}".format(self.vuln_version))  # DEBUG
 
         # --------------------
         #
         # VULN_ID
         self.vuln_id = nvt_tmp.get("oid")
         if not self.vuln_id or self.vuln_id == "0":
-            if dolog: logging.debug("  ==> SKIP")  # DEBUG
             raise ValueError("Expected valid <result> openvas xml element, got '{}' instead".format(vuln.text))
-        if dolog: logging.debug("* vuln_id:\t{}".format(self.vuln_id))  # DEBUG
     
         # --------------------
         #
         # VULN_CVSS
-        self.vuln_cvss = vuln.find("./severity").text
-        if self.vuln_cvss is None:
-            self.vuln_cvss = 0.0
-        self.vuln_cvss = float(self.vuln_cvss)
-        if dolog: logging.debug("* vuln_cvss:\t{}".format(self.vuln_cvss))  # DEBUG
+        self.vuln_cvss = float(_text(vuln, "./severity", "0.0"))
     
         # --------------------
         #
         # VULN_LEVEL
-        self.vuln_level = "none"
-        for level in Config.levels().values():
-            if self.vuln_cvss >= Config.thresholds()[level]:
-                self.vuln_level = level
-                if dolog: logging.debug("* vuln_level:\t{}".format(self.vuln_level))  # DEBUG
-                break
+        self.vuln_level = level_of(self.vuln_cvss)
     
-        if dolog: logging.debug("* min_level:\t{}".format(min_level))  # DEBUG
         if self.vuln_level not in Config.min_levels()[min_level]:
-            if dolog: logging.debug("   => SKIP")  # DEBUG
             raise ValueError("Expected min_level in one of 'chmln', got '{}' instead".format(min_level))
     
         # --------------------
         #
         # VULN_HOST
-        self.vuln_host:str = vuln.find("./host").text
-        self.vuln_host_name:str = vuln.find("./host/hostname").text
-        if self.vuln_host_name is None:
-            self.vuln_host_name = "N/A"
-        if dolog: logging.debug("* hostname:\t{}".format(self.vuln_host_name))  # DEBUG
-        self.vuln_port = vuln.find("./port").text
-        if dolog: logging.debug(
-            "* vuln_host:\t{} port:\t{}".format(self.vuln_host, self.vuln_port))  # DEBUG
+        self.vuln_host: str = _text(vuln, "./host").strip()
+        self.vuln_host_name: str = _text(vuln, "./host/hostname", "N/A")
+        self.vuln_port: str = _text(vuln, "./port")
     
         # --------------------
         #
         # VULN_TAGS
         # Replace double newlines by a single newline
-        self.vuln_tags_text = re.sub(r"(\r\n)+", "\r\n", nvt_tmp.find("./tags").text)
-        self.vuln_tags_text = re.sub(r"\n+", "\n", self.vuln_tags_text)
-        # Remove useless whitespace but not newlines
-        self.vuln_tags_text = re.sub(r"[^\S\r\n]+", " ", self.vuln_tags_text)
-        vuln_tags_temp = self.vuln_tags_text.split('|')
-        self.vuln_tags = dict(tag.split('=', 1) for tag in vuln_tags_temp)
-        if dolog: logging.debug("* vuln_tags:\t{}".format(self.vuln_tags))  # DEBUG
+        # Collapse repeated newlines and useless whitespace, tolerate tags without '='
+        self.vuln_tags = _parse_tags(_text(nvt_tmp, "./tags"))
     
         # --------------------
         #
         # VULN_THREAT
-        self.vuln_threat:str = vuln.find("./threat").text
-        if self.vuln_threat is None:
-            self.vuln_threat = Config.levels()["n"]
-        else:
-            self.vuln_threat = self.vuln_threat.lower()
+        self.vuln_threat: str = _text(vuln, "./threat", Config.levels()["n"]).lower()
     
-        if dolog: logging.debug("* vuln_threat:\t{}".format(self.vuln_threat))  # DEBUG
     
         # --------------------
         #
         # VULN_FAMILY
-        self.vuln_family:str = nvt_tmp.find("./family").text
+        self.vuln_family: str = _text(nvt_tmp, "./family", "Unknown")
     
-        if dolog: logging.debug("* vuln_family:\t{}".format(self.vuln_family))  # DEBUG
     
         # --------------------
         #
@@ -252,19 +236,18 @@ class ParseVulnerability:
         self.vuln_cves:list[str] = []
         self.ref_list:list[str] = []
         for reference in nvt_tmp.findall('./refs/ref'):
+            ref_id = reference.attrib.get('id')
+            if not ref_id:
+                continue
             if reference.attrib.get('type') == 'cve':
-                self.vuln_cves.append(reference.attrib.get('id'))
+                self.vuln_cves.append(ref_id)
             else:
-                self.ref_list.append(reference.attrib.get('id'))
-        # if dolog: logging.debug("* vuln_cves:\t{}".format(vuln_cves))  # DEBUG
-        # if dolog: logging.debug("* vuln_cves:\t{}".format(Et.tostring(vuln_cves).decode()))  # DEBUG
+                self.ref_list.append(ref_id)
         # if vuln_cves is None or vuln_cves.text.lower() == "nocve":
         #     vuln_cves = []
         # else:
         #     vuln_cves = [vuln_cves.text.lower()]
         self.vuln_references = ' , '.join(self.ref_list)
-        if dolog: logging.debug("* vuln_cves:\t{}".format(self.vuln_cves))  # DEBUG
-        if dolog: logging.debug("* vuln_references:\t{}".format(self.vuln_references))
         # --------------------
         #
         # VULN_REFERENCES
@@ -274,21 +257,13 @@ class ParseVulnerability:
         # else:
         #     vuln_references = vuln_references.text.lower().replace("url:", "\n")
     
-        # if dolog: logging.debug("* vuln_references:\t{}".format(vuln_references))  # DEBUG
     
         # --------------------
         #
         # VULN_DESCRIPTION
-        tmpVulnResult = vuln.find("./description")
-        if tmpVulnResult is None or vuln.find("./description").text is None:
-            self.vuln_result = ""
-        else:
-            self.vuln_result = tmpVulnResult.text
+        # Replace runs of newlines by a single newline
+        self.vuln_result: str = re.sub(r"(\r?\n)+", "\n", desc)
     
-        # Replace double newlines by a single newline
-        self.vuln_result:str = self.vuln_result.replace("(\r\n)+", "\n")
-    
-        if dolog: logging.debug("* vuln_result:\t{}".format(self.vuln_result))  # DEBUG
 
     @classmethod
     def check_and_parse_result(cls, vuln, config: Config):
@@ -313,31 +288,32 @@ class ParseVulnerability:
             
         
         # nvt has oid?
-        vuln_id:str = vuln.find('./nvt').get('oid')
+        nvt = vuln.find('./nvt')
+        vuln_id = nvt.get('oid') if nvt is not None else None
         if not vuln_id or vuln_id == "0":
             return None
+        host_ip = _text(vuln, './host').strip()
+        if not host_ip:
+            return None
 
-        # is ip included and/or excluded?
+        # is ip included and/or excluded? (a host name never matches a network)
         if config.networks_excluded is not None or config.networks_included is not None:
-            host_ip:str = vuln.find('./host').text
-            host_ip_addr = netaddr.IPAddress(host_ip)
-        
-        if config.networks_excluded is not None:
-            for ipline in config.networks_excluded:
-                if host_ip_addr in ipline:
-                    return None
+            try:
+                host_ip_addr = netaddr.IPAddress(host_ip)
+            except (netaddr.AddrFormatError, ValueError):
+                host_ip_addr = None
+
+        if config.networks_excluded is not None and host_ip_addr is not None:
+            if any(host_ip_addr in ipline for ipline in config.networks_excluded):
+                return None
 
         if config.networks_included is not None:
-            _included = False
-            for ipline in config.networks_included:
-                if host_ip_addr in ipline:
-                    _included = True        
-            if not _included:
+            if host_ip_addr is None or not any(host_ip_addr in ipline for ipline in config.networks_included):
                 return None
             
         # check regex expressions inclusion and exclusion
         if config.regex_excluded is not None or config.regex_included is not None:
-            vuln_name:str = vuln.find('./name').text
+            vuln_name: str = _text(vuln, './name')
         
         # does any of regex_excluded matches this vulnerability name?
         if config.regex_excluded is not None:
@@ -376,10 +352,7 @@ class ParseVulnerability:
                 return None
                     
         # vuln severity >= min_level?
-        vuln_cvss:float = vuln.find('./severity').text
-        if vuln_cvss is None:
-            vuln_cvss = 0.0
-        vuln_cvss = float(vuln_cvss)
+        vuln_cvss = float(_text(vuln, './severity', '0.0'))
         if vuln_cvss >= Config.thresholds()[config.min_level]:
             return cls(vuln, config.min_level)
         
@@ -428,11 +401,20 @@ class Host(object):
         if not isinstance(parsed_vuln, ParseVulnerability):
             raise TypeError("Expected ParseVulnerability, got '{}' instead".format(type(parsed_vuln)))
 
-        # check if a vulnerability with the same vuln_id (nvt-oid) already exists in the vuln_list
+        port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result, parsed_vuln.vuln_cvss)
+
+        # same vulnerability (nvt-oid) already known for this host: record an extra port only once
         for v in self.vuln_list:
             if v.vuln_id == parsed_vuln.vuln_id:
+                if not any(p.number == port.number and p.protocol == port.protocol for _, p in v.hosts):
+                    old_level, old_cvss = v.level, v.cvss
+                    v.add_vuln_host(self, port)
+                    self.nv[old_level] -= 1
+                    self.nv[v.level] += 1
+                    self.sum_cvss += v.cvss - old_cvss
+                    self.higher_cvss = max(self.higher_cvss, v.cvss)
                 return
-            
+
         v = Vulnerability(parsed_vuln.vuln_id,
                           name=parsed_vuln.vuln_name,
                           version=parsed_vuln.vuln_version,
@@ -441,13 +423,9 @@ class Host(object):
                           cvss=parsed_vuln.vuln_cvss,
                           cves=parsed_vuln.vuln_cves,
                           references=parsed_vuln.vuln_references,
+                          reference_list=parsed_vuln.ref_list,
                           family=parsed_vuln.vuln_family,
                           level=parsed_vuln.vuln_level)
-        try:
-            # added results to port function as will ne unique per port on each host.
-            port = Port.string2port(parsed_vuln.vuln_port, parsed_vuln.vuln_result)
-        except ValueError:
-            port = Port("", "", "")
         v.add_vuln_host(self, port)
         self.vuln_list.append(v)
         self.num_vulns += 1
@@ -492,8 +470,11 @@ class Vulnerability(object):
         :param tags: vulnerability tags
         :type tags: dict
 
-        :param references: list of references
-        :type references: list(str)
+        :param references: references joined with ' , '
+        :type references: str
+
+        :param reference_list: the individual reference ids
+        :type reference_list: list(str)
 
         :param family: Vulnerability family
         :type family: str
@@ -505,7 +486,8 @@ class Vulnerability(object):
         """
         # Get info
         cves: list[str] = kwargs.get("cves", list()) or list()
-        cvss: float = kwargs.get("cvss", -1.0) or -1.0
+        cvss = kwargs.get("cvss")
+        cvss = -1.0 if cvss is None else cvss
         level: str = kwargs.get("level", "None") or "None"
         tags: dict = kwargs.get("tags", dict()) or dict()
         references: str = kwargs.get("references", "Unknown") or "Unknown"
@@ -553,6 +535,7 @@ class Vulnerability(object):
         self.solution:str = tags.get('solution', '')
         self.solution_type:str = tags.get('solution_type', '')
         self.references = references
+        self.reference_list: tuple[str, ...] = tuple(kwargs.get("reference_list") or ())
         self.threat = threat
         self.family = family
         self.result = result
@@ -579,10 +562,14 @@ class Vulnerability(object):
 
         if (host, port) not in self.hosts:
             self.hosts.append((host, port))
+            # a vulnerability is as severe as its worst occurrence
+            if port is not None and port.cvss is not None and port.cvss > self.cvss:
+                self.cvss = port.cvss
+                self.level = level_of(port.cvss)
 
     def __eq__(self, other:'Vulnerability'):
         if not isinstance(other, Vulnerability):
-            raise TypeError("Expected Vulnerability, got '{}' instead".format(type(other)))
+            return NotImplemented
 
         if (
                 other.vuln_id != self.vuln_id or
@@ -605,12 +592,7 @@ class Vulnerability(object):
             ):
             return False
 
-        for host, port in self.hosts:
-            for o_host, o_port in other.hosts:
-                if o_host != host or o_port != port:
-                    return False
-
-        return True
+        return self.hosts == other.hosts
 
 class ResultTree(dict):
     """

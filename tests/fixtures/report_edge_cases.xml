@@ -1,0 +1,43 @@
+<report id="11111111-aaaa-bbbb-cccc-000000000001" format_id="a994b278-1f62-11e1-96ac-406186ea4fc5" extension="xml" content_type="text/xml"><owner><name>admin</name></owner><name>2026-11-20T10:00:00Z</name><report id="11111111-aaaa-bbbb-cccc-000000000001"><gmp><version>22.4</version></gmp><scan_run_status>Done</scan_run_status><task id="t1"><name>Weekly LAN scan</name></task><scan_start>2026-11-20T10:00:00Z</scan_start><results start="1" max="100">
+<result id="r1"><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><host>192.168.1.10<asset asset_id="a1"/><hostname>srv-web</hostname></host><port>443/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.100001"><type>nvt</type><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><family>General</family><cvss_base>9.8</cvss_base><tags>cvss_base_vector=AV:N/AC:L/Au:N/C:C/I:C/A:C|summary=Remote code execution in OpenSSL &lt;img src=x onerror=alert(1)&gt;|insight=Buffer overflow.|affected=OpenSSL before 3.0.7|impact=Full compromise.|solution=Update to 3.0.7 or later.|vuldetect=Checks the version.|solution_type=VendorFix</tags>
+<refs><ref type="cve" id="CVE-2022-3602"/><ref type="cve" id="CVE-2022-3786"/><ref type="url" id="https://www.openssl.org/news/secadv/20221101.txt"/><ref type="cert-bund" id="WID-SEC-2022-1234"/></refs></nvt>
+<threat>High</threat><severity>9.8</severity><qod><value>80</value></qod><description>Installed version: 3.0.1 (vendor build)
+Fixed version:     3.0.7
+
+Installation path: /usr/lib</description></result>
+<result id="r2"><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><host>192.168.1.10<asset asset_id="a1"/><hostname>srv-web</hostname></host><port>8443/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.100001"><type>nvt</type><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><family>General</family><cvss_base>9.8</cvss_base><tags>summary=Remote code execution in OpenSSL &lt;img src=x onerror=alert(1)&gt;|insight=Buffer overflow.|affected=OpenSSL before 3.0.7|impact=Full compromise.|solution=Update to 3.0.7 or later.|vuldetect=Checks the version.|solution_type=VendorFix</tags>
+<refs><ref type="cve" id="CVE-2022-3602"/><ref type="cve" id="CVE-2022-3786"/><ref type="url" id="https://www.openssl.org/news/secadv/20221101.txt"/><ref type="cert-bund" id="WID-SEC-2022-1234"/></refs></nvt>
+<threat>High</threat><severity>9.8</severity><qod><value>80</value></qod><description>Installed version: 3.0.1
+Fixed version:     3.0.7</description></result>
+<result id="r3"><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><host>192.168.1.12<asset asset_id="a2"/><hostname>srv-mail</hostname></host><port>443/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.100001"><type>nvt</type><name>OpenSSL RCE &lt;script&gt;alert('xss-name')&lt;/script&gt;</name><family>General</family><cvss_base>9.8</cvss_base><tags>summary=Remote code execution in OpenSSL &lt;img src=x onerror=alert(1)&gt;|insight=Buffer overflow.|affected=OpenSSL before 3.0.7|impact=Full compromise.|solution=Update to 3.0.7 or later.|vuldetect=Checks the version.|solution_type=VendorFix</tags>
+<refs><ref type="cve" id="CVE-2022-3602"/><ref type="cve" id="CVE-2022-3786"/><ref type="url" id="https://www.openssl.org/news/secadv/20221101.txt"/><ref type="cert-bund" id="WID-SEC-2022-1234"/></refs></nvt>
+<threat>High</threat><severity>9.8</severity><qod><value>80</value></qod><description>Installed version: 3.0.2</description></result>
+<result id="r4"><name>SSH Weak Encryption Algorithms Supported</name><host>192.168.1.20<asset asset_id="a3"/><hostname>srv-db</hostname></host><port>22/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.105611"><type>nvt</type><name>SSH Weak Encryption Algorithms Supported</name><family>General</family><cvss_base>7.5</cvss_base><tags>summary=Weak ciphers.|insight=The following weak client-to-server encryption algorithms are supported.|impact=Eavesdropping.|solution=Disable the weak encryption algorithms.|vuldetect=Checks the supported algorithms.|solution_type=Mitigation</tags>
+<refs><ref type="url" id="https://tools.ietf.org/html/rfc4253#section-6.3"/></refs></nvt>
+<threat>High</threat><severity>7.5</severity><qod><value>95</value></qod><description>The remote SSH server supports the following weak client-to-server encryption algorithm(s):
+
+arcfour
+arcfour128
+&lt;/textarea&gt;&lt;script&gt;alert('xss-result')&lt;/script&gt;</description></result>
+<result id="r5"><name>Outdated package libfoo</name><host>2001:db8::1<asset asset_id="a4"/></host><port>package</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.200002"><type>nvt</type><name>Outdated package libfoo</name><family>Debian Local Security Checks</family><cvss_base>5.0</cvss_base><tags>summary=libfoo is outdated|insight|solution=apt upgrade libfoo|solution_type=VendorFix</tags>
+<refs/></nvt>
+<threat>Medium</threat><severity>5.0</severity><qod><value>97</value></qod><description>Vulnerable package: libfoo
+Installed version: 1.0-1
+Fixed version: 1.0-2</description></result>
+<result id="r6"><name>TCP timestamps</name><host>192.168.1.20<asset asset_id="a3"/><hostname>srv-db</hostname></host><port>general/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.80091"><type>nvt</type><name>TCP timestamps</name><family>General</family><cvss_base>2.6</cvss_base><tags>summary=Timestamps leak uptime.|solution=Disable TCP timestamps.|solution_type=Mitigation</tags>
+<refs/></nvt>
+<threat>Low</threat><severity>2.6</severity><qod><value>80</value></qod><description>It was detected that the host implements RFC1323/RFC7323.</description></result>
+<result id="r7"><name>OS Detection Consolidation</name><host>192.168.1.12<asset asset_id="a2"/><hostname>srv-mail</hostname></host><port>general/tcp</port>
+<nvt oid="1.3.6.1.4.1.25623.1.0.105937"><type>nvt</type><name>OS Detection Consolidation</name><family>Product detection</family><cvss_base>0.0</cvss_base><tags>summary=OS detection.|solution_type=</tags>
+<refs/></nvt>
+<threat>Log</threat><severity>0.0</severity><qod><value>80</value></qod><description>Best matching OS: Debian 12</description></result>
+<result id="r8"><name>Error message without OID</name><host>192.168.1.30<asset asset_id="a5"/><hostname>x</hostname></host><port>general/tcp</port>
+<nvt oid="0"><type>nvt</type><name>Error message</name><family/><tags>summary=x</tags><refs/></nvt>
+<threat>Log</threat><severity>0.0</severity><description>ignored</description></result>
+</results></report></report>
