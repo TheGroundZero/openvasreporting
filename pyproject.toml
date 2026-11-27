@@ -5,11 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "openvasreporting"
 dependencies = [
-    "xlsxwriter>=1.0.0",
-    "python-docx>=0.8.7",
-    "matplotlib>=2.2.2",
-    "netaddr>=0.8.0"
+    "xlsxwriter>=3.0.2",
+    "python-docx>=0.8.11",
+    "matplotlib>=3.4.3",
+    "numpy>=1.21.4",
+    "netaddr>=0.8.0",
+    "defusedxml>=0.7.1",
+    "pyyaml>=6.0.3"
 ]
+
 requires-python = ">= 3.12"
 authors = [
   {name = "TheGroundZero", email = "2406013+TheGroundZero@users.noreply.github.com"}
@@ -42,6 +46,9 @@ classifiers = [
     "Topic :: Security"
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
 
 [project.urls]
 Repository = "https://github.com/TheGroundZero/openvasreporting"

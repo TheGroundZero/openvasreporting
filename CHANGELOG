@@ -1,6 +1,35 @@
 Changelog
 =========
 
+Unreleased
+
+- Fixes
+  - Declare missing dependencies (pyyaml, defusedxml, numpy) - a clean pip install could not start
+  - docx export without template failed on setuptools >= 81 (pkg_resources removed)
+  - Crash on non numeric ports such as `package` (local security checks)
+  - Excel by-host export crashed on IPv6 hosts (invalid sheet name)
+  - CSV by vulnerability: references were split character by character
+  - YAML config: regex `includes` were dropped when no `excludes` were given
+  - Invalid network filter raised NameError; invalid input files are now reported cleanly
+  - Input patterns matching no file are an error instead of an empty report
+  - CVSS 0.0 findings were reported as "No CVSS"
+  - Installed version extraction captured the rest of the line
+  - Excel row heights applied to the wrong rows
+  - Parser tolerates missing hostname / severity / tags and tags without '='
+  - CLI errors are printed without Python traceback (exit code 1)
+  - CSV files are written as UTF-8
+  - docx charts no longer touch matplotlib's global state; docx with an empty selection no longer fails
+  - A vulnerability found with different severities (overrides, several reports) takes its worst severity
+  - Host reports: one row per port even when the same port has several results
+  - Existing input paths containing `[]*?` are used as is; `-i` requires at least one file
+  - Network filters: host names never match a network (instead of crashing), blank lines are ignored
+  - `general/CPE-T` ports keep their full name; results without `<nvt>`/`<host>` are skipped
+  - Host reports lost all but one port of a vulnerability found on many ports (issue #49)
+- Security
+  - XML input with a DTD is refused (memory exhaustion through attribute defaults)
+- Tests
+  - Integration test suite (`pytest`), run by GitHub Actions on pushes and pull requests
+
 1.6.1
 
 - Fix PyPi upload

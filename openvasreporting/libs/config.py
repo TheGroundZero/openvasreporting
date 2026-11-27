@@ -6,12 +6,34 @@
 
 """This file contains data structures"""
 
-import re
-import netaddr
 import glob
+import os
+import re
 
+import netaddr
 import yaml
+from netaddr import AddrFormatError
 from yaml.loader import SafeLoader
+
+SUPPORTED_FORMATS = ('xlsx', 'docx', 'csv')
+
+
+def expand_input_files(patterns: list[str]) -> list[str]:
+    """
+    Expand shell-like patterns into file paths.
+
+    :raises: FileNotFoundError when a pattern matches no file
+    """
+    files: list[str] = []
+    for pattern in patterns:
+        if os.path.isfile(pattern):  # existing path used as is, even with []*? in its name
+            files.append(pattern)
+            continue
+        matches = sorted(glob.glob(pattern))
+        if not matches:
+            raise FileNotFoundError("No input file matches '{}'".format(pattern))
+        files.extend(matches)
+    return files
 
 class Config(object):
     def __init__(self, input_files, output_file="openvas_report", min_level="n", format="xlsx",
@@ -86,10 +108,7 @@ class Config(object):
             raise ValueError("Invalid value for level parameter, \
                 must be one of: c[ritical], h[igh], m[edium], l[low], n[one]")
     
-        ifiles = []
-        for file in input_files:
-            ifiles.extend(glob.glob(file))
-        self.input_files = ifiles
+        self.input_files = expand_input_files(input_files)
         self.output_file = "{}.{}".format(output_file, format) if output_file.split(".")[-1] != format \
             else output_file
 
@@ -107,41 +126,41 @@ class Config(object):
         else:
            raise ValueError("Expected host or vulnerability for report-type parameter but got '{}' instead.".format(report_type))
         
-        if not networks_excluded is None:
+        if networks_excluded is not None:
             with open(networks_excluded) as f:
                 lines = f.read().splitlines()
             self.networks_excluded = self.include_networks(lines)
         else:
             self.networks_excluded = None
             
-        if not networks_included is None:
+        if networks_included is not None:
             with open(networks_included) as f:
                 lines = f.read().splitlines()
             self.networks_included = self.include_networks(lines)
         else:    
             self.networks_included = None
 
-        if not regex_excluded is None:
+        if regex_excluded is not None:
             with open(regex_excluded) as f:
                 lines = f.read().splitlines()
             self.regex_excluded = self.include_regex(lines)
         else:
             self.regex_excluded = None
 
-        if not regex_included is None:
+        if regex_included is not None:
             with open(regex_included) as f:
                 lines = f.read().splitlines()
             self.regex_included = self.include_regex(lines)
         else:
             self.regex_included = None
 
-        if not cve_included is None:
+        if cve_included is not None:
             with open(cve_included) as f:
                self.cve_included = f.read().splitlines()
         else:
             self.cve_included = None
 
-        if not cve_excluded is None:
+        if cve_excluded is not None:
             with open(cve_excluded) as f:
                self.cve_excluded = f.read().splitlines()
         else:
@@ -210,21 +229,24 @@ class Config(object):
     def include_networks(self, lines):
         outlines = []
         for ip in lines:
+            ip = ip.strip()
             if ip == '':
                 continue
             if '-' in ip:    # ip range?
                 _start_ip, _end_ip = ip.split('-')
                 try:
-                    ip_range = netaddr.IPRange(_start_ip, _end_ip)
+                    ip_range = netaddr.IPRange(_start_ip.strip(), _end_ip.strip())
                     outlines.append(ip_range)
-                except AddrFormatError:
-                    raise AddrFormatError("Expected valid ip range, got '{}'-'{}' instead".format(_start_ip, _end_ip))
+                except AddrFormatError as e:
+                    raise ValueError(
+                        "Expected valid ip range, got '{}'-'{}' instead".format(_start_ip, _end_ip)) from e
             else:            # ip or network cdir?
                 try:
-                    network = netaddr.IPNetwork(ip)
+                    network = netaddr.IPNetwork(ip.strip())
                     outlines.append(network)
-                except AddrFormatError:
-                    raise AddrFormatError("Expected valid ip address or network cidr, got '{}' instead.".format(ip))
+                except AddrFormatError as e:
+                    raise ValueError(
+                        "Expected valid ip address or network cidr, got '{}' instead.".format(ip)) from e
 
         return outlines
 
@@ -236,8 +258,8 @@ class Config(object):
         for regex_entry in lines:
             try:
                 outlines.append(re.compile(regex_entry, re.IGNORECASE))
-            except re.error:
-                raise ValueError("Expected valid regex expression, got '{}' instead.".format(regex_entry))
+            except re.error as e:
+                raise ValueError("Expected valid regex expression, got '{}' instead.".format(regex_entry)) from e
 
         return outlines
 
@@ -269,43 +291,44 @@ class Config_YAML(Config):
         if not isinstance(output_file, str):
             raise TypeError("Expected str, got '{}' instead".format(type(output_file)))
         if not isinstance(config_file, str):
-            raise TypeError("Expected str, got '{}' instead".format(type(min_level)))
+            raise TypeError("Expected str, got '{}' instead".format(type(config_file)))
 
-        ifiles = []
-        for file in input_files:
-            ifiles.extend(glob.glob(file))
-        self.input_files = ifiles
-        
+
         # loads configuration .yml file as a dict
         try:
             with open(config_file, 'r') as f:
-                yamldict = yaml.load(f, Loader=SafeLoader)
-        except FileNotFoundError:
-            raise FileNotFoundError("Could Not find '{}'.".format(config_file));
+                yamldict = yaml.load(f, Loader=SafeLoader) or {}
+        except FileNotFoundError as e:
+            raise FileNotFoundError("Could Not find '{}'.".format(config_file)) from e
+        if not isinstance(yamldict, dict):
+            raise ValueError("'{}' must contain a YAML mapping of options.".format(config_file))
         
         # set options flags from yml or defaults
         if 'level' in yamldict:
-            if not yamldict['level'] in ['critical', 'high', 'medium', 'low', 'none']:
+            if yamldict['level'] not in ['critical', 'high', 'medium', 'low', 'none']:
                 raise ValueError("Invalid value for level parameter, \
                                   must be one of: critical, high, medium, low, none")
             self.min_level = yamldict['level']
         else:
-            self.min_level = 'none';
+            self.min_level = 'none'
             
         if 'template' in yamldict:
+            if not isinstance(yamldict['template'], str):
+                raise ValueError("Invalid value for template parameter, must be a file path")
             self.template = yamldict['template']
         else:
             self.template = None
             
         if 'format' in yamldict:
-            if not yamldict['format'] in ['xlsx', 'docx', 'csv']:
-                raise ValueError("Invalid value for format parameter, must be one of: xlsx, docx, csv")
+            if yamldict['format'] not in SUPPORTED_FORMATS:
+                raise ValueError("Invalid value for format parameter, must be one of: {}".format(
+                    ", ".join(SUPPORTED_FORMATS)))
             self.format = yamldict['format']
         else:
             self.format = 'xlsx'
             
         if 'reporttype' in yamldict:
-            if not yamldict['reporttype'] in ['vulnerability', 'host', 'summary']:
+            if yamldict['reporttype'] not in ['vulnerability', 'host', 'summary']:
                 raise ValueError("Invalid value for report type parameter, must be one of: vulnerability, host, summary")
             self.report_type = yamldict['reporttype']
         else:
@@ -334,7 +357,7 @@ class Config_YAML(Config):
             if 'excludes' in yamldict['regex']:
                 self.regex_excluded = self.include_regex(yamldict['regex']['excludes'])
             else:
-                self.regex_included = None
+                self.regex_excluded = None
         else:
             self.regex_excluded = None
             self.regex_included = None
